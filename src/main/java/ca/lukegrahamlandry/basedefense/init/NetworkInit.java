@@ -16,7 +16,6 @@ public class NetworkInit {
     }
 
     public static void registerPackets() {
-        Object MercenariesMain;
         INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation(ModMain.MOD_ID, "packets"), () -> "1.0", s -> true, s -> true);
 
         INSTANCE.registerMessage(nextID(), OpenMaterialsGuiPacket.class, OpenMaterialsGuiPacket::encode, OpenMaterialsGuiPacket::new, OpenMaterialsGuiPacket::handle);

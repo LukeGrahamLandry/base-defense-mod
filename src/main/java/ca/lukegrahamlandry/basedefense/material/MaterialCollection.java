@@ -1,4 +1,4 @@
-package ca.lukegrahamlandry.basedefense.util;
+package ca.lukegrahamlandry.basedefense.material;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -7,6 +7,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -66,10 +67,11 @@ public class MaterialCollection {
     // MAP
 
     public Set<ResourceLocation> keys(){
-        return materials.keySet();
+        return new HashSet<>(materials.keySet());
     }
 
     public int get(ResourceLocation key){
+        if (!this.materials.containsKey(key)) return 0;
         return this.materials.get(key);
     }
 
