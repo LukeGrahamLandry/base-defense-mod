@@ -2,7 +2,7 @@
   "required": true,
   "package": "ca.lukegrahamlandry.basedefense.mixin",
   "compatibilityLevel": "JAVA_16",
-  "refmap": "examplemod.refmap.json",
+  "refmap": "basedefense.refmap.json",
   "mixins": [
   ],
   "client":[

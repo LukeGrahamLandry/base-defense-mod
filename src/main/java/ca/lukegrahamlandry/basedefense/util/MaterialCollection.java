@@ -2,7 +2,6 @@ package ca.lukegrahamlandry.basedefense.util;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -53,6 +52,15 @@ public class MaterialCollection {
         for (ResourceLocation rl : other.keys()){
            add(rl, other.get(rl));
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder out = new StringBuilder();
+        for (ResourceLocation key : keys()){
+            out.append(key.toString()).append("-").append(get(key)).append(",");
+        }
+        return out.toString();
     }
 
     // MAP
