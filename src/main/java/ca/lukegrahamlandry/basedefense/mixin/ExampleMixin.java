@@ -1,4 +1,4 @@
-package ca.lukegrahamlandry.examplemod.mixin;
+package ca.lukegrahamlandry.basedefense.mixin;
 
 import net.minecraft.client.gui.screens.TitleScreen;
 import org.spongepowered.asm.mixin.Mixin;

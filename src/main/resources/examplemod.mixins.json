@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "ca.lukegrahamlandry.examplemod.mixin",
+  "package": "ca.lukegrahamlandry.basedefense.mixin",
   "compatibilityLevel": "JAVA_16",
   "refmap": "examplemod.refmap.json",
   "mixins": [

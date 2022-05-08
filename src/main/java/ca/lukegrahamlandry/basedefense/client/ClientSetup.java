@@ -1,6 +1,6 @@
-package ca.lukegrahamlandry.examplemod.client;
+package ca.lukegrahamlandry.basedefense.client;
 
-import ca.lukegrahamlandry.examplemod.ModMain;
+import ca.lukegrahamlandry.basedefense.ModMain;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;

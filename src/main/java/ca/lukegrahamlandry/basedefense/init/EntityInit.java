@@ -1,6 +1,6 @@
-package ca.lukegrahamlandry.examplemod.init;
+package ca.lukegrahamlandry.basedefense.init;
 
-import ca.lukegrahamlandry.examplemod.ModMain;
+import ca.lukegrahamlandry.basedefense.ModMain;
 import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;

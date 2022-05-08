@@ -1,6 +1,6 @@
-package ca.lukegrahamlandry.examplemod.init;
+package ca.lukegrahamlandry.basedefense.init;
 
-import ca.lukegrahamlandry.examplemod.ModMain;
+import ca.lukegrahamlandry.basedefense.ModMain;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
