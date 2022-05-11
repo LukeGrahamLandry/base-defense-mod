@@ -23,6 +23,13 @@ public class MaterialGenerationHandler extends SavedData {
         this.setDirty();
     }
 
+    public void removeGenerator(UUID player, UUID generatorID){
+        if (generators.containsKey(player)){
+            generators.get(player).remove(generatorID);
+            this.setDirty();
+        }
+    }
+
     public void distributeMaterials(ServerLevel world){
         for (ServerPlayer player : world.getPlayers((p) -> pendingMaterials.containsKey(p.getUUID()))){
             MaterialStorageHandler.get(player).add(pendingMaterials.get(player.getUUID()));
