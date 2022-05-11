@@ -31,6 +31,10 @@ public class MaterialCollection {
         return difference;
     }
 
+    public MaterialCollection copy(){
+        return new MaterialCollection().getDifference(this);
+    }
+
     public boolean isEmpty(){
         if (this.materials.isEmpty()) return true;
         for (ResourceLocation rl : keys()){
@@ -50,6 +54,8 @@ public class MaterialCollection {
     }
 
     public void add(MaterialCollection other){
+        if (other.isEmpty()) return;
+
         for (ResourceLocation rl : other.keys()){
            add(rl, other.get(rl));
         }

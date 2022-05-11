@@ -1,9 +1,6 @@
 package ca.lukegrahamlandry.basedefense;
 
-import ca.lukegrahamlandry.basedefense.init.BlockInit;
-import ca.lukegrahamlandry.basedefense.init.EntityInit;
-import ca.lukegrahamlandry.basedefense.init.ItemInit;
-import ca.lukegrahamlandry.basedefense.init.NetworkInit;
+import ca.lukegrahamlandry.basedefense.init.*;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
@@ -19,8 +16,9 @@ public class ModMain {
     public ModMain() {
         final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         ItemInit.ITEM.register(modEventBus);
-        BlockInit.BLOCK.register(modEventBus);
+        BlockInit.BLOCKS.register(modEventBus);
         EntityInit.ENTITY.register(modEventBus);
+        TileTypeInit.TILE_ENTITY_TYPES.register(modEventBus);
 
         modEventBus.addListener(this::setup);
     }

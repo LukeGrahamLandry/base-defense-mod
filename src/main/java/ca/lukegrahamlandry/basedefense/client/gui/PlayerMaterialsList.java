@@ -3,26 +3,17 @@ package ca.lukegrahamlandry.basedefense.client.gui;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
-import net.minecraft.client.gui.narration.NarratedElementType;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.screens.controls.KeyBindsList;
-import net.minecraft.client.gui.screens.controls.KeyBindsScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.*;
 
@@ -33,7 +24,8 @@ public class PlayerMaterialsList extends ContainerObjectSelectionList<PlayerMate
     public PlayerMaterialsList(PlayerMaterialsScreen screen, Minecraft pMinecraft) {
         super(pMinecraft, screen.width + 45, screen.height, 20, screen.height - 32, 25);
         this.screen = screen;
-
+        // this.setRenderBackground(false); this.setRenderTopAndBottom(false);
+        
         Set<ResourceLocation> reliventMaterials = new HashSet<>(screen.production.keys());
         reliventMaterials.addAll(screen.stored.keys());
         List<ResourceLocation> materials = new ArrayList<>(reliventMaterials);
