@@ -108,6 +108,7 @@ public class PlayerMaterialsList extends ContainerObjectSelectionList<PlayerMate
 
         public void render(PoseStack pPoseStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick) {
             float f = (float)(pLeft + 10 - PlayerMaterialsList.this.maxNameWidth);
+
             PlayerMaterialsList.this.minecraft.font.draw(pPoseStack, this.name, f, (float)(pTop + pHeight / 2 - 9 / 2), 16777215);
             PlayerMaterialsList.this.minecraft.font.draw(pPoseStack, this.stored,  pLeft + 105, pTop, 16777215);
             PlayerMaterialsList.this.minecraft.font.draw(pPoseStack, this.produced, pLeft + 190 + 20, pTop, 16777215);

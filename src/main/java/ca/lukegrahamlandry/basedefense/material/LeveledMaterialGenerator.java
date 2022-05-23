@@ -4,11 +4,9 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.UUID;
 
-public interface LeveledMaterialGenerator {
+public interface LeveledMaterialGenerator extends Upgradable {
     MaterialCollection getProduction();
     UUID getUUID();
     MaterialCollection getNextProduction();
-    int getTier();
-    MaterialCollection getUpgradeCost();
     ResourceLocation getGenType();
 }

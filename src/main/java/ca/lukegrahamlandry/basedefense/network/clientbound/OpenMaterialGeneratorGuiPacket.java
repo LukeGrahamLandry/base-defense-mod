@@ -1,11 +1,9 @@
 package ca.lukegrahamlandry.basedefense.network.clientbound;
 
 import ca.lukegrahamlandry.basedefense.client.gui.GeneratorUpgradeScreen;
-import ca.lukegrahamlandry.basedefense.client.gui.PlayerMaterialsScreen;
 import ca.lukegrahamlandry.basedefense.material.LeveledMaterialGenerator;
 import ca.lukegrahamlandry.basedefense.material.MaterialCollection;
-import ca.lukegrahamlandry.basedefense.material.MaterialGenerationHandler;
-import ca.lukegrahamlandry.basedefense.material.MaterialStorageHandler;
+import ca.lukegrahamlandry.basedefense.material.MaterialsUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -41,7 +39,12 @@ public class OpenMaterialGeneratorGuiPacket {
     }
 
     public OpenMaterialGeneratorGuiPacket(ServerPlayer player, LeveledMaterialGenerator generator){
-        playerMaterials = MaterialStorageHandler.get(player);
+        playerMaterials = MaterialsUtil.getMaterials(player);
+        currentProduction = generator.getProduction();
+        nextProduction = generator.getNextProduction();
+        upgradeCost = generator.getUpgradeCost();
+        type = generator.getGenType();
+        tier = generator.getTier();
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx){

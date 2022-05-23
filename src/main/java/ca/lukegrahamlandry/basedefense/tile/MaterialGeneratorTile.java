@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -32,7 +33,7 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
     private ResourceLocation materialProductionType;
 
     public void tryBind(ServerPlayer player){
-        if (this.player != null) return;
+        if (this.player != null && !this.canAccess(player)) return;
 
         this.player = player.getUUID();
         MaterialGenerationHandler.get(this.level).addGenerator(player.getUUID(), this.getUUID(), this.getProduction());
@@ -68,7 +69,7 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
 
     @Override
     public MaterialCollection getProduction() {
-        return MaterialGeneratorTypeManager.get(this.materialProductionType).getProduction(this.tier);
+        return MaterialGeneratorDataLoader.get(this.materialProductionType).getProduction(this.tier);
     }
 
     @Override
@@ -78,7 +79,7 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
 
     @Override
     public MaterialCollection getNextProduction() {
-        return MaterialGeneratorTypeManager.get(this.materialProductionType).getProduction(this.tier + 1);
+        return MaterialGeneratorDataLoader.get(this.materialProductionType).getProduction(this.tier + 1);
     }
 
     @Override
@@ -87,29 +88,43 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
     }
 
     @Override
+    public int getMaxTier() {
+        return 0;
+    }
+
+    @Override
+    public boolean canAccess(Player player) {
+        return this.player == null || (player != null && player.getUUID().equals(this.player));
+    }
+
+    @Override
+    public boolean tryUpgrade(ServerPlayer thePlayer){
+        boolean success = this.canAccess(thePlayer) && this.upgrade(MaterialsUtil.getMaterials(thePlayer));
+        if (success){
+            this.unBind();
+            this.tryBind(thePlayer);
+        }
+        return success;
+    }
+
+    @Override
+    public boolean upgrade(MaterialCollection inventory) {
+        if (!this.level.isClientSide()){
+            if (inventory.getDifference(this.getUpgradeCost()).isEmpty()){
+                this.tier++;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public MaterialCollection getUpgradeCost() {
-        return MaterialGeneratorTypeManager.get(this.materialProductionType).getCost(this.tier + 1);
+        return MaterialGeneratorDataLoader.get(this.materialProductionType).getCost(this.tier + 1);
     }
 
     @Override
     public ResourceLocation getGenType() {
         return this.materialProductionType;
-    }
-
-    public boolean isOwner(ServerPlayer player) {
-        return this.player == null || (player != null && player.getUUID().equals(this.player));
-    }
-
-    public void tryUpgrade() {
-        if (!this.level.isClientSide()){
-            ServerPlayer thePlayer = (ServerPlayer) this.level.getPlayerByUUID(this.player);
-            if (thePlayer == null) return; // player not loaded
-            MaterialCollection inventory = MaterialStorageHandler.get(thePlayer);
-            if (inventory.getDifference(this.getUpgradeCost()).isEmpty()){
-                this.tier++;
-                this.unBind();
-                this.tryBind(thePlayer);
-            }
-        }
     }
 }

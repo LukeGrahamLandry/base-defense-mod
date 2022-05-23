@@ -1,9 +1,11 @@
 package ca.lukegrahamlandry.basedefense.material;
 
-import net.minecraft.world.level.Level;
+import net.minecraft.resources.ResourceLocation;
 
-public class MaterialGeneratorType {
-    public static final MaterialGeneratorType EMPTY = new MaterialGeneratorType();
+public class MaterialGeneratorData {
+    public static final MaterialGeneratorData EMPTY = new MaterialGeneratorData();
+
+    private ResourceLocation type;
 
     public MaterialCollection getProduction(int tier) {
         if (this == EMPTY) return new MaterialCollection();

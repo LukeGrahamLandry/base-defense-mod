@@ -3,7 +3,7 @@ package ca.lukegrahamlandry.basedefense.network.clientbound;
 import ca.lukegrahamlandry.basedefense.client.gui.PlayerMaterialsScreen;
 import ca.lukegrahamlandry.basedefense.material.MaterialCollection;
 import ca.lukegrahamlandry.basedefense.material.MaterialGenerationHandler;
-import ca.lukegrahamlandry.basedefense.material.MaterialStorageHandler;
+import ca.lukegrahamlandry.basedefense.material.MaterialsUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,7 +26,7 @@ public class OpenMaterialsGuiPacket {
     }
 
     public OpenMaterialsGuiPacket(ServerPlayer player){
-        storage = MaterialStorageHandler.get(player);
+        storage = MaterialsUtil.getMaterials(player);
         production = MaterialGenerationHandler.get(player.getLevel()).getProduction(player.getUUID());
     }
 
