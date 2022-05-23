@@ -11,7 +11,7 @@ import java.util.*;
 
 public class TeamHandler extends SavedData {
     public static class Team {
-        final UUID id;
+        public final UUID id;
         Set<UUID> players = new HashSet<>();
         MaterialCollection materials;
         

@@ -1,0 +1,31 @@
+{
+  "tiers": [
+    {
+      "cost": {
+
+      },
+      "production": {
+        "basedefense:silver": 10
+      }
+    },
+    {
+      "cost": {
+        "basedefense:silver": 100
+      },
+      "production": {
+        "basedefense:silver": 5,
+        "basedefense:platinum": 100
+      }
+    },
+    {
+      "cost": {
+        "basedefense:silver": 100,
+        "basedefense:platinum": 100
+      },
+      "production": {
+        "basedefense:silver": 50,
+        "basedefense:platinum": 10
+      }
+    }
+  ]
+}

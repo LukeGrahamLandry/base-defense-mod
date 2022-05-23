@@ -1,18 +1,21 @@
 package ca.lukegrahamlandry.basedefense.init;
 
 import ca.lukegrahamlandry.basedefense.ModMain;
+import ca.lukegrahamlandry.basedefense.item.MaterialGeneratorPlacer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
 public class ItemInit {
     public static final DeferredRegister<Item> ITEM = DeferredRegister.create(ForgeRegistries.ITEMS, ModMain.MOD_ID);
 
 
-
+    public static final RegistryObject<Item> GEN1 = ITEM.register("fruitgen", () -> new MaterialGeneratorPlacer(new ResourceLocation(ModMain.MOD_ID, "fruit"), 0));
 
 
     public static Item.Properties props(){

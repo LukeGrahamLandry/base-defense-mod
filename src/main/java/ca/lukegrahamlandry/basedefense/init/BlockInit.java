@@ -2,6 +2,8 @@ package ca.lukegrahamlandry.basedefense.init;
 
 import ca.lukegrahamlandry.basedefense.ModMain;
 import ca.lukegrahamlandry.basedefense.block.MaterialGeneratorBlock;
+import ca.lukegrahamlandry.basedefense.item.MaterialGeneratorPlacer;
+import ca.lukegrahamlandry.basedefense.tile.MaterialGeneratorTile;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;

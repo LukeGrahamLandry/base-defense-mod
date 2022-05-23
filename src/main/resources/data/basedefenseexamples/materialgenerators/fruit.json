@@ -1,0 +1,31 @@
+{
+  "tiers": [
+    {
+      "cost": {
+
+      },
+      "production": {
+        "basedefense:orange": 1
+      }
+    },
+    {
+      "cost": {
+        "basedefense:orange": 10
+      },
+      "production": {
+        "basedefense:orange": 5,
+        "basedefense:lemon": 1
+      }
+    },
+    {
+      "cost": {
+        "basedefense:orange": 100,
+        "basedefense:lemon": 100
+      },
+      "production": {
+        "basedefense:orange": 50,
+        "basedefense:lemon": 10
+      }
+    }
+  ]
+}

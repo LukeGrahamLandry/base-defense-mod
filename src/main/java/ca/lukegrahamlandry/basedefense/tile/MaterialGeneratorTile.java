@@ -1,5 +1,6 @@
 package ca.lukegrahamlandry.basedefense.tile;
 
+import ca.lukegrahamlandry.basedefense.events.DataManager;
 import ca.lukegrahamlandry.basedefense.init.TileTypeInit;
 import ca.lukegrahamlandry.basedefense.material.*;
 import net.minecraft.core.BlockPos;
@@ -28,20 +29,20 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
     }
 
     private UUID uuid;
-    private UUID player;
+    private UUID owner;
     private int tier;
     private ResourceLocation materialProductionType;
 
     public void tryBind(ServerPlayer player){
-        if (this.player != null && !this.canAccess(player)) return;
+        if (this.owner != null && !this.canAccess(player)) return;
 
-        this.player = player.getUUID();
-        MaterialGenerationHandler.get(this.level).addGenerator(player.getUUID(), this.getUUID(), this.getProduction());
+        this.owner = TeamHandler.get(player.getLevel()).getTeam(player).id;
+        MaterialGenerationHandler.get(this.level).addGenerator(this.owner, this.getUUID(), this.getProduction());
     }
 
     public void unBind(){
-        MaterialGenerationHandler.get(this.level).removeGenerator(player, this.getUUID());
-        this.player = null;
+        MaterialGenerationHandler.get(this.level).removeGenerator(owner, this.getUUID());
+        this.owner = null;
     }
 
     private static final String TIER_TAG_KEY = "tier";
@@ -53,7 +54,7 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.putInt(TIER_TAG_KEY, this.tier);
-        tag.putUUID(PLAYER_TAG_KEY, this.player);
+        tag.putUUID(PLAYER_TAG_KEY, this.owner);
         tag.putUUID(UUID_TAG_KEY, this.uuid);
         tag.putString(MATERIAL_TAG_KEY, this.materialProductionType.toString());
     }
@@ -62,14 +63,14 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
     public void load(CompoundTag tag) {
         super.load(tag);
         this.tier = tag.getInt(TIER_TAG_KEY);
-        this.player = tag.getUUID(PLAYER_TAG_KEY);
+        this.owner = tag.getUUID(PLAYER_TAG_KEY);
         this.uuid = tag.getUUID(UUID_TAG_KEY);
         this.materialProductionType = new ResourceLocation(tag.getString(MATERIAL_TAG_KEY));
     }
 
     @Override
     public MaterialCollection getProduction() {
-        return MaterialGeneratorDataLoader.get(this.materialProductionType).getProduction(this.tier);
+        return DataManager.getMaterial(this.materialProductionType).getProduction(this.tier);
     }
 
     @Override
@@ -79,7 +80,7 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
 
     @Override
     public MaterialCollection getNextProduction() {
-        return MaterialGeneratorDataLoader.get(this.materialProductionType).getProduction(this.tier + 1);
+        return DataManager.getMaterial(this.materialProductionType).getProduction(this.tier + 1);
     }
 
     @Override
@@ -94,7 +95,7 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
 
     @Override
     public boolean canAccess(Player player) {
-        return this.player == null || (player != null && player.getUUID().equals(this.player));
+        return this.owner == null || (player != null && player.getUUID().equals(this.owner));
     }
 
     @Override
@@ -120,7 +121,12 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
 
     @Override
     public MaterialCollection getUpgradeCost() {
-        return MaterialGeneratorDataLoader.get(this.materialProductionType).getCost(this.tier + 1);
+        return DataManager.getMaterial(this.materialProductionType).getUpgradeCost(this.tier + 1);
+    }
+
+    public void setType(ResourceLocation prodType, int prodTier){
+        this.materialProductionType = prodType;
+        this.tier = prodTier;
     }
 
     @Override
