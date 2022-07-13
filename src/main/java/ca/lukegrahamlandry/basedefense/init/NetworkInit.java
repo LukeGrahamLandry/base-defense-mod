@@ -5,6 +5,7 @@ import ca.lukegrahamlandry.basedefense.network.clientbound.OpenMaterialGenerator
 import ca.lukegrahamlandry.basedefense.network.clientbound.OpenMaterialsGuiPacket;
 import ca.lukegrahamlandry.basedefense.network.serverbound.RequestMaterialGeneratorGuiPacket;
 import ca.lukegrahamlandry.basedefense.network.serverbound.RequestMaterialsGuiPacket;
+import ca.lukegrahamlandry.basedefense.network.serverbound.TestPacket;
 import ca.lukegrahamlandry.basedefense.network.serverbound.UpgradeTilePacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkRegistry;
@@ -26,5 +27,8 @@ public class NetworkInit {
         INSTANCE.registerMessage(nextID(), RequestMaterialGeneratorGuiPacket.class, RequestMaterialGeneratorGuiPacket::encode, RequestMaterialGeneratorGuiPacket::new, RequestMaterialGeneratorGuiPacket::handle);
         INSTANCE.registerMessage(nextID(), OpenMaterialGeneratorGuiPacket.class, OpenMaterialGeneratorGuiPacket::encode, OpenMaterialGeneratorGuiPacket::new, OpenMaterialGeneratorGuiPacket::handle);
         INSTANCE.registerMessage(nextID(), UpgradeTilePacket.class, UpgradeTilePacket::encode, UpgradeTilePacket::new, UpgradeTilePacket::handle);
+
+
+        INSTANCE.registerMessage(nextID(), TestPacket.class, TestPacket::encode, TestPacket::new, TestPacket::handle);
     }
 }

@@ -36,8 +36,10 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
     public void tryBind(ServerPlayer player){
         if (this.owner != null && !this.canAccess(player)) return;
 
-        this.owner = TeamHandler.get(player.getLevel()).getTeam(player).id;
+        Team team = TeamHandler.get(player.getLevel()).getTeam(player);
+        this.owner = team.id;
         MaterialGenerationHandler.get(this.level).addGenerator(this.owner, this.getUUID(), this.getProduction());
+        team.addAttackLocation(new Team.AttackLocation(level, this.getBlockPos(), this.uuid, Team.AttackLocType.GENERATOR));
     }
 
     public void unBind(){

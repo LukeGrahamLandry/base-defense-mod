@@ -5,7 +5,6 @@ import ca.lukegrahamlandry.basedefense.ModMain;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 
@@ -39,7 +38,7 @@ public class MaterialGenerationHandler extends SavedData {
 
         List<UUID> onlinePlayers = world.getPlayerList().getPlayers().stream().map((player -> player.getUUID())).collect(Collectors.toList());
 
-        for (TeamHandler.Team team : teams.getTeams()){
+        for (Team team : teams.getTeams()){
             if (Config.requiresOnlineForGenereation()){
                 AtomicBoolean hasPlayerOnline = new AtomicBoolean(false);
                 for (UUID check : onlinePlayers){
