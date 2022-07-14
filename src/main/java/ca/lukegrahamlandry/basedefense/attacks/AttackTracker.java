@@ -11,9 +11,12 @@ public class AttackTracker {
 
     static HashMap<UUID, Attack> attacks = new HashMap<>();
     public static void startAttack(Team team){
-        List<Team.AttackLocation> targets = team.getAttackOptions();
-        Team.AttackLocation target = targets.get(rand.nextInt(targets.size()));
-        attacks.put(team.id, new Attack(team.id, target));
+        List<AttackLocation> targets = team.getAttackOptions();
+        if (targets.isEmpty()) return;
+        AttackLocation target = targets.get(rand.nextInt(targets.size()));
+        Attack attack = new Attack(team.id, target);
+        attacks.put(team.id, attack);
+        attack.start();
     }
 
     public static void startAllAttacks(Level overworld) {
@@ -23,14 +26,19 @@ public class AttackTracker {
     }
 
     public static void tick(){
-        for (Iterator<Attack> it = attacks.values().stream().iterator(); it.hasNext(); ) {
-            Attack attack = it.next();
+        List<UUID> done = new ArrayList<>();
+        for (UUID id : attacks.keySet()) {
+            Attack attack = attacks.get(id);
 
             if (attack.isOver() || attack.level.isDay()) {
                 attack.forceEnd();
+                done.add(id);
             } else {
                 attack.tick();
             }
+        }
+        for (UUID id : done){
+            attacks.remove(id);
         }
     }
 

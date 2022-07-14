@@ -30,7 +30,7 @@ public class BlockInit {
         @SubscribeEvent
         public static void generateBlockItems(final RegistryEvent.Register<Item> event) {
             final IForgeRegistry<Item> registry = event.getRegistry();
-            BLOCKS.getEntries().stream().filter(block -> !(block.get() instanceof LiquidBlock)).map(RegistryObject::get).forEach(block -> {
+            BLOCKS.getEntries().stream().filter(block -> !(block.get() instanceof LiquidBlock || block.get() instanceof MaterialGeneratorBlock)).map(RegistryObject::get).forEach(block -> {
                 final BlockItem blockItem = new BlockItem(block,  ItemInit.props());
                 blockItem.setRegistryName(block.getRegistryName());
                 registry.register(blockItem);

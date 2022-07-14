@@ -27,12 +27,12 @@ public class Attack {
     protected final Level level;
     protected final UUID teamID;
     protected final List<AttackWave> waves = new ArrayList<>();
-    protected final Team.AttackLocation target;
+    protected final AttackLocation target;
     int waveIndex = 0;
     private final ServerBossEvent bar = new ServerBossEvent(new TextComponent(""), BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.NOTCHED_10);
     private boolean done = false;
 
-    public Attack(UUID teamID, Team.AttackLocation target){
+    public Attack(UUID teamID, AttackLocation target){
         this.level = target.level();
         this.teamID = teamID;
         this.target = target;
@@ -41,12 +41,16 @@ public class Attack {
 
     protected void initWaves(){
         for (int i=0;i<3;i++){
-            AttackWave wave = new AttackWave();
-            for (int j=0;j<i;j++){
+            AttackWave wave = new AttackWave(this.target);
+            for (int j=0;j<=i;j++){
                 wave.add(EntityType.HUSK);
             }
             this.waves.add(wave);
         }
+    }
+
+    public void start(){
+        this.getCurrentWave().doSpawning(this.target);
     }
 
     public void tick(){
@@ -54,14 +58,18 @@ public class Attack {
         if (this.isOver()) return;
         if (this.getCurrentWave().isDefeated()){
             this.waveIndex++;
+            if (!this.isOver()) {
+                this.getCurrentWave().doSpawning(this.target);
+            }
         }
     }
 
     public boolean isOver(){
-        return waveIndex >= this.waves.size() || this.done;
+        return waveIndex >= this.waves.size() || this.done || !this.target.target().isStillAlive();
     }
 
     public AttackWave getCurrentWave(){
+        if (waveIndex >= this.waves.size()) return this.waves.get(this.waves.size() - 1);
         return this.waves.get(this.waveIndex);
     }
 

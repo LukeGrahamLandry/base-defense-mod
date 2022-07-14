@@ -1,5 +1,8 @@
 package ca.lukegrahamlandry.basedefense.tile;
 
+import ca.lukegrahamlandry.basedefense.attacks.AttackLocation;
+import ca.lukegrahamlandry.basedefense.attacks.AttackTargetAvatar;
+import ca.lukegrahamlandry.basedefense.attacks.AttackTargetable;
 import ca.lukegrahamlandry.basedefense.events.DataManager;
 import ca.lukegrahamlandry.basedefense.init.TileTypeInit;
 import ca.lukegrahamlandry.basedefense.material.*;
@@ -7,15 +10,21 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public class MaterialGeneratorTile extends BlockEntity implements LeveledMaterialGenerator {
+public class MaterialGeneratorTile extends BlockEntity implements LeveledMaterialGenerator, AttackTargetable {
     public MaterialGeneratorTile(BlockPos pWorldPosition, BlockState pBlockState) {
         super(TileTypeInit.MATERIAL_GENERATOR.get(), pWorldPosition, pBlockState);
         this.uuid = UUID.randomUUID();
@@ -29,22 +38,23 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
     }
 
     private UUID uuid;
-    private UUID owner;
+    private UUID ownerTeamId;
     private int tier;
     private ResourceLocation materialProductionType;
 
     public void tryBind(ServerPlayer player){
-        if (this.owner != null && !this.canAccess(player)) return;
+        if (this.ownerTeamId != null && !this.canAccess(player)) return;
 
         Team team = TeamHandler.get(player.getLevel()).getTeam(player);
-        this.owner = team.id;
-        MaterialGenerationHandler.get(this.level).addGenerator(this.owner, this.getUUID(), this.getProduction());
-        team.addAttackLocation(new Team.AttackLocation(level, this.getBlockPos(), this.uuid, Team.AttackLocType.GENERATOR));
+        this.ownerTeamId = team.id;
+        MaterialGenerationHandler.get(this.level).addGenerator(this.ownerTeamId, this.getUUID(), this.getProduction());
+        team.addAttackLocation(new AttackLocation(level, this.getBlockPos(), this.uuid, this));
+        System.out.println("new attack options: " +  team.getAttackOptions().size());
     }
 
     public void unBind(){
-        MaterialGenerationHandler.get(this.level).removeGenerator(owner, this.getUUID());
-        this.owner = null;
+        MaterialGenerationHandler.get(this.level).removeGenerator(ownerTeamId, this.getUUID());
+        this.ownerTeamId = null;
     }
 
     private static final String TIER_TAG_KEY = "tier";
@@ -56,23 +66,25 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.putInt(TIER_TAG_KEY, this.tier);
-        tag.putUUID(PLAYER_TAG_KEY, this.owner);
+        if (this.ownerTeamId != null) tag.putUUID(PLAYER_TAG_KEY, this.ownerTeamId);
         tag.putUUID(UUID_TAG_KEY, this.uuid);
-        tag.putString(MATERIAL_TAG_KEY, this.materialProductionType.toString());
+        if (this.materialProductionType != null) tag.putString(MATERIAL_TAG_KEY, this.materialProductionType.toString());
     }
 
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
         this.tier = tag.getInt(TIER_TAG_KEY);
-        this.owner = tag.getUUID(PLAYER_TAG_KEY);
+        this.ownerTeamId = tag.contains(PLAYER_TAG_KEY) ? tag.getUUID(PLAYER_TAG_KEY) : null;
         this.uuid = tag.getUUID(UUID_TAG_KEY);
-        this.materialProductionType = new ResourceLocation(tag.getString(MATERIAL_TAG_KEY));
+        this.materialProductionType = tag.contains(MATERIAL_TAG_KEY) ? new ResourceLocation(tag.getString(MATERIAL_TAG_KEY)) : null;
     }
 
-    @Override
+    @Override  // TODO
     public MaterialCollection getProduction() {
-        return DataManager.getMaterial(this.materialProductionType).getProduction(this.tier);
+        //if (this.materialProductionType == null)
+            return MaterialCollection.empty();
+        //return DataManager.getMaterial(this.materialProductionType).getProduction(this.tier);
     }
 
     @Override
@@ -82,6 +94,7 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
 
     @Override
     public MaterialCollection getNextProduction() {
+        if (this.materialProductionType == null) return MaterialCollection.empty();
         return DataManager.getMaterial(this.materialProductionType).getProduction(this.tier + 1);
     }
 
@@ -97,7 +110,7 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
 
     @Override
     public boolean canAccess(Player player) {
-        return this.owner == null || (player != null && player.getUUID().equals(this.owner));
+        return this.ownerTeamId == null || (player != null && player.getUUID().equals(this.ownerTeamId));
     }
 
     @Override
@@ -134,5 +147,57 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
     @Override
     public ResourceLocation getGenType() {
         return this.materialProductionType;
+    }
+
+
+
+
+
+    float health = maxHealth();
+    AttackTargetAvatar avatar;
+    @Override
+    public List<BlockPos> getSpawnLocations() {
+        return Arrays.asList(this.getBlockPos().east(10), this.getBlockPos().west(10), this.getBlockPos().north(10), this.getBlockPos().south(10));
+    }
+
+    @Override
+    public boolean damage(DamageSource source, float amount) {
+        this.health -= amount;
+        System.out.println("took damage! " + amount + ". now have " + this.health);
+        if (!isStillAlive()) {
+            this.onDie();
+        }
+        return true;
+    }
+
+    @Override
+    public float health() {
+        return this.health;
+    }
+
+    @Override
+    public float maxHealth() {
+        return 40;
+    }
+
+    @Override
+    public LivingEntity getAvatar() {
+        if (this.avatar == null) this.avatar = new AttackTargetAvatar(this.level, this, this.getBlockPos());
+        return this.avatar;
+    }
+
+    @Override
+    public Team getOwnerTeam() {
+        return TeamHandler.get(this.level).getTeam(this.ownerTeamId);
+    }
+
+    @Override
+    public void onDie() {
+        AttackTargetable.super.onDie();
+        this.level.explode(null, this.getBlockPos().getX(), this.getBlockPos().getY(), this.getBlockPos().getZ(), 4.0F, Explosion.BlockInteraction.BREAK);
+        this.level.removeBlock(this.getBlockPos(), false);
+
+
+        getOwnerTeam().getAttackOptions().removeIf(location -> location.pos().equals(this.getBlockPos()));
     }
 }

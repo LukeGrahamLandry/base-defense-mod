@@ -4,6 +4,7 @@ import ca.lukegrahamlandry.basedefense.init.TileTypeInit;
 import ca.lukegrahamlandry.basedefense.network.serverbound.RequestMaterialGeneratorGuiPacket;
 import ca.lukegrahamlandry.basedefense.tile.MaterialGeneratorTile;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -28,10 +29,11 @@ public class MaterialGeneratorBlock extends Block implements EntityBlock {
     @Override
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         if (pLevel.isClientSide()){
-            RequestMaterialGeneratorGuiPacket.send(pPos);
             return InteractionResult.CONSUME;
         } else {
+            // RequestMaterialGeneratorGuiPacket.send(pPos);
             MaterialGeneratorTile.getAndDo(pLevel, pPos, (t) -> t.tryBind((ServerPlayer) pPlayer));
+            pPlayer.displayClientMessage(new TextComponent("Bound player to generator!"), true);
         }
         return super.use(pState, pLevel, pPos, pPlayer, pHand, pHit);
     }

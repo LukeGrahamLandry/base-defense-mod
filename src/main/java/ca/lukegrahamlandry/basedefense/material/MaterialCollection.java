@@ -16,6 +16,10 @@ import java.util.Set;
 public class MaterialCollection {
     private final Map<ResourceLocation, Integer> materials = new HashMap<>();
 
+    public static MaterialCollection empty() {
+        return new MaterialCollection();
+    }
+
     // what does <other> have that <this> doesn't
     public MaterialCollection getDifference(MaterialCollection other){
         MaterialCollection difference = new MaterialCollection();

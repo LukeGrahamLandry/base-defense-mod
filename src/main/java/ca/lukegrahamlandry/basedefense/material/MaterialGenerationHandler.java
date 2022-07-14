@@ -50,12 +50,14 @@ public class MaterialGenerationHandler extends SavedData {
                 if (!hasPlayerOnline.get()) continue;
             }
 
+            if (!pendingMaterials.containsKey(team.id) || !generators.containsKey(team.id)) continue;
             pendingMaterials.get(team.id).add(getProduction(team.id));
             team.getMaterials().add(pendingMaterials.get(team.id));
         }
     }
 
     public MaterialCollection getProduction(UUID owner){
+        if (!generators.containsKey(owner)) MaterialCollection.empty();
         MaterialCollection output = new MaterialCollection();
         for (MaterialCollection production : generators.get(owner).values()){
             output.add(production);

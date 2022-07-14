@@ -4,8 +4,10 @@ import ca.lukegrahamlandry.basedefense.Config;
 import ca.lukegrahamlandry.basedefense.ModMain;
 import ca.lukegrahamlandry.basedefense.attacks.AttackTracker;
 import ca.lukegrahamlandry.basedefense.material.MaterialGenerationHandler;
+import ca.lukegrahamlandry.basedefense.material.TeamHandler;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -28,13 +30,22 @@ public class ServerEvents {
 
     private static void handleAttacks(Level overworld) {
         if (wasDay && !overworld.isDay()){
+            System.out.println("start night");
             wasDay = false;
             AttackTracker.startAllAttacks(overworld);
         }
         if (!wasDay && overworld.isDay()){
+            System.out.println("start day");
             wasDay = true;
 
         }
         AttackTracker.tick();
     }
+
+    // temp
+    @SubscribeEvent
+    public static void join(PlayerEvent.PlayerLoggedInEvent event){
+
+    }
+
 }

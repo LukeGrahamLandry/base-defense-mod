@@ -1,9 +1,8 @@
 package ca.lukegrahamlandry.basedefense.material;
 
-import net.minecraft.core.BlockPos;
+import ca.lukegrahamlandry.basedefense.attacks.AttackLocation;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 
 import java.util.*;
 
@@ -11,14 +10,14 @@ public class Team {
     public final UUID id;
     Set<UUID> players = new HashSet<>();
     MaterialCollection materials;
-    List<AttackLocation> attackLocations;
+    List<AttackLocation> attackLocations = new ArrayList<>();
 
     public boolean contains(UUID player) {
         return players.contains(player);
     }
 
     public boolean contains(Player player) {
-        return players.contains(player);
+        return players.contains(player.getUUID());
     }
 
     public void add(UUID player) {
@@ -68,16 +67,13 @@ public class Team {
     }
 
     public List<AttackLocation> getAttackOptions() {
+        for (AttackLocation l : this.attackLocations){
+            System.out.println(l.pos());
+        }
         return new ArrayList<>(this.attackLocations);
     }
 
-    public record AttackLocation(Level level, BlockPos pos, UUID id, AttackLocType type) {
-        public BlockPos getRandSpawnLocation() {
-            return pos(); // need to have it know a radius and then pick somewhere on the edge
-        }
-    }
-
-    public enum AttackLocType {
-        GENERATOR, BASE;
+    public Set<UUID> getPlayers() {
+        return this.players;
     }
 }

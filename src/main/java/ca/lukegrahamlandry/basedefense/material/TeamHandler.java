@@ -23,17 +23,17 @@ public class TeamHandler extends SavedData {
     }
 
     public Team getTeam(Player player){
-        if (!playerTeams.containsKey(player)) {
+        if (!playerTeams.containsKey(player.getUUID())) {
             createTeam(player);
         }
-        return teams.get(playerTeams.get(player));
+        return teams.get(playerTeams.get(player.getUUID()));
     }
 
-    public UUID createTeam(UUID player){
+    public UUID createTeam(UUID playerID){
         Team team = new Team();
-        team.add(player);
+        team.add(playerID);
         teams.put(team.id, team);
-        playerTeams.put(player, team.id);
+        playerTeams.put(playerID, team.id);
         return team.id;
     }
 
