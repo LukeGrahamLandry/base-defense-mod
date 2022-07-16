@@ -8,6 +8,7 @@ import ca.lukegrahamlandry.basedefense.init.TileTypeInit;
 import ca.lukegrahamlandry.basedefense.material.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -50,6 +51,8 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
         MaterialGenerationHandler.get(this.level).addGenerator(this.ownerTeamId, this.getUUID(), this.getProduction());
         team.addAttackLocation(new AttackLocation(level, this.getBlockPos(), this.uuid, this));
         System.out.println("new attack options: " +  team.getAttackOptions().size());
+
+        player.displayClientMessage(new TextComponent("Bound player to generator!"), true);
     }
 
     public void unBind(){
@@ -60,7 +63,7 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
     private static final String TIER_TAG_KEY = "tier";
     private static final String PLAYER_TAG_KEY = "player";
     private static final String MATERIAL_TAG_KEY = "material";
-    private static final String UUID_TAG_KEY = "material";
+    private static final String UUID_TAG_KEY = "tileuuid";
 
     @Override
     protected void saveAdditional(CompoundTag tag) {
@@ -82,9 +85,8 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
 
     @Override  // TODO
     public MaterialCollection getProduction() {
-        //if (this.materialProductionType == null)
-            return MaterialCollection.empty();
-        //return DataManager.getMaterial(this.materialProductionType).getProduction(this.tier);
+        if (this.materialProductionType == null) return MaterialCollection.empty();
+        return DataManager.getMaterial(this.materialProductionType).getProduction(this.tier);
     }
 
     @Override

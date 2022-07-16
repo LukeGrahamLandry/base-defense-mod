@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 public class MaterialGeneratorDataLoader extends SimpleJsonResourceReloadListener {
     private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().disableHtmlEscaping().create();
 
-    Map<ResourceLocation, MaterialGeneratorData> generators = new HashMap<>();
+    public Map<ResourceLocation, MaterialGeneratorData> generators = new HashMap<>();
 
     public MaterialGeneratorDataLoader() {
         super(GSON, "materialgenerators");
@@ -38,12 +38,13 @@ public class MaterialGeneratorDataLoader extends SimpleJsonResourceReloadListene
                    generator.production.add(production);
                 }
                 generators.put(name, generator);
+                ModMain.LOGGER.debug("loaded material generator " + name + " with " + tiersData.size() + " tiers");
             } catch (IllegalArgumentException | JsonParseException error) {
-                ModMain.LOGGER.error("Parsing error loading fishing option {}", name, error);
+                ModMain.LOGGER.error("Parsing error loading material generator {}", name, error);
             }
         }
 
-        ModMain.LOGGER.info("Loaded {} fishing options", generators.size());
+        ModMain.LOGGER.info("Loaded {} material generator", generators.size());
     }
 
     public MaterialGeneratorData get(ResourceLocation type) {

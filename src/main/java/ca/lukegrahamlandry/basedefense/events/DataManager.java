@@ -34,6 +34,9 @@ public class DataManager {
     }
 
     public static MaterialGeneratorData getMaterial(ResourceLocation type) {
+        for (ResourceLocation r : gen.generators.keySet()){
+            System.out.println(r);
+        }
         return gen.get(type);
     }
 }

@@ -58,7 +58,7 @@ public class AttackWave {
 
     public void killAllEnemies() {
         for (LivingEntity check : spawned){
-            doParticles(check, ParticleTypes.LARGE_SMOKE);
+            if (check.isAlive()) doParticles(check, ParticleTypes.LARGE_SMOKE);
             check.discard();
         }
     }

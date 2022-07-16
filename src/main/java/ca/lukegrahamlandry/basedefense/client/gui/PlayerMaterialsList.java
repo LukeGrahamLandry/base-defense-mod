@@ -32,12 +32,6 @@ public class PlayerMaterialsList extends ContainerObjectSelectionList<PlayerMate
         // todo: sort
 
         Random rand = new Random();
-        ResourceLocation[] test = new ResourceLocation[]{
-                new ResourceLocation("minecraft:textures/item/emerald.png"),
-                new ResourceLocation("minecraft:textures/item/diamond.png"),
-                new ResourceLocation("minecraft:textures/item/gold_ingot.png"),
-                new ResourceLocation("minecraft:textures/item/apple.png")
-        };
         this.addEntry(new TitleEntry());
         for(ResourceLocation rl : materials) {
             // Component name = new TranslatableComponent("material." + rl.getNamespace() + "." + rl.getPath());
@@ -47,7 +41,7 @@ public class PlayerMaterialsList extends ContainerObjectSelectionList<PlayerMate
                 this.maxNameWidth = i;
             }
 
-            this.addEntry(new PlayerMaterialsList.MaterialEntry(test[rand.nextInt(test.length)], name, screen.stored.get(rl), screen.production.get(rl)));
+            this.addEntry(new PlayerMaterialsList.MaterialEntry(TextureHelper.getMaterialTexture(rl), name, screen.stored.get(rl), screen.production.get(rl)));
         }
 
     }

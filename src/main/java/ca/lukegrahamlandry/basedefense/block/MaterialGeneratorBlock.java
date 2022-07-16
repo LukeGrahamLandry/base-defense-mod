@@ -1,6 +1,9 @@
 package ca.lukegrahamlandry.basedefense.block;
 
+import ca.lukegrahamlandry.basedefense.init.NetworkInit;
 import ca.lukegrahamlandry.basedefense.init.TileTypeInit;
+import ca.lukegrahamlandry.basedefense.material.LeveledMaterialGenerator;
+import ca.lukegrahamlandry.basedefense.network.clientbound.OpenMaterialGeneratorGuiPacket;
 import ca.lukegrahamlandry.basedefense.network.serverbound.RequestMaterialGeneratorGuiPacket;
 import ca.lukegrahamlandry.basedefense.tile.MaterialGeneratorTile;
 import net.minecraft.core.BlockPos;
@@ -15,6 +18,7 @@ import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.network.PacketDistributor;
 
 public class MaterialGeneratorBlock extends Block implements EntityBlock {
     public MaterialGeneratorBlock(Properties p_49795_) {
@@ -33,7 +37,10 @@ public class MaterialGeneratorBlock extends Block implements EntityBlock {
         } else {
             // RequestMaterialGeneratorGuiPacket.send(pPos);
             MaterialGeneratorTile.getAndDo(pLevel, pPos, (t) -> t.tryBind((ServerPlayer) pPlayer));
-            pPlayer.displayClientMessage(new TextComponent("Bound player to generator!"), true);
+            BlockEntity tile = pLevel.getBlockEntity(pPos);
+            if (tile instanceof LeveledMaterialGenerator){
+                NetworkInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) pPlayer), new OpenMaterialGeneratorGuiPacket((ServerPlayer) pPlayer, (LeveledMaterialGenerator) tile));
+            }
         }
         return super.use(pState, pLevel, pPos, pPlayer, pHand, pHit);
     }
