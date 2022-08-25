@@ -36,7 +36,7 @@ public class RequestMaterialGeneratorGuiPacket {
         ctx.get().enqueueWork(() -> {
             BlockEntity tile = ctx.get().getSender().getLevel().getBlockEntity(this.tilePosition);
             if (tile instanceof LeveledMaterialGenerator){
-                NetworkInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> ctx.get().getSender()), new OpenMaterialGeneratorGuiPacket(ctx.get().getSender(), (LeveledMaterialGenerator) tile));
+                NetworkInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> ctx.get().getSender()), new OpenMaterialGeneratorGuiPacket(ctx.get().getSender(), (LeveledMaterialGenerator) tile, this.tilePosition));
             }
         });
         ctx.get().setPacketHandled(true);

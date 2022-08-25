@@ -4,6 +4,7 @@ import ca.lukegrahamlandry.basedefense.client.gui.PlayerMaterialsScreen;
 import ca.lukegrahamlandry.basedefense.material.MaterialCollection;
 import ca.lukegrahamlandry.basedefense.material.MaterialGenerationHandler;
 import ca.lukegrahamlandry.basedefense.material.MaterialsUtil;
+import ca.lukegrahamlandry.basedefense.material.TeamHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -27,7 +28,7 @@ public class OpenMaterialsGuiPacket {
 
     public OpenMaterialsGuiPacket(ServerPlayer player){
         storage = MaterialsUtil.getMaterials(player);
-        production = MaterialGenerationHandler.get(player.getLevel()).getProduction(player.getUUID());
+        production = MaterialsUtil.getProduction(player);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx){

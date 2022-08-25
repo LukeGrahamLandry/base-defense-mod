@@ -35,6 +35,10 @@ public class MaterialCollection {
         return difference;
     }
 
+    public boolean canAfford(MaterialCollection cost){
+        return this.getDifference(cost).isEmpty();
+    }
+
     public MaterialCollection copy(){
         return new MaterialCollection().getDifference(this);
     }
@@ -141,4 +145,15 @@ public class MaterialCollection {
         return tag;
     }
 
+    public void clear() {
+       this.materials.clear();
+    }
+
+    public void subtract(MaterialCollection other) {
+        if (other.isEmpty()) return;
+
+        for (ResourceLocation rl : other.keys()){
+            add(rl, -other.get(rl));
+        }
+    }
 }

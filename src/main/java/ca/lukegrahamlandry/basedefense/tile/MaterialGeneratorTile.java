@@ -53,6 +53,8 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
         System.out.println("new attack options: " +  team.getAttackOptions().size());
 
         player.displayClientMessage(new TextComponent("Bound player to generator!"), true);
+
+        this.setChanged();
     }
 
     public void unBind(){
@@ -71,6 +73,7 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
         tag.putInt(TIER_TAG_KEY, this.tier);
         if (this.ownerTeamId != null) tag.putUUID(PLAYER_TAG_KEY, this.ownerTeamId);
         tag.putUUID(UUID_TAG_KEY, this.uuid);
+        System.out.println("saving " + this.materialProductionType);
         if (this.materialProductionType != null) tag.putString(MATERIAL_TAG_KEY, this.materialProductionType.toString());
     }
 
@@ -81,6 +84,7 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
         this.ownerTeamId = tag.contains(PLAYER_TAG_KEY) ? tag.getUUID(PLAYER_TAG_KEY) : null;
         this.uuid = tag.getUUID(UUID_TAG_KEY);
         this.materialProductionType = tag.contains(MATERIAL_TAG_KEY) ? new ResourceLocation(tag.getString(MATERIAL_TAG_KEY)) : null;
+        System.out.println("loaded " + this.materialProductionType);
     }
 
     @Override  // TODO
@@ -112,12 +116,14 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
 
     @Override
     public boolean canAccess(Player player) {
-        return this.ownerTeamId == null || (player != null && player.getUUID().equals(this.ownerTeamId));
+        return this.ownerTeamId == null || (player != null && TeamHandler.get(player.level).getTeam(this.ownerTeamId).contains(player));
     }
 
     @Override
     public boolean tryUpgrade(ServerPlayer thePlayer){
+        System.out.println("try upgrade");
         boolean success = this.canAccess(thePlayer) && this.upgrade(MaterialsUtil.getMaterials(thePlayer));
+        System.out.println(success);
         if (success){
             this.unBind();
             this.tryBind(thePlayer);
@@ -129,6 +135,7 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
     public boolean upgrade(MaterialCollection inventory) {
         if (!this.level.isClientSide()){
             if (inventory.getDifference(this.getUpgradeCost()).isEmpty()){
+                inventory.subtract(this.getUpgradeCost());
                 this.tier++;
                 return true;
             }
@@ -144,6 +151,7 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
     public void setType(ResourceLocation prodType, int prodTier){
         this.materialProductionType = prodType;
         this.tier = prodTier;
+        this.setChanged();
     }
 
     @Override

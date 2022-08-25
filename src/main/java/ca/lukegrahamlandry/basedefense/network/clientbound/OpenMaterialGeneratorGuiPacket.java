@@ -5,6 +5,7 @@ import ca.lukegrahamlandry.basedefense.material.LeveledMaterialGenerator;
 import ca.lukegrahamlandry.basedefense.material.MaterialCollection;
 import ca.lukegrahamlandry.basedefense.material.MaterialsUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,6 +20,7 @@ public class OpenMaterialGeneratorGuiPacket {
     MaterialCollection playerMaterials;
     int tier;
     ResourceLocation type;
+    BlockPos pos;
 
     public OpenMaterialGeneratorGuiPacket(FriendlyByteBuf buf) {
         tier = buf.readInt();
@@ -27,6 +29,7 @@ public class OpenMaterialGeneratorGuiPacket {
         nextProduction = new MaterialCollection(buf);
         upgradeCost = new MaterialCollection(buf);
         playerMaterials = new MaterialCollection(buf);
+        pos = buf.readBlockPos();
     }
 
     public void encode(FriendlyByteBuf buf){
@@ -36,15 +39,17 @@ public class OpenMaterialGeneratorGuiPacket {
         nextProduction.toBytes(buf);
         upgradeCost.toBytes(buf);
         playerMaterials.toBytes(buf);
+        buf.writeBlockPos(pos);
     }
 
-    public OpenMaterialGeneratorGuiPacket(ServerPlayer player, LeveledMaterialGenerator generator){
+    public OpenMaterialGeneratorGuiPacket(ServerPlayer player, LeveledMaterialGenerator generator, BlockPos pos){
         playerMaterials = MaterialsUtil.getMaterials(player);
         currentProduction = generator.getProduction();
         nextProduction = generator.getNextProduction();
         upgradeCost = generator.getUpgradeCost();
         type = generator.getGenType();
         tier = generator.getTier();
+        this.pos = pos;
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx){
@@ -53,6 +58,6 @@ public class OpenMaterialGeneratorGuiPacket {
     }
 
     private void openScreen() {
-        Minecraft.getInstance().setScreen(new GeneratorUpgradeScreen(tier, type, currentProduction, nextProduction, upgradeCost, playerMaterials));
+        Minecraft.getInstance().setScreen(new GeneratorUpgradeScreen(tier, type, currentProduction, nextProduction, upgradeCost, playerMaterials, pos));
     }
 }

@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.network.PacketDistributor;
 
@@ -39,7 +40,7 @@ public class MaterialGeneratorBlock extends Block implements EntityBlock {
             MaterialGeneratorTile.getAndDo(pLevel, pPos, (t) -> t.tryBind((ServerPlayer) pPlayer));
             BlockEntity tile = pLevel.getBlockEntity(pPos);
             if (tile instanceof LeveledMaterialGenerator){
-                NetworkInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) pPlayer), new OpenMaterialGeneratorGuiPacket((ServerPlayer) pPlayer, (LeveledMaterialGenerator) tile));
+                NetworkInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) pPlayer), new OpenMaterialGeneratorGuiPacket((ServerPlayer) pPlayer, (LeveledMaterialGenerator) tile, pPos));
             }
         }
         return super.use(pState, pLevel, pPos, pPlayer, pHand, pHit);
@@ -47,7 +48,7 @@ public class MaterialGeneratorBlock extends Block implements EntityBlock {
 
     @Override
     public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
-        super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
         MaterialGeneratorTile.getAndDo(pLevel, pPos, MaterialGeneratorTile::unBind);
+        super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
     }
 }

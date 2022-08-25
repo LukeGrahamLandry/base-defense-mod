@@ -1,12 +1,16 @@
 package ca.lukegrahamlandry.basedefense.client.gui;
 
+import ca.lukegrahamlandry.basedefense.init.NetworkInit;
 import ca.lukegrahamlandry.basedefense.material.MaterialCollection;
+import ca.lukegrahamlandry.basedefense.network.serverbound.UpgradeTilePacket;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.PlainTextButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -20,6 +24,7 @@ public class GeneratorUpgradeScreen extends Screen {
     private final MaterialCollection nextProduction;
     private final MaterialCollection upgradeCost;
     private final MaterialCollection playerMaterials;
+    private BlockPos pos;
 
     private final int topPos;
     private final int leftPos;
@@ -27,7 +32,7 @@ public class GeneratorUpgradeScreen extends Screen {
     private final int imageHeight = 400;
     private final int middleX;
 
-    public GeneratorUpgradeScreen(int tier, ResourceLocation type, MaterialCollection currentProduction, MaterialCollection nextProduction, MaterialCollection upgradeCost, MaterialCollection playerMaterials) {
+    public GeneratorUpgradeScreen(int tier, ResourceLocation type, MaterialCollection currentProduction, MaterialCollection nextProduction, MaterialCollection upgradeCost, MaterialCollection playerMaterials, BlockPos pos) {
         super(new TranslatableComponent("generator." + type.getNamespace() + "." + type.getPath(), tier));
         this.tier = tier;
         this.type = type;
@@ -35,6 +40,7 @@ public class GeneratorUpgradeScreen extends Screen {
         this.nextProduction = nextProduction;
         this.upgradeCost = upgradeCost;
         this.playerMaterials = playerMaterials;
+        this.pos = pos;
 
         this.leftPos = (this.width - this.imageWidth) / 2;
         this.topPos = (this.height - this.imageHeight) / 2;
@@ -42,6 +48,7 @@ public class GeneratorUpgradeScreen extends Screen {
     }
 
     Component title;
+    Button upgrade;
 
     @Override
     protected void init() {
@@ -51,6 +58,15 @@ public class GeneratorUpgradeScreen extends Screen {
         createMaterialsList(new TextComponent("Production"), this.currentProduction, 10, 20);
         createMaterialsList(new TextComponent("Upgrade Cost"), this.upgradeCost, 110, 20);
         createMaterialsList(new TextComponent("Next Production"), this.nextProduction, 210, 20);
+
+        this.upgrade = new Button(0, 0, 100, 20, new TextComponent("Upgrade (" + (this.tier+1) + ")"), this::doUpgrade);
+        this.upgrade.active = this.playerMaterials.canAfford(this.upgradeCost);
+        this.addRenderableWidget(this.upgrade);
+    }
+
+    private void doUpgrade(Button button) {
+        NetworkInit.INSTANCE.sendToServer(new UpgradeTilePacket(this.pos));
+        Minecraft.getInstance().setScreen(null);
     }
 
     private void createMaterialsList(Component label, MaterialCollection materials, int x, int y) {
@@ -63,6 +79,6 @@ public class GeneratorUpgradeScreen extends Screen {
     public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
 
-        drawCenteredString(pPoseStack, font, this.title, this.width / 2, 5, 0xFFFFFF);
+        drawString(pPoseStack, font, this.title, 110, 5, 0xFFFFFF);
     }
 }

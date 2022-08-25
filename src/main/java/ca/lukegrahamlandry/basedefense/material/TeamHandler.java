@@ -34,6 +34,7 @@ public class TeamHandler extends SavedData {
         team.add(playerID);
         teams.put(team.id, team);
         playerTeams.put(playerID, team.id);
+        this.setDirty();
         return team.id;
     }
 
@@ -43,6 +44,7 @@ public class TeamHandler extends SavedData {
 
     // TODO: copy over production as well
     public void switchTeam(UUID player, UUID targetTeam){
+        this.setDirty();
         MaterialCollection oldMaterials = new MaterialCollection();
         if (playerTeams.containsKey(player)){
             UUID oldTeam = playerTeams.get(player);
@@ -88,6 +90,9 @@ public class TeamHandler extends SavedData {
         while (tag.contains(String.valueOf(i))){
             Team team = new Team(tag.getCompound(String.valueOf(i)));
             handler.teams.put(team.id, team);
+            for (UUID playerID : team.getPlayers()){
+                handler.playerTeams.put(playerID, team.id);
+            }
             i++;
         }
 

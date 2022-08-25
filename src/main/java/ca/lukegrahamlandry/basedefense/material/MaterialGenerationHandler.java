@@ -35,6 +35,7 @@ public class MaterialGenerationHandler extends SavedData {
 
     public void distributeMaterials(MinecraftServer world){
         TeamHandler teams = TeamHandler.get(world.overworld());
+        teams.setDirty();
 
         List<UUID> onlinePlayers = world.getPlayerList().getPlayers().stream().map((player -> player.getUUID())).collect(Collectors.toList());
 
@@ -53,11 +54,14 @@ public class MaterialGenerationHandler extends SavedData {
             if (!pendingMaterials.containsKey(team.id) || !generators.containsKey(team.id)) continue;
             pendingMaterials.get(team.id).add(getProduction(team.id));
             team.getMaterials().add(pendingMaterials.get(team.id));
+            pendingMaterials.get(team.id).clear();
         }
+
+
     }
 
     public MaterialCollection getProduction(UUID owner){
-        if (!generators.containsKey(owner)) MaterialCollection.empty();
+        if (!generators.containsKey(owner)) return MaterialCollection.empty();
         MaterialCollection output = new MaterialCollection();
         for (MaterialCollection production : generators.get(owner).values()){
             output.add(production);
