@@ -5,13 +5,10 @@ import ca.lukegrahamlandry.basedefense.ModMain;
 import ca.lukegrahamlandry.basedefense.attacks.AttackTracker;
 import ca.lukegrahamlandry.basedefense.init.BlockInit;
 import ca.lukegrahamlandry.basedefense.material.MaterialGenerationHandler;
-import ca.lukegrahamlandry.basedefense.material.TeamHandler;
 import ca.lukegrahamlandry.basedefense.tile.MaterialGeneratorTile;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -20,13 +17,13 @@ public class ServerEvents {
     private static int timer = 0;
     private static boolean wasDay = false;
     @SubscribeEvent
-    public static void tick(TickEvent.WorldTickEvent event){
-        if (event.phase == TickEvent.Phase.START && !event.world.isClientSide() && event.world.dimension().equals(Level.OVERWORLD)){
+    public static void tick(TickEvent.LevelTickEvent event){
+        if (event.phase == TickEvent.Phase.START && !event.level.isClientSide() && event.level.dimension().equals(Level.OVERWORLD)){
             if (timer >= Config.getGenerationTimer()){
-                MaterialGenerationHandler.get(event.world).distributeMaterials(event.world.getServer());
+                MaterialGenerationHandler.get(event.level).distributeMaterials(event.level.getServer());
                 timer = 0;
 
-                handleAttacks(event.world);
+                handleAttacks(event.level);
             }
             timer++;
         }
@@ -48,8 +45,8 @@ public class ServerEvents {
 
     @SubscribeEvent
     public static void join(BlockEvent.BreakEvent event){
-        if (!event.getWorld().isClientSide() && event.getState().getBlock() == BlockInit.MATERIAL_GENERATOR.get()){
-            MaterialGeneratorTile.getAndDo((Level) event.getWorld(), event.getPos(), MaterialGeneratorTile::unBind);
+        if (!event.getLevel().isClientSide() && event.getState().getBlock() == BlockInit.MATERIAL_GENERATOR.get()){
+            MaterialGeneratorTile.getAndDo((Level) event.getLevel(), event.getPos(), MaterialGeneratorTile::unBind);
         }
     }
 

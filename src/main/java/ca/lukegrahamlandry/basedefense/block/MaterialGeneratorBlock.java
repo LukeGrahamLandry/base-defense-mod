@@ -4,10 +4,8 @@ import ca.lukegrahamlandry.basedefense.init.NetworkInit;
 import ca.lukegrahamlandry.basedefense.init.TileTypeInit;
 import ca.lukegrahamlandry.basedefense.material.LeveledMaterialGenerator;
 import ca.lukegrahamlandry.basedefense.network.clientbound.OpenMaterialGeneratorGuiPacket;
-import ca.lukegrahamlandry.basedefense.network.serverbound.RequestMaterialGeneratorGuiPacket;
 import ca.lukegrahamlandry.basedefense.tile.MaterialGeneratorTile;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -17,7 +15,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.network.PacketDistributor;
 

@@ -12,7 +12,7 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = ModMain.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class KeyboardEvents {
     @SubscribeEvent
-    public static void onPress(InputEvent.KeyInputEvent event){
+    public static void onPress(InputEvent.Key event){
         if (Minecraft.getInstance().player == null) return;
 
         if (ClientSetup.OPEN.consumeClick()) {

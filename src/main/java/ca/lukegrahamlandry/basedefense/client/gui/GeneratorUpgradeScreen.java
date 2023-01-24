@@ -5,17 +5,14 @@ import ca.lukegrahamlandry.basedefense.material.MaterialCollection;
 import ca.lukegrahamlandry.basedefense.network.serverbound.UpgradeTilePacket;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.PlainTextButton;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
+
+import java.util.function.Supplier;
 
 public class GeneratorUpgradeScreen extends Screen {
     private final int tier;
@@ -33,7 +30,7 @@ public class GeneratorUpgradeScreen extends Screen {
     private final int middleX;
 
     public GeneratorUpgradeScreen(int tier, ResourceLocation type, MaterialCollection currentProduction, MaterialCollection nextProduction, MaterialCollection upgradeCost, MaterialCollection playerMaterials, BlockPos pos) {
-        super(new TranslatableComponent("generator." + type.getNamespace() + "." + type.getPath(), tier));
+        super(Component.translatable("generator." + type.getNamespace() + "." + type.getPath(), tier));
         this.tier = tier;
         this.type = type;
         this.currentProduction = currentProduction;
@@ -53,13 +50,13 @@ public class GeneratorUpgradeScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        this.title = new TranslatableComponent("generator." + type.getNamespace() + "." + type.getPath(), this.tier);
+        this.title = Component.translatable("generator." + type.getNamespace() + "." + type.getPath(), this.tier);
 
-        createMaterialsList(new TextComponent("Production"), this.currentProduction, 10, 20);
-        createMaterialsList(new TextComponent("Upgrade Cost"), this.upgradeCost, 110, 20);
-        createMaterialsList(new TextComponent("Next Production"), this.nextProduction, 210, 20);
+        createMaterialsList(Component.literal("Production"), this.currentProduction, 10, 20);
+        createMaterialsList(Component.literal("Upgrade Cost"), this.upgradeCost, 110, 20);
+        createMaterialsList(Component.literal("Next Production"), this.nextProduction, 210, 20);
 
-        this.upgrade = new Button(0, 0, 100, 20, new TextComponent("Upgrade (" + (this.tier+1) + ")"), this::doUpgrade);
+        this.upgrade = new PlainTextButton(0, 0, 100, 20, Component.literal("Upgrade (" + (this.tier+1) + ")"), this::doUpgrade, Minecraft.getInstance().font);
         this.upgrade.active = this.playerMaterials.canAfford(this.upgradeCost);
         this.addRenderableWidget(this.upgrade);
     }

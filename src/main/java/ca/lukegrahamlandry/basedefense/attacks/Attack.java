@@ -2,7 +2,7 @@ package ca.lukegrahamlandry.basedefense.attacks;
 
 import ca.lukegrahamlandry.basedefense.material.Team;
 import ca.lukegrahamlandry.basedefense.material.TeamHandler;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -29,7 +29,7 @@ public class Attack {
     protected final List<AttackWave> waves = new ArrayList<>();
     protected final AttackLocation target;
     int waveIndex = 0;
-    private final ServerBossEvent bar = new ServerBossEvent(new TextComponent(""), BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.NOTCHED_10);
+    private final ServerBossEvent bar = new ServerBossEvent(Component.literal(""), BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.NOTCHED_10);
     private boolean done = false;
 
     public Attack(UUID teamID, AttackLocation target){
@@ -83,7 +83,7 @@ public class Attack {
         }
 
         this.bar.setProgress(Mth.clamp(remainingHealth / totalHealth, 0.0F, 1.0F));
-        this.bar.setName(new TextComponent("Attack on (" + this.target.pos().getX() + ", " + this.target.pos().getY() + ", " + this.target.pos().getZ() + ") - Wave " + (this.waveIndex + 1) + "/" + this.waves.size()));
+        this.bar.setName(Component.literal("Attack on (" + this.target.pos().getX() + ", " + this.target.pos().getY() + ", " + this.target.pos().getZ() + ") - Wave " + (this.waveIndex + 1) + "/" + this.waves.size()));
 
         Team team = TeamHandler.get(this.level).getTeam(teamID);
 

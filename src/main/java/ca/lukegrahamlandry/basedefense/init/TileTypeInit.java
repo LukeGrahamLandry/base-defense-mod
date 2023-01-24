@@ -8,7 +8,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 public class TileTypeInit {
-    public static final DeferredRegister<BlockEntityType<?>> TILE_ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, ModMain.MOD_ID);
+    public static final DeferredRegister<BlockEntityType<?>> TILE_ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, ModMain.MOD_ID);
 
     public static final RegistryObject<BlockEntityType<MaterialGeneratorTile>> MATERIAL_GENERATOR = TILE_ENTITY_TYPES.register("material_generator",
             () -> BlockEntityType.Builder.of(MaterialGeneratorTile::new, BlockInit.MATERIAL_GENERATOR.get()).build(null));

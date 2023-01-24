@@ -11,12 +11,9 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.gui.GuiUtils;
 
 import java.util.*;
 
@@ -40,8 +37,8 @@ public class SimpleMaterialsList extends ContainerObjectSelectionList<SimpleMate
 
         Random rand = new Random();
         for(ResourceLocation rl : materials) {
-            // Component name = new TranslatableComponent("material." + rl.getNamespace() + "." + rl.getPath());
-            Component name = new TranslatableComponent(rl.getPath());
+            // Component name = Component.translatable("material." + rl.getNamespace() + "." + rl.getPath());
+            Component name = Component.translatable(rl.getPath());
 
             this.addEntry(new SimpleMaterialsList.MaterialEntry(TextureHelper.getMaterialTexture(rl), name, materialsToShow.get(rl)));
         }
@@ -70,7 +67,7 @@ public class SimpleMaterialsList extends ContainerObjectSelectionList<SimpleMate
         public MaterialEntry(ResourceLocation texture, Component name, int stored) {
             this.texture = texture;
             this.name = name;
-            this.stored = new TextComponent(String.valueOf(stored));
+            this.stored = Component.literal(String.valueOf(stored));
         }
 
         public void render(PoseStack pPoseStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick) {

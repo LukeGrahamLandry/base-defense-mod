@@ -4,7 +4,7 @@ import ca.lukegrahamlandry.basedefense.material.MaterialCollection;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 
 public class PlayerMaterialsScreen extends Screen {
     protected final MaterialCollection stored;
@@ -12,7 +12,7 @@ public class PlayerMaterialsScreen extends Screen {
     private PlayerMaterialsList materialsList;
 
     public PlayerMaterialsScreen(MaterialCollection stored, MaterialCollection production) {
-        super(new TextComponent("hi"));
+        super(Component.literal("hi"));
         this.stored = stored;
         this.production = production;
     }

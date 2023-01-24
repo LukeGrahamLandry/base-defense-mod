@@ -8,7 +8,7 @@ import ca.lukegrahamlandry.basedefense.init.TileTypeInit;
 import ca.lukegrahamlandry.basedefense.material.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -20,7 +20,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -52,7 +51,7 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
         team.addAttackLocation(new AttackLocation(level, this.getBlockPos(), this.uuid, this));
         System.out.println("new attack options: " +  team.getAttackOptions().size());
 
-        player.displayClientMessage(new TextComponent("Bound player to generator!"), true);
+        player.displayClientMessage(Component.literal("Bound player to generator!"), true);
 
         this.setChanged();
     }
@@ -204,7 +203,7 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
     @Override
     public void onDie() {
         AttackTargetable.super.onDie();
-        this.level.explode(null, this.getBlockPos().getX(), this.getBlockPos().getY(), this.getBlockPos().getZ(), 4.0F, Explosion.BlockInteraction.BREAK);
+        this.level.explode(null, this.getBlockPos().getX(), this.getBlockPos().getY(), this.getBlockPos().getZ(), 4.0F, Level.ExplosionInteraction.TNT);
         this.level.removeBlock(this.getBlockPos(), false);
 
 

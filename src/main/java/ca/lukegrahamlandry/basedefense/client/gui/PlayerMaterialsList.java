@@ -9,8 +9,6 @@ import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -34,8 +32,8 @@ public class PlayerMaterialsList extends ContainerObjectSelectionList<PlayerMate
         Random rand = new Random();
         this.addEntry(new TitleEntry());
         for(ResourceLocation rl : materials) {
-            // Component name = new TranslatableComponent("material." + rl.getNamespace() + "." + rl.getPath());
-            Component name = new TranslatableComponent(rl.getPath());
+            // Component name = Component.translatable("material." + rl.getNamespace() + "." + rl.getPath());
+            Component name = Component.translatable(rl.getPath());
             int i = pMinecraft.font.width(name);
             if (i > this.maxNameWidth) {
                 this.maxNameWidth = i;
@@ -65,9 +63,9 @@ public class PlayerMaterialsList extends ContainerObjectSelectionList<PlayerMate
         private final Component produced;
 
         public TitleEntry() {
-            this.name = new TextComponent("Material");
-            this.stored = new TextComponent("Stored");
-            this.produced = new TextComponent("Production");
+            this.name = Component.literal("Material");
+            this.stored = Component.literal("Stored");
+            this.produced = Component.literal("Production");
         }
 
         public void render(PoseStack pPoseStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick) {
@@ -96,8 +94,8 @@ public class PlayerMaterialsList extends ContainerObjectSelectionList<PlayerMate
         public MaterialEntry(ResourceLocation texture, Component name, int stored, int produced) {
             this.texture = texture;
             this.name = name;
-            this.stored = new TextComponent(String.valueOf(stored));
-            this.produced = new TextComponent(String.valueOf(produced));
+            this.stored = Component.literal(String.valueOf(stored));
+            this.produced = Component.literal(String.valueOf(produced));
         }
 
         public void render(PoseStack pPoseStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick) {

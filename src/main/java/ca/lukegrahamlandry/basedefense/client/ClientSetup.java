@@ -2,9 +2,8 @@ package ca.lukegrahamlandry.basedefense.client;
 
 import ca.lukegrahamlandry.basedefense.ModMain;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.gui.screens.controls.KeyBindsScreen;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.ClientRegistry;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -16,6 +15,11 @@ public class ClientSetup {
 
     @SubscribeEvent
     public static void clientSetup(FMLClientSetupEvent event){
-        ClientRegistry.registerKeyBinding(OPEN);
+        // NO-OP
+    }
+
+    @SubscribeEvent
+    public static void registerKeys(RegisterKeyMappingsEvent event){
+        event.register(OPEN);
     }
 }
