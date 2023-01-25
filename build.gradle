@@ -152,6 +152,8 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 repositories {
     // Geckolib
     //  maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
+
+    maven { url = "https://maven.lukegrahamlandry.ca" }
 }
 
 dependencies {
@@ -166,6 +168,8 @@ dependencies {
     // Examples using mod jars from ./libs
     // implementation fg.deobf("blank:coolmod-${mc_version}:${coolmod_version}")
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
+
+    implementation fg.deobf(group: 'ca.lukegrahamlandry.lib', name: 'WrapperLib-1.19.3-Forge', version: '1.1.0')
 
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html

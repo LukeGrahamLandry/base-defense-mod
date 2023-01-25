@@ -1,6 +1,6 @@
 package ca.lukegrahamlandry.basedefense.client.gui;
 
-import ca.lukegrahamlandry.basedefense.material.MaterialCollection;
+import ca.lukegrahamlandry.basedefense.base.material.MaterialCollection;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;

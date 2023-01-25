@@ -1,7 +1,6 @@
 package ca.lukegrahamlandry.basedefense.client.gui;
 
-import ca.lukegrahamlandry.basedefense.init.NetworkInit;
-import ca.lukegrahamlandry.basedefense.material.MaterialCollection;
+import ca.lukegrahamlandry.basedefense.base.material.MaterialCollection;
 import ca.lukegrahamlandry.basedefense.network.serverbound.UpgradeTilePacket;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -11,8 +10,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.function.Supplier;
 
 public class GeneratorUpgradeScreen extends Screen {
     private final int tier;
@@ -62,7 +59,7 @@ public class GeneratorUpgradeScreen extends Screen {
     }
 
     private void doUpgrade(Button button) {
-        NetworkInit.INSTANCE.sendToServer(new UpgradeTilePacket(this.pos));
+        new UpgradeTilePacket(this.pos).sendToServer();
         Minecraft.getInstance().setScreen(null);
     }
 

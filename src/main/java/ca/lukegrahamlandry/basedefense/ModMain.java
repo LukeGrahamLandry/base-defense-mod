@@ -1,12 +1,12 @@
 package ca.lukegrahamlandry.basedefense;
 
-import ca.lukegrahamlandry.basedefense.attacks.AttackTargetAvatar;
-import ca.lukegrahamlandry.basedefense.init.*;
+import ca.lukegrahamlandry.basedefense.base.BaseDefense;
+import ca.lukegrahamlandry.basedefense.base.attacks.AttackTargetAvatar;
+import ca.lukegrahamlandry.basedefense.game.ModRegistry;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
@@ -17,20 +17,14 @@ public class ModMain {
 
     public ModMain() {
         final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-        ItemInit.ITEM.register(modEventBus);
-        BlockInit.BLOCKS.register(modEventBus);
-        EntityInit.ENTITY.register(modEventBus);
-        TileTypeInit.TILE_ENTITY_TYPES.register(modEventBus);
 
-        modEventBus.addListener(this::setup);
         modEventBus.addListener(ModMain::mobAttributes);
+
+        ModRegistry.init();
+        BaseDefense.init();
     }
 
     public static void mobAttributes(EntityAttributeCreationEvent event){
-        event.put(EntityInit.ATTACK_TARGET.get(), AttackTargetAvatar.createLivingAttributes().build());
-    }
-
-    private void setup(final FMLCommonSetupEvent event) {
-        NetworkInit.registerPackets();
+        event.put(ModRegistry.ATTACK_TARGET.get(), AttackTargetAvatar.createLivingAttributes().build());
     }
 }

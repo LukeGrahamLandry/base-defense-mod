@@ -1,11 +1,11 @@
 package ca.lukegrahamlandry.basedefense.events;
 
-import ca.lukegrahamlandry.basedefense.Config;
 import ca.lukegrahamlandry.basedefense.ModMain;
-import ca.lukegrahamlandry.basedefense.attacks.AttackTracker;
-import ca.lukegrahamlandry.basedefense.init.BlockInit;
-import ca.lukegrahamlandry.basedefense.material.MaterialGenerationHandler;
-import ca.lukegrahamlandry.basedefense.tile.MaterialGeneratorTile;
+import ca.lukegrahamlandry.basedefense.base.BaseDefense;
+import ca.lukegrahamlandry.basedefense.base.attacks.AttackTracker;
+import ca.lukegrahamlandry.basedefense.base.material.MaterialsUtil;
+import ca.lukegrahamlandry.basedefense.game.ModRegistry;
+import ca.lukegrahamlandry.basedefense.game.tile.MaterialGeneratorTile;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.level.BlockEvent;
@@ -19,8 +19,8 @@ public class ServerEvents {
     @SubscribeEvent
     public static void tick(TickEvent.LevelTickEvent event){
         if (event.phase == TickEvent.Phase.START && !event.level.isClientSide() && event.level.dimension().equals(Level.OVERWORLD)){
-            if (timer >= Config.getGenerationTimer()){
-                MaterialGenerationHandler.get(event.level).distributeMaterials(event.level.getServer());
+            if (timer >= BaseDefense.CONFIG.get().materialGenerationTickInterval){
+                MaterialsUtil.tickGenerators();
                 timer = 0;
 
                 handleAttacks(event.level);
@@ -44,8 +44,8 @@ public class ServerEvents {
     }
 
     @SubscribeEvent
-    public static void join(BlockEvent.BreakEvent event){
-        if (!event.getLevel().isClientSide() && event.getState().getBlock() == BlockInit.MATERIAL_GENERATOR.get()){
+    public static void handleBreak(BlockEvent.BreakEvent event){
+        if (!event.getLevel().isClientSide() && event.getState().getBlock() == ModRegistry.MATERIAL_GENERATOR_BLOCK.get()){
             MaterialGeneratorTile.getAndDo((Level) event.getLevel(), event.getPos(), MaterialGeneratorTile::unBind);
         }
     }

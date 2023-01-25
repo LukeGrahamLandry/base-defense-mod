@@ -1,19 +1,16 @@
 package ca.lukegrahamlandry.basedefense.network.clientbound;
 
+import ca.lukegrahamlandry.basedefense.base.material.MaterialsUtil;
 import ca.lukegrahamlandry.basedefense.client.gui.GeneratorUpgradeScreen;
-import ca.lukegrahamlandry.basedefense.material.LeveledMaterialGenerator;
-import ca.lukegrahamlandry.basedefense.material.MaterialCollection;
-import ca.lukegrahamlandry.basedefense.material.MaterialsUtil;
+import ca.lukegrahamlandry.basedefense.base.material.old.LeveledMaterialGenerator;
+import ca.lukegrahamlandry.basedefense.base.material.MaterialCollection;
+import ca.lukegrahamlandry.lib.network.ClientSideHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent;
 
-import java.util.function.Supplier;
-
-public class OpenMaterialGeneratorGuiPacket {
+public class OpenMaterialGeneratorGuiPacket implements ClientSideHandler {
     MaterialCollection currentProduction;
     MaterialCollection nextProduction;
     MaterialCollection upgradeCost;
@@ -22,28 +19,8 @@ public class OpenMaterialGeneratorGuiPacket {
     ResourceLocation type;
     BlockPos pos;
 
-    public OpenMaterialGeneratorGuiPacket(FriendlyByteBuf buf) {
-        tier = buf.readInt();
-        type = buf.readResourceLocation();
-        currentProduction = new MaterialCollection(buf);
-        nextProduction = new MaterialCollection(buf);
-        upgradeCost = new MaterialCollection(buf);
-        playerMaterials = new MaterialCollection(buf);
-        pos = buf.readBlockPos();
-    }
-
-    public void encode(FriendlyByteBuf buf){
-        buf.writeInt(this.tier);
-        buf.writeResourceLocation(this.type);
-        currentProduction.toBytes(buf);
-        nextProduction.toBytes(buf);
-        upgradeCost.toBytes(buf);
-        playerMaterials.toBytes(buf);
-        buf.writeBlockPos(pos);
-    }
-
     public OpenMaterialGeneratorGuiPacket(ServerPlayer player, LeveledMaterialGenerator generator, BlockPos pos){
-        playerMaterials = MaterialsUtil.getMaterials(player);
+        playerMaterials = MaterialsUtil.getTeamMaterials(player);
         currentProduction = generator.getProduction();
         nextProduction = generator.getNextProduction();
         upgradeCost = generator.getUpgradeCost();
@@ -52,12 +29,9 @@ public class OpenMaterialGeneratorGuiPacket {
         this.pos = pos;
     }
 
-    public void handle(Supplier<NetworkEvent.Context> ctx){
-        ctx.get().enqueueWork(this::openScreen);
-        ctx.get().setPacketHandled(true);
-    }
 
-    private void openScreen() {
+    @Override
+    public void handle() {
         Minecraft.getInstance().setScreen(new GeneratorUpgradeScreen(tier, type, currentProduction, nextProduction, upgradeCost, playerMaterials, pos));
     }
 }
