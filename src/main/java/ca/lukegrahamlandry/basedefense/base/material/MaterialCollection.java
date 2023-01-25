@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 
 // can use this for how much player has, how much an upgrade costs, players current production
-// should really learn how to use codecs
 public class MaterialCollection {
     private Map<ResourceLocation, Integer> materials = new HashMap<>();
 

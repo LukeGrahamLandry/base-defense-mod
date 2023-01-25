@@ -41,6 +41,7 @@ public class MaterialGeneratorType {
     public static class LevelInfo {
         MaterialCollection cost;
         MaterialCollection production;
+        int minBaseLevel = 0;
     }
 
     // for class loading

@@ -23,5 +23,6 @@ public class BaseDefense {
     public static void init() {
         TeamManager.init();
         MaterialGeneratorType.init();
+        BaseTier.init();
     }
 }

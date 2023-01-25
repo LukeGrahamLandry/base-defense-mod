@@ -4,8 +4,9 @@
   "compatibilityLevel": "JAVA_16",
   "refmap": "basedefense.refmap.json",
   "mixins": [
+    "CraftingMenuMixin"
   ],
-  "client":[
+  "client": [
   ],
   "injectors": {
     "defaultRequire": 1

@@ -13,6 +13,7 @@ public class Team {
     MaterialCollection materials;
     Map<UUID, MaterialGeneratorType.Instance> generators;
     List<AttackLocation> attackLocations;
+    int baseBlockTier = 0;
 
     public Team() {
         this.id = UUID.randomUUID();
@@ -56,5 +57,9 @@ public class Team {
     public void removeGenerator(UUID uuid) {
         generators.remove(uuid);
         TeamManager.TEAMS.setDirty();
+    }
+
+    public int getBaseTier() {
+        return this.baseBlockTier;
     }
 }

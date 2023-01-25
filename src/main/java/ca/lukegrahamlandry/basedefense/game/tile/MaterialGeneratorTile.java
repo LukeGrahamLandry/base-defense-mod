@@ -6,7 +6,6 @@ import ca.lukegrahamlandry.basedefense.base.attacks.AttackTargetAvatar;
 import ca.lukegrahamlandry.basedefense.base.attacks.AttackTargetable;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialCollection;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialGeneratorType;
-import ca.lukegrahamlandry.basedefense.base.material.MaterialsUtil;
 import ca.lukegrahamlandry.basedefense.base.material.old.LeveledMaterialGenerator;
 import ca.lukegrahamlandry.basedefense.base.teams.Team;
 import ca.lukegrahamlandry.basedefense.base.teams.TeamManager;
@@ -56,13 +55,12 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
 
         Team team = TeamManager.get(player);
         this.data.ownerTeamId = team.getId();
-        team.addGenerator(this.data.uuid, this.data.genInfo);
         team.addAttackLocation(new AttackLocation(level, this.getBlockPos(), this.data.uuid, this));
         System.out.println("new attack options: " +  team.getAttackOptions().size());
 
         player.displayClientMessage(Component.literal("Bound player to generator!"), true);
 
-        this.setChanged();
+        this.setChanged();  // adds to team generator list
     }
 
     public void unBind(){
@@ -124,23 +122,12 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
     }
 
     @Override
-    public boolean tryUpgrade(ServerPlayer thePlayer){
-        System.out.println("try upgrade");
-        boolean success = this.canAccess(thePlayer) && this.upgrade(MaterialsUtil.getTeamMaterials(thePlayer));
-        System.out.println(success);
-        if (success){
-            this.unBind();
-            this.tryBind(thePlayer);
-        }
-        return success;
-    }
-
-    @Override
     public boolean upgrade(MaterialCollection inventory) {
         if (!this.level.isClientSide()){
             if (inventory.getDifference(this.getUpgradeCost()).isEmpty()){
                 inventory.subtract(this.getUpgradeCost());
                 this.data.genInfo.tier++;
+                this.setChanged();
                 return true;
             }
         }
@@ -153,9 +140,14 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
     }
 
     public void setType(ResourceLocation prodType, int prodTier){
-        this.data.genInfo.type = prodType;
-        this.data.genInfo.tier = prodTier;
+        this.data.genInfo = new MaterialGeneratorType.Instance(prodType, prodTier);
         this.setChanged();
+    }
+
+    @Override
+    public void setChanged() {
+        super.setChanged();
+        if (this.data.ownerTeamId != null) TeamManager.getTeamById(this.data.ownerTeamId).addGenerator(this.data.uuid, this.data.genInfo);
     }
 
     @Override
