@@ -10,7 +10,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class BaseTier {
-    private static List<BaseTier> tiers = new ArrayList<>();
+    private static final List<BaseTier> tiers = new ArrayList<>();
     private static final ResourcesWrapper<BaseTier> BASE_TIERS =
             ResourcesWrapper.data(BaseTier.class, "basetiers")
                     .onLoad((BaseTier::computeTierList));

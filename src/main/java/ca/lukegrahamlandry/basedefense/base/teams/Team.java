@@ -62,4 +62,8 @@ public class Team {
     public int getBaseTier() {
         return this.baseBlockTier;
     }
+
+    public void setDirty(){
+        TeamManager.TEAMS.setDirty();
+    }
 }

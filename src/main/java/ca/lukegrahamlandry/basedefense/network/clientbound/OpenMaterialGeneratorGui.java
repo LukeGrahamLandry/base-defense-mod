@@ -10,7 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
-public class OpenMaterialGeneratorGuiPacket implements ClientSideHandler {
+public class OpenMaterialGeneratorGui implements ClientSideHandler {
     MaterialCollection currentProduction;
     MaterialCollection nextProduction;
     MaterialCollection upgradeCost;
@@ -19,7 +19,7 @@ public class OpenMaterialGeneratorGuiPacket implements ClientSideHandler {
     ResourceLocation type;
     BlockPos pos;
 
-    public OpenMaterialGeneratorGuiPacket(ServerPlayer player, LeveledMaterialGenerator generator, BlockPos pos){
+    public OpenMaterialGeneratorGui(ServerPlayer player, LeveledMaterialGenerator generator, BlockPos pos){
         playerMaterials = MaterialsUtil.getTeamMaterials(player);
         currentProduction = generator.getProduction();
         nextProduction = generator.getNextProduction();

@@ -3,7 +3,7 @@ package ca.lukegrahamlandry.basedefense.game.block;
 import ca.lukegrahamlandry.basedefense.base.material.old.LeveledMaterialGenerator;
 import ca.lukegrahamlandry.basedefense.game.ModRegistry;
 import ca.lukegrahamlandry.basedefense.game.tile.MaterialGeneratorTile;
-import ca.lukegrahamlandry.basedefense.network.clientbound.OpenMaterialGeneratorGuiPacket;
+import ca.lukegrahamlandry.basedefense.network.clientbound.OpenMaterialGeneratorGui;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -35,7 +35,7 @@ public class MaterialGeneratorBlock extends Block implements EntityBlock {
             MaterialGeneratorTile.getAndDo(pLevel, pPos, (t) -> t.tryBind((ServerPlayer) pPlayer));
             BlockEntity tile = pLevel.getBlockEntity(pPos);
             if (tile instanceof LeveledMaterialGenerator){
-                new OpenMaterialGeneratorGuiPacket((ServerPlayer) pPlayer, (LeveledMaterialGenerator) tile, pPos).sendToClient((ServerPlayer) pPlayer);
+                new OpenMaterialGeneratorGui((ServerPlayer) pPlayer, (LeveledMaterialGenerator) tile, pPos).sendToClient((ServerPlayer) pPlayer);
             }
         }
         return super.use(pState, pLevel, pPos, pPlayer, pHand, pHit);
