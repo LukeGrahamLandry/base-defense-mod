@@ -1,0 +1,15 @@
+{
+  "cost": {
+    "basedefense:orange": 5
+  },
+  "items": [
+    {
+      "item": "minecraft:apple",
+      "count": 4
+    },
+    {
+      "item": "minecraft:string",
+      "count": 1
+    }
+  ]
+}

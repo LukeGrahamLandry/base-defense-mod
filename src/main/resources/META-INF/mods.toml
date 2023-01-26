@@ -66,3 +66,10 @@ This is a long form description of the mod. You can write whatever you want here
     versionRange="[1.19.3,1.20)"
     ordering="NONE"
     side="BOTH"
+
+[[dependencies.basedefense]]
+modId="wrapperlib"
+mandatory=true
+versionRange="[1.1,2)"
+ordering="BEFORE"
+side="BOTH"

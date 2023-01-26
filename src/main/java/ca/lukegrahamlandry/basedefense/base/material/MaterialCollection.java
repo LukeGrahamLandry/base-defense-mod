@@ -1,11 +1,15 @@
 package ca.lukegrahamlandry.basedefense.base.material;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import ca.lukegrahamlandry.lib.base.GenericHolder;
+import ca.lukegrahamlandry.lib.base.json.JsonHelper;
+import ca.lukegrahamlandry.lib.config.ConfigWrapper;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -106,5 +110,23 @@ public class MaterialCollection {
 
     public void clear() {
        this.materials.clear();
+    }
+
+
+    public static class TypeAdapter implements JsonDeserializer<MaterialCollection>, JsonSerializer<MaterialCollection> {
+        public TypeAdapter() {
+        }
+
+        public MaterialCollection deserialize(JsonElement data, Type type, JsonDeserializationContext ctx) throws JsonParseException {
+            System.out.println(data.toString());
+            Map<ResourceLocation, Integer> materials = (Map<ResourceLocation, Integer>) JsonHelper.get().fromJson(data, TypeToken.getParameterized(HashMap.class, new Type[]{ResourceLocation.class, Integer.class}));
+            MaterialCollection m = new MaterialCollection();
+            m.materials = materials;
+            return m;
+        }
+
+        public JsonElement serialize(MaterialCollection obj, Type type, JsonSerializationContext ctx) {
+            return JsonHelper.get().toJsonTree(obj.materials);
+        }
     }
 }

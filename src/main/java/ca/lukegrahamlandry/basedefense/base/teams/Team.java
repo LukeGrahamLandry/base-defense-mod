@@ -12,14 +12,14 @@ public class Team {
     UUID id;
     MaterialCollection materials;
     Map<UUID, MaterialGeneratorType.Instance> generators;
-    List<AttackLocation> attackLocations;
+    // List<AttackLocation> attackLocations;
     int baseBlockTier = 0;
 
     public Team() {
         this.id = UUID.randomUUID();
         this.materials = new MaterialCollection();
         this.generators = new HashMap<>();
-        this.attackLocations = new ArrayList<>();
+        // this.attackLocations = new ArrayList<>();
     }
 
     public boolean contains(Player player) {
@@ -35,14 +35,15 @@ public class Team {
     }
 
     public void addAttackLocation(AttackLocation attackLocation) {
-        this.attackLocations.add(attackLocation);
+//        this.attackLocations.add(attackLocation);
     }
 
     public List<AttackLocation> getAttackOptions() {
-        for (AttackLocation l : this.attackLocations){
-            System.out.println(l.pos());
-        }
-        return new ArrayList<>(this.attackLocations);
+//        for (AttackLocation l : this.attackLocations){
+//            System.out.println(l.pos());
+//        }
+//        return new ArrayList<>(this.attackLocations);
+        return  new ArrayList<>();
     }
 
     public UUID getId() {

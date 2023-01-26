@@ -13,11 +13,12 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 
 public class MaterialShop {
-    public static final ResourcesWrapper<ShopEntry> SHOP_ENTRIES = ResourcesWrapper.data(ShopEntry.class, "shop").synced();
+    // TODO: wrapperlib: cant reenter world without restart when synced(). seems to be calling apply while  the return value of "net.minecraftforge.network.PacketDistributor.getServer()" is null
+    public static final ResourcesWrapper<ShopEntry> SHOP_ENTRIES = ResourcesWrapper.data(ShopEntry.class, "shop");
     public static class ShopEntry {
-        MaterialCollection cost;
-        List<ItemStack> items;
-        int minBaseLevel;
+        public MaterialCollection cost;
+        public List<ItemStack> items;
+        public int minBaseTier = 0;
     }
 
     public static class Buy implements ServerSideHandler {
@@ -28,6 +29,7 @@ public class MaterialShop {
 
         @Override
         public void handle(ServerPlayer player) {
+            System.out.println("try buy " + this.key);
             ShopEntry entry = SHOP_ENTRIES.get(this.key);
             if (unableToBuy(player, entry)) return;
 
@@ -43,16 +45,16 @@ public class MaterialShop {
         // This should always return true because the gui shouldn't let you try to buy something you can't but just in case something breaks or someone cares enough to cheat.
         private boolean unableToBuy(ServerPlayer player, ShopEntry entry) {
             Team team = TeamManager.get(player);
-            if (team.getBaseTier() < entry.minBaseLevel){
+            if (team.getBaseTier() < entry.minBaseTier){
                 player.displayClientMessage(Component.literal("Your team doesn't have a high enough base level for " + this.key), false);
-                return false;
+                return true;
             }
             if (!team.getMaterials().canAfford(entry.cost)) {
                 player.displayClientMessage(Component.literal("Your doesn't have enough materials for " + this.key), false);
-                return false;
+                return true;
             }
 
-            return true;
+            return false;
         }
 
         private void safeGive(ServerPlayer player, ItemStack stack){

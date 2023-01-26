@@ -15,6 +15,7 @@ public class OpenMaterialShopGui implements ClientSideHandler {
     MaterialCollection storage;
 
     public OpenMaterialShopGui(Player player){
+        System.out.println(player.level.isClientSide);
         Team team = TeamManager.get(player);
         storage = team.getMaterials();
         baseTier = team.getBaseTier();

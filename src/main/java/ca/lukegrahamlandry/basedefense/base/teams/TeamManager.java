@@ -1,15 +1,17 @@
 package ca.lukegrahamlandry.basedefense.base.teams;
 
-import ca.lukegrahamlandry.basedefense.base.material.MaterialCollection;
 import ca.lukegrahamlandry.lib.data.impl.GlobalDataWrapper;
 import ca.lukegrahamlandry.lib.data.impl.PlayerDataWrapper;
 import net.minecraft.world.entity.player.Player;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class TeamManager {
-    private static final PlayerDataWrapper<TeamInfo> PLAYER_TEAMS = new PlayerDataWrapper<>(TeamInfo.class);
-    public static final GlobalDataWrapper<TeamManager> TEAMS = new GlobalDataWrapper<>(TeamManager.class);
+    private static final PlayerDataWrapper<TeamInfo> PLAYER_TEAMS = new PlayerDataWrapper<>(TeamInfo.class).saved();
+    public static final GlobalDataWrapper<TeamManager> TEAMS = new GlobalDataWrapper<>(TeamManager.class).saved();
 
     private Map<UUID, Team> teams = new HashMap<>();
 
@@ -19,6 +21,8 @@ public class TeamManager {
 
     public Team getTeam(Player player){
         TeamInfo teamInfo = PLAYER_TEAMS.get(player);
+
+        System.out.println(teamInfo.id);
 
         if (teamInfo.id == null){
             Team team = new Team();
@@ -68,10 +72,10 @@ public class TeamManager {
         return teams.values();
     }
 
-    private static class TeamInfo {
+    public static class TeamInfo {
         private UUID id;
 
-        TeamInfo(){
+        public TeamInfo(){
 
         }
     }
