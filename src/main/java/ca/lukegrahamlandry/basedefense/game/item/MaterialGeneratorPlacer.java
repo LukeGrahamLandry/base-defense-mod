@@ -3,6 +3,7 @@ package ca.lukegrahamlandry.basedefense.game.item;
 import ca.lukegrahamlandry.basedefense.game.ModRegistry;
 import ca.lukegrahamlandry.basedefense.game.tile.MaterialGeneratorTile;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -30,5 +31,10 @@ public class MaterialGeneratorPlacer extends BlockItem {
             ((MaterialGeneratorTile) tile).setType(this.type, this.tier);
         }
         return super.updateCustomBlockEntityTag(pPos, pLevel, pPlayer, pStack, pState);
+    }
+
+    @Override
+    public String getDescriptionId() {
+        return this.getOrCreateDescriptionId();
     }
 }

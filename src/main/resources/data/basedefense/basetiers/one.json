@@ -1,0 +1,10 @@
+{
+  "tier": 1,
+  "cost": {
+    "basedefense:silver": 100
+  },
+  "unlockedCraftableItems": [
+    "minecraft:stick",
+    "minecraft:stone_pickaxe"
+  ]
+}

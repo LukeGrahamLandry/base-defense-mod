@@ -16,9 +16,7 @@ public class LockedCrafting {
         if (optional.isEmpty()) return true;
         ItemStack result = optional.get().assemble(craftingInputItems);
 
-        Team team = TeamManager.get(player);
-        // TODO: this is just for testing since i haven't implemented base upgrading yet
-        int tier = player.experienceLevel;  // team.getBaseTier()
+        int tier = TeamManager.get(player).getBaseTier();
         BaseTier base = BaseTier.get(tier);
 
         return base.canCraft(result);

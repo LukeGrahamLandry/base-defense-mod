@@ -23,7 +23,7 @@ public class ServerEvents {
                 MaterialsUtil.tickGenerators();
                 timer = 0;
 
-                handleAttacks(event.level);
+                // handleAttacks(event.level);  // TODO
             }
             timer++;
         }

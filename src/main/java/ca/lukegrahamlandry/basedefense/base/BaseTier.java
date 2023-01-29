@@ -16,7 +16,7 @@ public class BaseTier {
                     .onLoad((BaseTier::computeTierList));
 
     int tier;
-    MaterialCollection upgradeCost;
+    MaterialCollection cost;
     List<String> unlockedCraftableItems;
 
     public boolean canCraft(ItemStack item){
@@ -24,9 +24,12 @@ public class BaseTier {
         String itemRL = BuiltInRegistries.ITEM.getResourceKey(item.getItem()).get().location().toString();
 
         // If the item is unlocked at a tier above us, you can't craft it yet.
+        System.out.println(this.tier);
         for (int i=tiers.size()-1;i>this.tier;i--){
+            System.out.println(i);
             var tier = get(i);
             for (String itemDescriptor : tier.unlockedCraftableItems){
+                System.out.println("Check " + itemDescriptor);
                 if (itemDescriptor.startsWith("#")) {
                     // TODO: tags
                 } else {
@@ -40,9 +43,10 @@ public class BaseTier {
 
     public MaterialCollection getNextUpgradeCost(){
         if (this.tier + 1 >= tiers.size()) return null;
-        return get(this.tier + 1).upgradeCost;
+        return get(this.tier + 1).cost;
     }
 
+    // TODO: instead of having the data pack declare the level, put an array of resource locations in the config. that way pack makers can have more direct control
     private static void computeTierList() {
         tiers.clear();
         BASE_TIERS.entrySet().forEach((entry) -> tiers.add(entry.getValue()));
@@ -55,4 +59,8 @@ public class BaseTier {
 
     // for classloading
     public static void init(){}
+
+    public List<String> getNewItems() {
+        return this.unlockedCraftableItems;
+    }
 }

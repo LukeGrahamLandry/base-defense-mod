@@ -15,6 +15,7 @@ import java.util.List;
 public class MaterialShop {
     // TODO: wrapperlib: cant reenter world without restart when synced(). seems to be calling apply while  the return value of "net.minecraftforge.network.PacketDistributor.getServer()" is null
     public static final ResourcesWrapper<ShopEntry> SHOP_ENTRIES = ResourcesWrapper.data(ShopEntry.class, "shop");
+
     public static class ShopEntry {
         public MaterialCollection cost;
         public List<ItemStack> items;
@@ -61,4 +62,7 @@ public class MaterialShop {
             if (!player.addItem(stack)) player.drop(stack, false);
         }
     }
+
+    // for classloading
+    public static void init() {}
 }

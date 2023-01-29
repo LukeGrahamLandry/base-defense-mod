@@ -2,6 +2,7 @@ package ca.lukegrahamlandry.basedefense.game;
 
 import ca.lukegrahamlandry.basedefense.ModMain;
 import ca.lukegrahamlandry.basedefense.base.attacks.AttackTargetAvatar;
+import ca.lukegrahamlandry.basedefense.game.block.BaseBlock;
 import ca.lukegrahamlandry.basedefense.game.block.MaterialGeneratorBlock;
 import ca.lukegrahamlandry.basedefense.game.block.MaterialShopBlock;
 import ca.lukegrahamlandry.basedefense.game.item.MaterialGeneratorPlacer;
@@ -35,6 +36,10 @@ public class ModRegistry {
     public static final Supplier<Block> MATERIAL_SHOP_BLOCK = BLOCKS.register("material_shop",
             () -> new MaterialShopBlock(Block.Properties.of(Material.STONE).strength(5.0F, 1200.0F).noOcclusion()));
 
+    public static final Supplier<Block> BASE_BLOCK = BLOCKS.register("base_block",
+            () -> new BaseBlock(Block.Properties.of(Material.STONE).strength(5.0F, 1200.0F).noOcclusion()));
+
+
 
     public static final RegistryWrapper<EntityType<?>> ENTITY = RegistryWrapper.create(BuiltInRegistries.ENTITY_TYPE, ModMain.MOD_ID);
 
@@ -52,6 +57,7 @@ public class ModRegistry {
     public static final Supplier<Item> GEN1 = ITEM.register("fruit_gen", () -> new MaterialGeneratorPlacer(new ResourceLocation(ModMain.MOD_ID, "fruit"), 0));
     public static final Supplier<Item> GEN2 = ITEM.register("metal_gen", () -> new MaterialGeneratorPlacer(new ResourceLocation(ModMain.MOD_ID, "metal"), 0));
     public static final Supplier<Item> MATERIAL_SHOP_ITEM = ITEM.register("material_shop", () -> new BlockItem(MATERIAL_SHOP_BLOCK.get(), new Item.Properties()));
+    public static final Supplier<Item> BASE_BLOCK_ITEM = ITEM.register("base_block", () -> new BlockItem(BASE_BLOCK.get(), new Item.Properties()));
 
     @SubscribeEvent
     public static void creativeTab(CreativeModeTabEvent.Register event){

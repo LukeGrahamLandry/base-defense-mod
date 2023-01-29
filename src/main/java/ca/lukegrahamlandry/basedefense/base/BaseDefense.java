@@ -27,5 +27,6 @@ public class BaseDefense {
         TeamManager.init();
         MaterialGeneratorType.init();
         BaseTier.init();
+        MaterialShop.init();
     }
 }

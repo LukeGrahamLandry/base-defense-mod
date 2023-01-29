@@ -1,0 +1,11 @@
+{
+  "tier": 2,
+  "cost": {
+    "basedefense:silver": 10,
+    "basedefense:orange": 20
+  },
+  "unlockedCraftableItems": [
+    "minecraft:stone_sword",
+    "minecraft:stone_axe"
+  ]
+}
