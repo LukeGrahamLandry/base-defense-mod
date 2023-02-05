@@ -21,7 +21,12 @@ public class MaterialGeneratorType {
         }
 
         public MaterialCollection getProduction(){
-            return GENERATOR_TYPES.get(this.type).tiers.get(tier).production;
+            var stats = GENERATOR_TYPES.get(this.type).tiers;
+            var effectiveTier = tier >= stats.size() ? stats.size() - 1 : tier;
+            if (tier != effectiveTier){
+                System.out.println("ERROR: generator " + type + " tier corrected from " + tier + " to max of " + effectiveTier);
+            }
+            return stats.get(effectiveTier).production;
         }
 
         // materials required to upgrade from previous (tier-1) to this (tier)

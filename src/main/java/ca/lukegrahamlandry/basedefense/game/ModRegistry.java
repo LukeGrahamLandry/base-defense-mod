@@ -69,6 +69,7 @@ public class ModRegistry {
                         populator.accept(GEN1.get());
                         populator.accept(GEN2.get());
                         populator.accept(MATERIAL_SHOP_BLOCK.get());
+                        populator.accept(BASE_BLOCK.get());
                     });
         });
     }

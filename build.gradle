@@ -154,6 +154,10 @@ repositories {
     //  maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
 
     maven { url = "https://maven.lukegrahamlandry.ca" }
+
+    maven {
+        url "https://cursemaven.com"
+    }
 }
 
 dependencies {
