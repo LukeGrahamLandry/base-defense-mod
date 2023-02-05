@@ -2,6 +2,7 @@ package ca.lukegrahamlandry.basedefense.base.material;
 
 import ca.lukegrahamlandry.basedefense.ModMain;
 import ca.lukegrahamlandry.lib.resources.ResourcesWrapper;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.*;
@@ -54,6 +55,10 @@ public class MaterialGeneratorType {
     }
 
     //// Instance Data Helper ////
+
+    public static Component getDisplayName(ResourceLocation type, int tier){
+        return Component.translatable("generator." + type.getNamespace() + "." + type.getPath(), tier);
+    }
 
     public static class Instance {
         public ResourceLocation type;

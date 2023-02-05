@@ -20,7 +20,6 @@ import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -61,7 +60,7 @@ public class ServerEvents {
 
     @SubscribeEvent
     public static void handleBreak(BlockEvent.BreakEvent event){
-        if (!event.getLevel().isClientSide() && event.getState().getBlock() == ModRegistry.MATERIAL_GENERATOR_BLOCK.get()){
+        if (!event.getLevel().isClientSide() && event.getState().getBlock() == ModRegistry.LOOTED_GENERATOR_BLOCK.get()){
             MaterialGeneratorTile.getAndDo((Level) event.getLevel(), event.getPos(), MaterialGeneratorTile::unBind);
         }
     }

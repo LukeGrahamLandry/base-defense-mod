@@ -1,4 +1,8 @@
 {
   "key.categories.basedefense": "Base Defense",
-  "key.materials_open": "Open Materials GUI"
+  "key.materials_open": "Open Materials GUI",
+
+  "generator.basedefense.metal": "Metal Generator Tier %d",
+  "generator.basedefense.fruit": "Fruit Generator Tier %d",
+  "generator.basedefense.empty": "Invalid Generator"
 }

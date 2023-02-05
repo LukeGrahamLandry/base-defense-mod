@@ -1,8 +1,10 @@
 package ca.lukegrahamlandry.basedefense.game.item;
 
+import ca.lukegrahamlandry.basedefense.base.material.MaterialGeneratorType;
 import ca.lukegrahamlandry.basedefense.game.ModRegistry;
 import ca.lukegrahamlandry.basedefense.game.tile.MaterialGeneratorTile;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -14,27 +16,34 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-public class MaterialGeneratorPlacer extends BlockItem {
-    private final ResourceLocation type;
-    private final int tier;
-
-    public MaterialGeneratorPlacer(ResourceLocation type, int tier) {
-        super(ModRegistry.MATERIAL_GENERATOR_BLOCK.get(), new Item.Properties());
-        this.type = type;
-        this.tier = tier;
+public class LootedGeneratorPlacer extends BlockItem {
+    public LootedGeneratorPlacer() {
+        super(ModRegistry.LOOTED_GENERATOR_BLOCK.get(), new Item.Properties());
     }
 
     @Override
     protected boolean updateCustomBlockEntityTag(BlockPos pPos, Level pLevel, @Nullable Player pPlayer, ItemStack pStack, BlockState pState) {
         BlockEntity tile = pLevel.getBlockEntity(pPos);
         if (tile instanceof MaterialGeneratorTile){
-            ((MaterialGeneratorTile) tile).setType(this.type, this.tier);
+            ((MaterialGeneratorTile) tile).setType(getType(pStack), getTier(pStack));
         }
         return super.updateCustomBlockEntityTag(pPos, pLevel, pPlayer, pStack, pState);
     }
 
-    @Override
-    public String getDescriptionId() {
-        return this.getOrCreateDescriptionId();
+    public Component getName(ItemStack pStack) {
+        return MaterialGeneratorType.getDisplayName(getType(pStack), getTier(pStack));
     }
+
+    public static ResourceLocation getType(ItemStack stack){
+        CompoundTag nbt = stack.getOrCreateTag();
+        if (nbt.contains("type")) return new ResourceLocation(nbt.getString("type"));
+        return MaterialGeneratorType.EMPTY.type;
+    }
+
+    public static int getTier(ItemStack stack){
+        CompoundTag nbt = stack.getOrCreateTag();
+        if (nbt.contains("tier")) return nbt.getInt("tier");
+        return 0;
+    }
+
 }

@@ -1,6 +1,7 @@
 package ca.lukegrahamlandry.basedefense.client.gui;
 
 import ca.lukegrahamlandry.basedefense.base.material.MaterialCollection;
+import ca.lukegrahamlandry.basedefense.base.material.MaterialGeneratorType;
 import ca.lukegrahamlandry.basedefense.network.serverbound.UpgradeTilePacket;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -47,7 +48,7 @@ public class GeneratorUpgradeScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        this.title = Component.translatable("generator." + type.getNamespace() + "." + type.getPath(), this.tier);
+        this.title = MaterialGeneratorType.getDisplayName(this.type, this.tier);
 
         createMaterialsList(Component.literal("Production"), this.currentProduction, 10, 20);
 
