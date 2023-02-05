@@ -1,6 +1,7 @@
 package ca.lukegrahamlandry.basedefense.client.gui;
 
 import ca.lukegrahamlandry.basedefense.base.material.MaterialCollection;
+import ca.lukegrahamlandry.basedefense.network.serverbound.RequestGuiPacket;
 import ca.lukegrahamlandry.basedefense.network.serverbound.UpgradeBasePacket;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -37,6 +38,8 @@ public class BaseUpgradeScreen extends Screen {
     @Override
     protected void init() {
         super.init();
+
+        this.addRenderableWidget(Button.builder(Component.literal("[Open Shop]"), pButton -> RequestGuiPacket.SHOP.sendToServer()).bounds(20, this.height - 20, 75, 20).build());
 
         if (upgradeCost == null){
             this.info = Component.literal("Base Tier " + (this.nextLevel - 1) + " (MAX)");

@@ -4,7 +4,6 @@ import ca.lukegrahamlandry.basedefense.ModMain;
 import ca.lukegrahamlandry.basedefense.base.attacks.AttackTargetAvatar;
 import ca.lukegrahamlandry.basedefense.game.block.BaseBlock;
 import ca.lukegrahamlandry.basedefense.game.block.MaterialGeneratorBlock;
-import ca.lukegrahamlandry.basedefense.game.block.MaterialShopBlock;
 import ca.lukegrahamlandry.basedefense.game.item.LootedGeneratorPlacer;
 import ca.lukegrahamlandry.basedefense.game.tile.MaterialGeneratorTile;
 import ca.lukegrahamlandry.lib.registry.RegistryWrapper;
@@ -37,9 +36,6 @@ public class ModRegistry {
     public static final Supplier<Block> TERRAIN_GENERATOR_BLOCK = BLOCKS.register("terrain_generator",
             () -> new MaterialGeneratorBlock(true, Block.Properties.copy(Blocks.BEDROCK).noOcclusion()));
 
-    public static final Supplier<Block> MATERIAL_SHOP_BLOCK = BLOCKS.register("material_shop",
-            () -> new MaterialShopBlock(Block.Properties.of(Material.STONE).strength(5.0F, 1200.0F).noOcclusion()));
-
     public static final Supplier<Block> BASE_BLOCK = BLOCKS.register("base_block",
             () -> new BaseBlock(Block.Properties.of(Material.STONE).strength(5.0F, 1200.0F).noOcclusion()));
 
@@ -59,7 +55,6 @@ public class ModRegistry {
     public static final RegistryWrapper<Item> ITEM = RegistryWrapper.create(BuiltInRegistries.ITEM, ModMain.MOD_ID);
 
     public static final Supplier<Item> LOOTED_GENERATOR_ITEM = ITEM.register("looted_generator", LootedGeneratorPlacer::new);
-    public static final Supplier<Item> MATERIAL_SHOP_ITEM = ITEM.register("material_shop", () -> new BlockItem(MATERIAL_SHOP_BLOCK.get(), new Item.Properties()));
     public static final Supplier<Item> BASE_BLOCK_ITEM = ITEM.register("base_block", () -> new BlockItem(BASE_BLOCK.get(), new Item.Properties()));
     public static final Supplier<Item> TERRAIN_GEN = ITEM.register("terrain_generator", () -> new BlockItem(TERRAIN_GENERATOR_BLOCK.get(), new Item.Properties()));
 
@@ -72,7 +67,6 @@ public class ModRegistry {
                     .displayItems((enabledFlags, populator, hasPermissions) -> {
                         populator.accept(LOOTED_GENERATOR_BLOCK.get());
                         populator.accept(TERRAIN_GENERATOR_BLOCK.get());
-                        populator.accept(MATERIAL_SHOP_BLOCK.get());
                         populator.accept(BASE_BLOCK.get());
                     });
         });

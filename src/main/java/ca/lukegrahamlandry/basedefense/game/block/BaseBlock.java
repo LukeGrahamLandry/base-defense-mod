@@ -23,6 +23,7 @@ public class BaseBlock extends Block {
     @Override
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         if (!pLevel.isClientSide()) {
+            new DataPackSyncMessage(MaterialShop.SHOP_ENTRIES).sendToClient((ServerPlayer) pPlayer);  // TODO: temp fix
             new OpenBaseUpgradeGui((ServerPlayer) pPlayer).sendToClient((ServerPlayer) pPlayer);
         }
         return InteractionResult.CONSUME;

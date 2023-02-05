@@ -2,6 +2,7 @@ package ca.lukegrahamlandry.basedefense.client.gui;
 
 import ca.lukegrahamlandry.basedefense.base.MaterialShop;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialCollection;
+import ca.lukegrahamlandry.basedefense.network.serverbound.RequestGuiPacket;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
@@ -25,9 +26,11 @@ public class ShopScreen extends Screen {
     private MaterialCollection storage;
     private int baseTier;
 
-    private static final int buttonCount = 8;
+    private static final int buttonCount = 5;
     private Button[] offerButtons = new Button[buttonCount];
     private int scrollOffset = 0;
+    private Button backButton;
+    private Button nextButton;
 
     public ShopScreen(MaterialCollection storage, int baseTier) {
         super(Component.literal("Material Shop"));
@@ -52,8 +55,15 @@ public class ShopScreen extends Screen {
         this.validOffers.clear();
         for (var entry : MaterialShop.SHOP_ENTRIES.entrySet()){
             if (entry.getValue().minBaseTier > baseTier) continue;
+
             validOffers.add(entry.getKey());
         }
+
+        this.backButton = this.addRenderableWidget(Button.builder(Component.literal("<"), pButton -> changePage(-1)).bounds(20, this.height - 20, 40, 20).build());
+        this.nextButton = this.addRenderableWidget(Button.builder(Component.literal(">"), pButton -> changePage(1)).bounds(65, this.height - 20, 40, 20).build());
+        this.changePage(0);
+
+        this.addRenderableWidget(Button.builder(Component.literal("[Upgrade Base]"), pButton -> RequestGuiPacket.BASE.sendToServer()).bounds(110, this.height - 20, 75, 20).build());
     }
 
     private void clickOffer(int buttonIndex) {
@@ -69,6 +79,15 @@ public class ShopScreen extends Screen {
 
         // TODO: would be better if it stayed open but your inventory was shown so you could see the new items you get
         Minecraft.getInstance().setScreen(null);
+    }
+
+    private void changePage(int delta){
+        scrollOffset += delta * buttonCount;
+        scrollOffset = Math.min(scrollOffset, validOffers.size() - buttonCount);
+        scrollOffset = Math.max(scrollOffset, 0);
+
+        this.backButton.active = this.scrollOffset > 0;
+        this.nextButton.active = this.scrollOffset < (validOffers.size() - buttonCount);
     }
 
     @Override

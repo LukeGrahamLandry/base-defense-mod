@@ -1,0 +1,11 @@
+{
+  "cost": {
+    "basedefense:orange": 16
+  },
+  "items": [
+    {
+      "item": "minecraft:stick",
+      "count": 16
+    }
+  ]
+}
