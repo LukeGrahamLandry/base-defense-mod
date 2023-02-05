@@ -21,10 +21,12 @@ public class OpenMaterialGeneratorGui implements ClientSideHandler {
 
     public OpenMaterialGeneratorGui(ServerPlayer player, LeveledMaterialGenerator generator, BlockPos pos){
         playerMaterials = MaterialsUtil.getTeamMaterials(player);
-        currentProduction = generator.getProduction();
-        nextProduction = generator.getNextProduction();
-        upgradeCost = generator.getUpgradeCost();
-        type = generator.getGenType();
+        currentProduction = generator.getStats().getProduction();
+        if (!generator.getStats().isMaxTier()){
+            nextProduction = generator.getStats().getNextTier().getProduction();
+            upgradeCost = generator.getUpgradeCost();
+        }
+        type = generator.getStats().type;
         tier = generator.getTier();
         this.pos = pos;
     }

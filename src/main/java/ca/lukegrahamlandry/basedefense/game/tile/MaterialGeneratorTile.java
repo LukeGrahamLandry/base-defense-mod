@@ -1,6 +1,7 @@
 package ca.lukegrahamlandry.basedefense.game.tile;
 
 import ca.lukegrahamlandry.basedefense.ModMain;
+import ca.lukegrahamlandry.basedefense.base.BaseDefense;
 import ca.lukegrahamlandry.basedefense.base.attacks.AttackLocation;
 import ca.lukegrahamlandry.basedefense.base.attacks.AttackTargetAvatar;
 import ca.lukegrahamlandry.basedefense.base.attacks.AttackTargetable;
@@ -11,16 +12,20 @@ import ca.lukegrahamlandry.basedefense.base.teams.Team;
 import ca.lukegrahamlandry.basedefense.base.teams.TeamManager;
 import ca.lukegrahamlandry.basedefense.game.ModRegistry;
 import ca.lukegrahamlandry.lib.base.json.JsonHelper;
+import ca.lukegrahamlandry.lib.config.ConfigWrapper;
 import com.google.gson.JsonSyntaxException;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -34,6 +39,7 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
         private UUID uuid;
         private UUID ownerTeamId;
         private MaterialGeneratorType.Instance genInfo;
+        private boolean isTerrainGenerated = false;
     }
 
     private SaveData data = new SaveData();
@@ -68,6 +74,18 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
         this.data.ownerTeamId = null;
     }
 
+    public void setIsTerrain() {
+        this.data.isTerrainGenerated = true;
+        if (this.data.genInfo == null){
+            this.data.genInfo = MaterialGeneratorType.EMPTY.createInst(0);
+        }
+        if (this.hasLevel()){
+            Holder<Biome> biome = this.level.getBiome(this.worldPosition);
+            this.data.genInfo.type = BaseDefense.CONFIG.get().getGeneratorTypeFor(this.level, biome);
+        } else {
+            ModMain.LOGGER.error("MaterialGeneratorTile#setIsTerrain called before in level so can't read biome type.");
+        }
+    }
 
     @Override
     protected void saveAdditional(CompoundTag tag) {
@@ -87,23 +105,13 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
                 e.printStackTrace();
             }
         }
-    }
 
-    @Override
-    public MaterialCollection getProduction() {
-        if (this.data.genInfo == null) return MaterialCollection.empty();
-        return this.data.genInfo.getProduction();
-    }
-
-    @Override
-    public UUID getUUID() {
-        return this.data.uuid;
-    }
-
-    @Override
-    public MaterialCollection getNextProduction() {
-        if (this.data.genInfo.next() == null) return MaterialCollection.empty();
-        return this.data.genInfo.next().getProduction();
+        if (this.data.genInfo == null){
+            this.data.genInfo = MaterialGeneratorType.EMPTY.createInst(0);
+        }
+        if (this.hasLevel() && this.data.isTerrainGenerated){
+            this.setIsTerrain();
+        }
     }
 
     @Override
@@ -151,12 +159,9 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
     }
 
     @Override
-    public ResourceLocation getGenType() {
-        return this.data.genInfo.type;
+    public MaterialGeneratorType.Instance getStats() {
+        return this.data.genInfo;
     }
-
-
-
 
 
     float health = maxHealth();

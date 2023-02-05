@@ -50,11 +50,17 @@ public class GeneratorUpgradeScreen extends Screen {
         this.title = Component.translatable("generator." + type.getNamespace() + "." + type.getPath(), this.tier);
 
         createMaterialsList(Component.literal("Production"), this.currentProduction, 10, 20);
-        createMaterialsList(Component.literal("Upgrade Cost"), this.upgradeCost, 110, 20);
-        createMaterialsList(Component.literal("Next Production"), this.nextProduction, 210, 20);
 
-        this.upgrade = new PlainTextButton(0, 0, 100, 20, Component.literal("Upgrade (" + (this.tier+1) + ")"), this::doUpgrade, Minecraft.getInstance().font);
-        this.upgrade.active = this.playerMaterials.canAfford(this.upgradeCost);
+        Component upgradeText = Component.literal("Max Tier");
+        if (this.upgradeCost != null && this.nextProduction != null){
+            createMaterialsList(Component.literal("Upgrade Cost"), this.upgradeCost, 110, 20);
+            createMaterialsList(Component.literal("Next Production"), this.nextProduction, 210, 20);
+            upgradeText = Component.literal("Upgrade (" + (this.tier+1) + ")");
+        }
+
+        this.upgrade = new PlainTextButton(0, 0, 100, 20, upgradeText, this::doUpgrade, Minecraft.getInstance().font);
+        this.upgrade.active = this.upgradeCost != null && this.playerMaterials.canAfford(this.upgradeCost);
+
         this.addRenderableWidget(this.upgrade);
     }
 

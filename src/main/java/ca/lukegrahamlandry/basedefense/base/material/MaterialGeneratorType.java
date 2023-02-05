@@ -1,15 +1,59 @@
 package ca.lukegrahamlandry.basedefense.base.material;
 
+import ca.lukegrahamlandry.basedefense.ModMain;
 import ca.lukegrahamlandry.lib.resources.ResourcesWrapper;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.List;
+import java.util.*;
 
 public class MaterialGeneratorType {
-    public static final ResourcesWrapper<MaterialGeneratorType> GENERATOR_TYPES = ResourcesWrapper.data(MaterialGeneratorType.class, "materialgenerators");
-    public static final MaterialGeneratorType EMPTY = new MaterialGeneratorType();
+    //// Data Pack Loading ////
 
-    public List<LevelInfo> tiers;
+    public static final MaterialGeneratorType EMPTY = new MaterialGeneratorType();
+    public static final Set<ResourceLocation> correctedTypes = new HashSet<>();
+    static {
+        EMPTY.type = new ResourceLocation(ModMain.MOD_ID, "empty");
+        EMPTY.tiers = Arrays.asList(new TierStats());
+    }
+
+    public static final ResourcesWrapper<MaterialGeneratorType> GENERATOR_TYPES =
+            ResourcesWrapper.data(MaterialGeneratorType.class, "materialgenerators").onLoad(MaterialGeneratorType::onLoadDatapack);
+
+    private static void onLoadDatapack() {
+        for (var entry : GENERATOR_TYPES.entrySet()){
+            entry.getValue().type = entry.getKey();
+        }
+    }
+
+    //// Loaded Type Data ////
+
+    private List<TierStats> tiers;  // read from json
+    public ResourceLocation type;  // don't include in json, it gets injected on load based on file name
+
+    public Instance createInst(int tier){
+        return new Instance(type, tier);
+    }
+
+    private int clampTier(int tier){
+        var effectiveTier = tier >= this.tiers.size() ? this.tiers.size() - 1 : tier;
+        if (tier != effectiveTier){
+            if (correctedTypes.add(this.type)){
+                ModMain.LOGGER.debug(
+                        "Generator " + this.type + " tier corrected from " + tier + " to max of " + effectiveTier + ". " +
+                                "Probably someone had a high tier generator then the data packs were adjusted to lower the max tier."
+                );
+            }
+        }
+        return effectiveTier;
+    }
+
+    public static class TierStats {
+        MaterialCollection cost = new MaterialCollection();
+        MaterialCollection production = new MaterialCollection();
+        int minBaseTier = 0;
+    }
+
+    //// Instance Data Helper ////
 
     public static class Instance {
         public ResourceLocation type;
@@ -21,32 +65,39 @@ public class MaterialGeneratorType {
         }
 
         public MaterialCollection getProduction(){
-            var stats = GENERATOR_TYPES.get(this.type).tiers;
-            var effectiveTier = tier >= stats.size() ? stats.size() - 1 : tier;
-            if (tier != effectiveTier){
-                System.out.println("ERROR: generator " + type + " tier corrected from " + tier + " to max of " + effectiveTier);
-            }
-            return stats.get(effectiveTier).production;
+            return this.getStats().production;
         }
 
-        // materials required to upgrade from previous (tier-1) to this (tier)
+        // materials required to upgrade from (tier) to (tier + 1)
         public MaterialCollection getUpgradeCost(){
-            var data = GENERATOR_TYPES.get(this.type);
-            if (tier >= data.tiers.size()) return null;
-            return data.tiers.get(tier).cost;
+            return this.getNextTier().getStats().cost;
         }
 
-        public Instance next(){
-            var data = GENERATOR_TYPES.get(this.type);
-            if (tier+1 >= data.tiers.size()) return null;
+        public Instance getNextTier(){
             return new MaterialGeneratorType.Instance(this.type, tier + 1);
         }
-    }
 
-    public static class LevelInfo {
-        MaterialCollection cost;
-        MaterialCollection production;
-        int minBaseTier = 0;
+        public boolean isMaxTier(){
+            return tier+1 >= this.safeGetType().tiers.size();
+        }
+
+        private TierStats getStats(){
+            return safeGetType().tiers.get(safeGetType().clampTier(tier));
+        }
+
+        private MaterialGeneratorType safeGetType(){
+            MaterialGeneratorType stats = GENERATOR_TYPES.get(this.type);
+            if (stats == null){
+                if (correctedTypes.add(type)){
+                    ModMain.LOGGER.debug(
+                            "Generator type " + this.type + " corrected from " + this.type + " to " + EMPTY.type + "." +
+                                    "Probably someone had a generator then the data packs were adjusted to remove or rename its type."
+                    );
+                }
+                return EMPTY;
+            }
+            return stats;
+        }
     }
 
     // for class loading

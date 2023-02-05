@@ -17,8 +17,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
 public class MaterialGeneratorBlock extends Block implements EntityBlock {
-    public MaterialGeneratorBlock(Properties p_49795_) {
+    private boolean isTerrainGenerated;
+
+    public MaterialGeneratorBlock(boolean isTerrainGenerated, Properties p_49795_) {
         super(p_49795_);
+        this.isTerrainGenerated = isTerrainGenerated;
     }
 
     @Override
@@ -31,7 +34,10 @@ public class MaterialGeneratorBlock extends Block implements EntityBlock {
         if (pLevel.isClientSide()){
             return InteractionResult.CONSUME;
         } else {
-            // RequestMaterialGeneratorGuiPacket.send(pPos);
+            if (this.isTerrainGenerated){
+                MaterialGeneratorTile.getAndDo(pLevel, pPos, MaterialGeneratorTile::setIsTerrain);
+            }
+
             MaterialGeneratorTile.getAndDo(pLevel, pPos, (t) -> t.tryBind((ServerPlayer) pPlayer));
             BlockEntity tile = pLevel.getBlockEntity(pPos);
             if (tile instanceof LeveledMaterialGenerator){
