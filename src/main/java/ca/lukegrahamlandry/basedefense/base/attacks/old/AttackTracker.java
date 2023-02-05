@@ -1,4 +1,4 @@
-package ca.lukegrahamlandry.basedefense.base.attacks;
+package ca.lukegrahamlandry.basedefense.base.attacks.old;
 
 import ca.lukegrahamlandry.basedefense.base.teams.Team;
 import ca.lukegrahamlandry.basedefense.base.teams.TeamManager;

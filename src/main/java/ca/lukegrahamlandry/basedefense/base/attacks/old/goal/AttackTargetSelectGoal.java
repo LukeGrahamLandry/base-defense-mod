@@ -1,6 +1,6 @@
-package ca.lukegrahamlandry.basedefense.base.attacks.goal;
+package ca.lukegrahamlandry.basedefense.base.attacks.old.goal;
 
-import ca.lukegrahamlandry.basedefense.base.attacks.AttackLocation;
+import ca.lukegrahamlandry.basedefense.base.attacks.old.AttackLocation;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
 

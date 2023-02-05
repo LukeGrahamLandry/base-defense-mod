@@ -2,7 +2,7 @@ package ca.lukegrahamlandry.basedefense.events;
 
 import ca.lukegrahamlandry.basedefense.ModMain;
 import ca.lukegrahamlandry.basedefense.base.BaseDefense;
-import ca.lukegrahamlandry.basedefense.base.attacks.AttackTracker;
+import ca.lukegrahamlandry.basedefense.base.attacks.old.AttackTracker;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialsUtil;
 import ca.lukegrahamlandry.basedefense.game.ModRegistry;
 import ca.lukegrahamlandry.basedefense.game.tile.MaterialGeneratorTile;

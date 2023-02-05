@@ -40,6 +40,7 @@ public class BaseUpgradeScreen extends Screen {
         super.init();
 
         this.addRenderableWidget(Button.builder(Component.literal("[Open Shop]"), pButton -> RequestGuiPacket.SHOP.sendToServer()).bounds(20, this.height - 20, 75, 20).build());
+        createMaterialsList(Component.literal("Your Materials"), this.playerMaterials, 10, 20);
 
         if (upgradeCost == null){
             this.info = Component.literal("Base Tier " + (this.nextLevel - 1) + " (MAX)");
@@ -49,7 +50,6 @@ public class BaseUpgradeScreen extends Screen {
         this.info = Component.literal("Base Tier " + (this.nextLevel - 1));
         this.unlockTitle = Component.literal("Crafting Unlocked");
 
-        createMaterialsList(Component.literal("Your Materials"), this.playerMaterials, 10, 20);
         createMaterialsList(Component.literal("Upgrade Cost"), this.upgradeCost, 110, 20);
 
         Button upgrade = Button.builder(Component.literal("Upgrade (to tier " + this.nextLevel + ")"), this::doUpgrade).bounds(0, 0, 100, 20).build();

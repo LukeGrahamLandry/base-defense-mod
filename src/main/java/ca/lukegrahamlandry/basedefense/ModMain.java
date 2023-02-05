@@ -1,7 +1,7 @@
 package ca.lukegrahamlandry.basedefense;
 
 import ca.lukegrahamlandry.basedefense.base.BaseDefense;
-import ca.lukegrahamlandry.basedefense.base.attacks.AttackTargetAvatar;
+import ca.lukegrahamlandry.basedefense.base.attacks.old.AttackTargetAvatar;
 import ca.lukegrahamlandry.basedefense.game.ModRegistry;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;

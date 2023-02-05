@@ -1,4 +1,4 @@
-package ca.lukegrahamlandry.basedefense.base.attacks;
+package ca.lukegrahamlandry.basedefense.base.attacks.old;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;

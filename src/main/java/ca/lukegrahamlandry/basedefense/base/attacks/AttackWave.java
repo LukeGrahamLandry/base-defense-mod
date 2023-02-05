@@ -1,74 +1,99 @@
 package ca.lukegrahamlandry.basedefense.base.attacks;
 
-import ca.lukegrahamlandry.basedefense.base.attacks.goal.AttackTargetSelectGoal;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleTypes;
+import ca.lukegrahamlandry.basedefense.ModMain;
+import ca.lukegrahamlandry.lib.resources.ResourcesWrapper;
+import com.ibm.icu.text.ArabicShaping;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.util.random.Weight;
+import net.minecraft.util.random.WeightedEntry;
+import net.minecraft.util.random.WeightedRandom;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class AttackWave {
-    private final List<Function<Level, LivingEntity>> toSpawn = new ArrayList<>();
-    final List<LivingEntity> spawned = new ArrayList<>();
-    private final AttackLocation target;
+    public static ResourcesWrapper<AttackWave> DATA = ResourcesWrapper.data(AttackWave.class, "attackwaves");
+    private static RandomSource rand = RandomSource.create();
+    private static List<ResourceLocation> EMPTY_MONSTERS = List.of(new ResourceLocation("minecraft:pig"));
 
-    public AttackWave(AttackLocation target){
-        this.target = target;
-    }
+    public List<MonsterEntry> monsters;
+    public Integer rolls;
 
-    public void add(Supplier<LivingEntity> spawn){
-        toSpawn.add((level) -> spawn.get());
-    }
+    // This does not actually spawn the entities!
+    public List<EntityType<?>> toSpawn(Level level){
+        List<EntityType<?>> results = new ArrayList<>();
+        Registry<EntityType<?>> registry = level.registryAccess().registryOrThrow(Registries.ENTITY_TYPE);
 
-    public void add(EntityType<? extends LivingEntity> entityType){
-        toSpawn.add(entityType::create);
-    }
-
-    public void doSpawning(AttackLocation target){
-        for (Function<Level, LivingEntity> spawner : this.toSpawn){
-            BlockPos pos = target.getRandSpawnLocation();
-            LivingEntity enemy = spawner.apply(target.level());
-            if (enemy instanceof Mob) addAttackGoals((Mob) enemy);
-            enemy.setPos(pos.getX(), pos.getY(), pos.getZ());
-            target.level().addFreshEntity(enemy);
-            doParticles(enemy, ParticleTypes.DRAGON_BREATH);
-            spawned.add(enemy);
+        List<ResourceLocation> toSpawn = this.randToSpawn();
+        for (ResourceLocation key : toSpawn){
+            EntityType<?> type = registry.get(key);
+            if (type == null){
+                ModMain.LOGGER.debug("Invalid entity type (" + key + ") found in attack wave.");
+                continue;
+            }
+            results.add(type);
         }
+
+        return results;
     }
 
-    public void addAttackGoals(Mob mob){
-        mob.targetSelector.addGoal(0, new AttackTargetSelectGoal(mob, this.target));
-    }
+    public List<ResourceLocation> randToSpawn(){
+        List<MonsterEntry> chosen = monsters;
 
-    public boolean isDefeated(){
-        for (LivingEntity check : spawned){
-            if (check.isAlive()) return false;
-        }
-        return true;
-    }
+        if (monsters == null || monsters.isEmpty()) return EMPTY_MONSTERS;
 
-    public void killAllEnemies() {
-        for (LivingEntity check : spawned){
-            if (check.isAlive()) doParticles(check, ParticleTypes.LARGE_SMOKE);
-            check.discard();
-        }
-    }
-
-    public static void doParticles(LivingEntity mob, ParticleOptions particle){
-        if (!mob.level.isClientSide()) {
-            for (int i = 0; i < 20; i++) {
-                Vec3 pos = new Vec3(mob.getRandomX(1.5F), mob.getRandomY(), mob.getRandomZ(1.5F));
-                ((ServerLevel) mob.getLevel()).sendParticles(particle, pos.x, pos.y, pos.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+        if (rolls != null) {
+            chosen = new ArrayList<>();
+            for (int i=0;i<rolls;i++){
+                chosen.add(WeightedRandom.getRandomItem(rand, monsters).orElseThrow());
             }
         }
+
+        List<ResourceLocation> toSpawn = new ArrayList<>();
+        for (var entry : chosen){
+            int n = entry.randCount();
+            for (int i=0;i<n;i++){
+                toSpawn.add(entry.entity);
+            }
+        }
+
+        return toSpawn;
     }
+
+    public static class MonsterEntry implements WeightedEntry {
+        public ResourceLocation entity;
+        private Integer max;
+        private Integer min;
+        private Integer count;
+        private Integer weight = 1;
+
+        public int randCount() {
+            if (count != null){
+                return count;
+            }
+            if (min == null){
+                min = 1;
+            }
+            if (max == null){
+                return min;
+            }
+
+            return rand.nextInt(min, max + 1);
+        }
+
+        @Override
+        public Weight getWeight() {
+            return Weight.of(this.weight);
+        }
+    }
+
+    public static void init(){}
 }

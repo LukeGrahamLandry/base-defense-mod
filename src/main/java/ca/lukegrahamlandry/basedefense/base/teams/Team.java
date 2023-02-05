@@ -1,9 +1,8 @@
 package ca.lukegrahamlandry.basedefense.base.teams;
 
-import ca.lukegrahamlandry.basedefense.base.attacks.AttackLocation;
+import ca.lukegrahamlandry.basedefense.base.attacks.old.AttackLocation;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialCollection;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialGeneratorType;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.*;

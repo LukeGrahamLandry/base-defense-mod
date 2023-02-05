@@ -1,7 +1,7 @@
 package ca.lukegrahamlandry.basedefense.game;
 
 import ca.lukegrahamlandry.basedefense.ModMain;
-import ca.lukegrahamlandry.basedefense.base.attacks.AttackTargetAvatar;
+import ca.lukegrahamlandry.basedefense.base.attacks.old.AttackTargetAvatar;
 import ca.lukegrahamlandry.basedefense.game.block.BaseBlock;
 import ca.lukegrahamlandry.basedefense.game.block.MaterialGeneratorBlock;
 import ca.lukegrahamlandry.basedefense.game.item.LootedGeneratorPlacer;

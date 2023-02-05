@@ -1,4 +1,4 @@
-package ca.lukegrahamlandry.basedefense.base.attacks;
+package ca.lukegrahamlandry.basedefense.base.attacks.old;
 
 import ca.lukegrahamlandry.basedefense.game.ModRegistry;
 import net.minecraft.core.BlockPos;
