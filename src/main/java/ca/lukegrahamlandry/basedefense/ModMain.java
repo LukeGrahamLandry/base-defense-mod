@@ -2,8 +2,12 @@ package ca.lukegrahamlandry.basedefense;
 
 import ca.lukegrahamlandry.basedefense.base.BaseDefense;
 import ca.lukegrahamlandry.basedefense.base.attacks.old.AttackTargetAvatar;
+import ca.lukegrahamlandry.basedefense.commands.AttackWaveArgumentType;
 import ca.lukegrahamlandry.basedefense.game.ModRegistry;
+import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.logging.LogUtils;
+import net.minecraft.commands.synchronization.ArgumentTypeInfos;
+import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
@@ -22,6 +26,8 @@ public class ModMain {
 
         ModRegistry.init();
         BaseDefense.init();
+
+        ArgumentTypeInfos.registerByClass(AttackWaveArgumentType.class, SingletonArgumentInfo.contextFree(AttackWaveArgumentType::new));
     }
 
     public static void mobAttributes(EntityAttributeCreationEvent event){

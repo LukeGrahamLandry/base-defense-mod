@@ -30,7 +30,7 @@ public class BaseTier {
     ResourceLocation key;  // dont set. injected based on filename
     MaterialCollection cost = MaterialCollection.empty();
     List<String> unlockedCraftableItems = new ArrayList<>();
-    List<List<AttackWave>> attacks;  // optional
+    List<List<ResourceLocation>> attacks;  // optional
     List<AttributeModifierDef> anyMonsterModifiers;  // optional
     Map<ResourceLocation, List<AttributeModifierDef>> monsterModifiers;  // optional
 
@@ -61,7 +61,7 @@ public class BaseTier {
 
     // If this tier doesn't define the attacks field, default to using the previous tier.
     // Tier zero is assigned an empty list if null on data pack load.
-    public List<List<AttackWave>> getAttackOptions(){
+    public List<List<ResourceLocation>> getAttackOptions(){
         return this.attacks == null ? this.previous().getAttackOptions() : this.attacks;
     }
 

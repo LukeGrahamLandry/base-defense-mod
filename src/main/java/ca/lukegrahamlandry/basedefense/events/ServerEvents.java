@@ -2,20 +2,25 @@ package ca.lukegrahamlandry.basedefense.events;
 
 import ca.lukegrahamlandry.basedefense.ModMain;
 import ca.lukegrahamlandry.basedefense.base.BaseDefense;
+import ca.lukegrahamlandry.basedefense.base.MaterialShop;
+import ca.lukegrahamlandry.basedefense.base.attacks.AttackWave;
 import ca.lukegrahamlandry.basedefense.base.attacks.old.AttackTracker;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialsUtil;
 import ca.lukegrahamlandry.basedefense.game.ModRegistry;
 import ca.lukegrahamlandry.basedefense.game.tile.MaterialGeneratorTile;
 import ca.lukegrahamlandry.lib.config.ConfigWrapper;
 import ca.lukegrahamlandry.lib.config.GenerateComments;
+import ca.lukegrahamlandry.lib.resources.DataPackSyncMessage;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -62,6 +67,13 @@ public class ServerEvents {
     public static void handleBreak(BlockEvent.BreakEvent event){
         if (!event.getLevel().isClientSide() && event.getState().getBlock() == ModRegistry.LOOTED_GENERATOR_BLOCK.get()){
             MaterialGeneratorTile.getAndDo((Level) event.getLevel(), event.getPos(), MaterialGeneratorTile::unBind);
+        }
+    }
+
+    @SubscribeEvent
+    public static void login(PlayerEvent.PlayerLoggedInEvent event){
+        if (!event.getEntity().level.isClientSide()){
+            new DataPackSyncMessage(AttackWave.DATA).sendToClient((ServerPlayer) event.getEntity());  // TODO: temp fix
         }
     }
 

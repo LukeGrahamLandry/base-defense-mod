@@ -1,0 +1,13 @@
+{
+  "rolls": 5,
+  "monsters": [
+    {
+      "entity": "minecraft:sheep",
+      "weight": 3
+    },
+    {
+      "entity": "minecraft:pig",
+      "weight": 1
+    }
+  ]
+}

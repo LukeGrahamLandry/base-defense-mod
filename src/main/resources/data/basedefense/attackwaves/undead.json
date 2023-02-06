@@ -1,0 +1,13 @@
+{
+  "monsters": [
+    {
+      "entity": "minecraft:zombie",
+      "min": 1,
+      "max": 4
+    },
+    {
+      "entity": "minecraft:skeleton",
+      "count": 1
+    }
+  ]
+}
