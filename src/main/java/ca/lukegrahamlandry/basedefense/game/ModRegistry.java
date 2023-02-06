@@ -5,6 +5,7 @@ import ca.lukegrahamlandry.basedefense.base.attacks.old.AttackTargetAvatar;
 import ca.lukegrahamlandry.basedefense.game.block.BaseBlock;
 import ca.lukegrahamlandry.basedefense.game.block.MaterialGeneratorBlock;
 import ca.lukegrahamlandry.basedefense.game.item.LootedGeneratorPlacer;
+import ca.lukegrahamlandry.basedefense.game.tile.BaseTile;
 import ca.lukegrahamlandry.basedefense.game.tile.MaterialGeneratorTile;
 import ca.lukegrahamlandry.lib.registry.RegistryWrapper;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -50,6 +51,10 @@ public class ModRegistry {
 
     public static final Supplier<BlockEntityType<MaterialGeneratorTile>> MATERIAL_GENERATOR_TILE = TILE_ENTITY_TYPES.register("material_generator",
             () -> BlockEntityType.Builder.of(MaterialGeneratorTile::new, LOOTED_GENERATOR_BLOCK.get(), TERRAIN_GENERATOR_BLOCK.get()).build(null));
+
+    public static final Supplier<BlockEntityType<BaseTile>> BASE_TILE = TILE_ENTITY_TYPES.register("base_block",
+            () -> BlockEntityType.Builder.of(BaseTile::new, BASE_BLOCK.get()).build(null));
+
 
 
     public static final RegistryWrapper<Item> ITEM = RegistryWrapper.create(BuiltInRegistries.ITEM, ModMain.MOD_ID);

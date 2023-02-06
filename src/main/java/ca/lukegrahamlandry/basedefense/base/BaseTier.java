@@ -33,6 +33,7 @@ public class BaseTier {
     List<List<ResourceLocation>> attacks;  // optional
     List<AttributeModifierDef> anyMonsterModifiers;  // optional
     Map<ResourceLocation, List<AttributeModifierDef>> monsterModifiers;  // optional
+    public int rfPerTick = 0;
 
     public boolean canCraft(ItemStack item){
         if (item.isEmpty()) return true;
@@ -99,6 +100,7 @@ public class BaseTier {
     }
 
     public static BaseTier get(int teamBaseLevel) {
+        if (teamBaseLevel >= tiers.size()) return tiers.get(tiers.size() - 1);
         return tiers.get(teamBaseLevel);
     }
 

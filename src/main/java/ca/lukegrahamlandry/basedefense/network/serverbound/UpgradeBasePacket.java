@@ -6,15 +6,23 @@ import ca.lukegrahamlandry.basedefense.base.material.old.LeveledMaterialGenerato
 import ca.lukegrahamlandry.basedefense.base.material.old.Upgradable;
 import ca.lukegrahamlandry.basedefense.base.teams.Team;
 import ca.lukegrahamlandry.basedefense.base.teams.TeamManager;
+import ca.lukegrahamlandry.basedefense.game.tile.BaseTile;
 import ca.lukegrahamlandry.basedefense.network.clientbound.OpenBaseUpgradeGui;
 import ca.lukegrahamlandry.basedefense.network.clientbound.OpenMaterialGeneratorGui;
 import ca.lukegrahamlandry.lib.network.ServerSideHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class UpgradeBasePacket implements ServerSideHandler {
+    private BlockPos pos;
+
+    public UpgradeBasePacket(BlockPos pos){
+        this.pos = pos;
+    }
+
     @Override
     public void handle(ServerPlayer player) {
         Team team = TeamManager.get(player);
@@ -34,6 +42,8 @@ public class UpgradeBasePacket implements ServerSideHandler {
         team.upgradeBaseTier();
         team.setDirty();
 
-        new OpenBaseUpgradeGui(player).sendToClient(player);
+        BaseTile.setTier((ServerLevel) player.level, pos, team.getBaseTier());
+
+        new OpenBaseUpgradeGui(player, pos).sendToClient(player);
     }
 }

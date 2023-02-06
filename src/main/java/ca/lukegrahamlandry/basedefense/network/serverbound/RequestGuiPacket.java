@@ -12,7 +12,7 @@ public enum RequestGuiPacket implements ServerSideHandler {
     @Override
     public void handle(ServerPlayer serverPlayer) {
         if (this == BASE){
-            new OpenBaseUpgradeGui(serverPlayer).sendToClient(serverPlayer);
+            new OpenBaseUpgradeGui(serverPlayer, null).sendToClient(serverPlayer);
         } else if (this == SHOP){
             new OpenMaterialShopGui(serverPlayer).sendToClient(serverPlayer);
         }

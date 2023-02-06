@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.PlainTextButton;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -19,20 +20,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BaseUpgradeScreen extends Screen {
+    private static BlockPos lastPos; // for switching back from shop block so i don't have to resend it with the packet
+
     private final MaterialCollection playerMaterials;
     private final MaterialCollection upgradeCost;
     private final int nextLevel;
     private final List<String> itemsUnlockedNextLevel;
+    private BlockPos pos;
+    private int rfPerTick;
     private Component info;
     private List<ItemStack> displayItems = new ArrayList<>();
     private MutableComponent unlockTitle;
 
-    public BaseUpgradeScreen(MaterialCollection storage, MaterialCollection upgradeCost, int nextLevel, List<String> itemsUnlockedNextLevel) {
+    public BaseUpgradeScreen(MaterialCollection storage, MaterialCollection upgradeCost, int nextLevel, List<String> itemsUnlockedNextLevel, BlockPos pos, int rfPerTick) {
         super(Component.literal("hi"));
         this.playerMaterials = storage;
         this.upgradeCost = upgradeCost;
         this.nextLevel = nextLevel;
         this.itemsUnlockedNextLevel = itemsUnlockedNextLevel;
+        this.pos = pos;
+        this.rfPerTick = rfPerTick;
+
+        if (this.pos == null){
+            this.pos = lastPos;
+        } else {
+            lastPos = this.pos;
+        }
     }
 
     @Override
@@ -40,17 +53,17 @@ public class BaseUpgradeScreen extends Screen {
         super.init();
 
         this.addRenderableWidget(Button.builder(Component.literal("[Open Shop]"), pButton -> RequestGuiPacket.SHOP.sendToServer()).bounds(20, this.height - 20, 75, 20).build());
-        createMaterialsList(Component.literal("Your Materials"), this.playerMaterials, 10, 20);
+        createMaterialsList(Component.literal("Your Materials"), this.playerMaterials, 10, 30);
 
         if (upgradeCost == null){
-            this.info = Component.literal("Base Tier " + (this.nextLevel - 1) + " (MAX)");
+            this.info = Component.literal("Base Tier " + (this.nextLevel - 1) + " (MAX) (" + this.rfPerTick + " RF/t)");
             return;
         }
 
-        this.info = Component.literal("Base Tier " + (this.nextLevel - 1));
+        this.info = Component.literal("Base Tier " + (this.nextLevel - 1) + " (" + this.rfPerTick + " RF/t)");
         this.unlockTitle = Component.literal("Crafting Unlocked");
 
-        createMaterialsList(Component.literal("Upgrade Cost"), this.upgradeCost, 110, 20);
+        createMaterialsList(Component.literal("Upgrade Cost"), this.upgradeCost, 110, 30);
 
         Button upgrade = Button.builder(Component.literal("Upgrade (to tier " + this.nextLevel + ")"), this::doUpgrade).bounds(0, 0, 100, 20).build();
         upgrade.active = this.playerMaterials.canAfford(this.upgradeCost);
@@ -65,7 +78,7 @@ public class BaseUpgradeScreen extends Screen {
     }
 
     private void doUpgrade(Button button) {
-        new UpgradeBasePacket().sendToServer();
+        new UpgradeBasePacket(this.pos).sendToServer();
         Minecraft.getInstance().setScreen(null);
     }
 
@@ -84,9 +97,9 @@ public class BaseUpgradeScreen extends Screen {
             return;
         }
 
-        drawString(pPoseStack, font, this.unlockTitle, 210, 5, 0xFFFFFF);
+        drawString(pPoseStack, font, this.unlockTitle, 210, 30, 0xFFFFFF);
 
-        int y = 40;
+        int y = 50;
         for (ItemStack stack : this.displayItems){
             Minecraft.getInstance().getItemRenderer().renderGuiItem(stack, 210, y);
             y += 20;
