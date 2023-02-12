@@ -31,7 +31,6 @@ public class BaseBlock extends Block implements EntityBlock {
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         if (!pLevel.isClientSide()) {
             BaseTile.setTier((ServerLevel) pLevel, pPos, TeamManager.get(pPlayer).getBaseTier());
-            new DataPackSyncMessage(MaterialShop.SHOP_ENTRIES).sendToClient((ServerPlayer) pPlayer);  // TODO: temp fix
             new OpenBaseUpgradeGui((ServerPlayer) pPlayer, pPos).sendToClient((ServerPlayer) pPlayer);
         }
         return InteractionResult.CONSUME;

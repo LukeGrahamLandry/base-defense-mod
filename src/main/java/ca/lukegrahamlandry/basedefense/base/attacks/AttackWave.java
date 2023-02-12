@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AttackWave {
-    public static ResourcesWrapper<AttackWave> DATA = ResourcesWrapper.data(AttackWave.class, "attackwaves");
+    public static ResourcesWrapper<AttackWave> DATA = ResourcesWrapper.data(AttackWave.class, "attackwaves").synced();
     private static RandomSource rand = RandomSource.create();
     private static List<ResourceLocation> EMPTY_MONSTERS = List.of(new ResourceLocation("minecraft:pig"));
 

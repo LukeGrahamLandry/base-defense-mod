@@ -63,6 +63,8 @@ minecraft {
             // "REGISTRYDUMP": For getting the contents of all registries.
             property 'forge.logging.markers', 'REGISTRIES'
 
+            property 'geckolib.disable_examples', 'true'
+
             // Recommended logging level for the console
             // You can set various levels here.
             // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
@@ -88,6 +90,7 @@ minecraft {
             property 'forge.logging.markers', 'REGISTRIES'
 
             property 'forge.logging.console.level', 'debug'
+            property 'geckolib.disable_examples', 'true'
 
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             property 'forge.enabledGameTestNamespaces', 'examplemod'
@@ -174,7 +177,7 @@ dependencies {
     // implementation fg.deobf("blank:coolmod-${mc_version}:${coolmod_version}")
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 
-    implementation fg.deobf(group: 'ca.lukegrahamlandry.lib', name: 'WrapperLib-1.19.3-Forge', version: '1.1.0')
+    implementation fg.deobf(group: 'ca.lukegrahamlandry.lib', name: 'WrapperLib-1.19.3-Forge', version: '1.1.3')
     implementation fg.deobf('software.bernie.geckolib:geckolib-forge-1.19.3:4.0.3')
 
     // For more info...

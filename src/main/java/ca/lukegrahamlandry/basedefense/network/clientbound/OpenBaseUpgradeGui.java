@@ -4,21 +4,19 @@ import ca.lukegrahamlandry.basedefense.base.BaseTier;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialCollection;
 import ca.lukegrahamlandry.basedefense.base.teams.Team;
 import ca.lukegrahamlandry.basedefense.base.teams.TeamManager;
-import ca.lukegrahamlandry.basedefense.client.gui.BaseUpgradeScreen;
 import ca.lukegrahamlandry.lib.network.ClientSideHandler;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.List;
 
 public class OpenBaseUpgradeGui implements ClientSideHandler {
-    private final BlockPos pos;
-    private MaterialCollection storage;
-    private MaterialCollection upgradeCost;
-    private int nextLevel;
-    private List<String> itemsUnlockedNextLevel;
-    private int rfPerTick;
+    final BlockPos pos;
+    MaterialCollection storage;
+    MaterialCollection upgradeCost;
+    int nextLevel;
+    List<String> itemsUnlockedNextLevel;
+    int rfPerTick;
 
     public OpenBaseUpgradeGui(ServerPlayer player, BlockPos pos) {
         this.pos = pos;
@@ -34,6 +32,6 @@ public class OpenBaseUpgradeGui implements ClientSideHandler {
 
     @Override
     public void handle() {
-        Minecraft.getInstance().setScreen(new BaseUpgradeScreen(storage, upgradeCost, nextLevel, itemsUnlockedNextLevel, pos, rfPerTick));
+        ClientPacketHandlers.openBaseUpgradeScreen(this);
     }
 }

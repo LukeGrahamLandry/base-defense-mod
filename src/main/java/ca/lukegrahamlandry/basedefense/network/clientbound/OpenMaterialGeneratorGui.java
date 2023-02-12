@@ -34,6 +34,6 @@ public class OpenMaterialGeneratorGui implements ClientSideHandler {
 
     @Override
     public void handle() {
-        Minecraft.getInstance().setScreen(new GeneratorUpgradeScreen(tier, type, currentProduction, nextProduction, upgradeCost, playerMaterials, pos));
+        ClientPacketHandlers.openGeneratorScreen(this);
     }
 }

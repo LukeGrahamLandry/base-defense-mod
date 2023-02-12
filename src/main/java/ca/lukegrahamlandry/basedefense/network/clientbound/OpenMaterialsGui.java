@@ -18,7 +18,6 @@ public class OpenMaterialsGui implements ClientSideHandler {
 
     @Override
     public void handle() {
-        System.out.println("OpenMaterialsGui");
-        Minecraft.getInstance().setScreen(new PlayerMaterialsScreen(storage, production));
+        ClientPacketHandlers.openMaterialsScreen(this);
     }
 }

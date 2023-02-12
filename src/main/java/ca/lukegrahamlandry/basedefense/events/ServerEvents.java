@@ -71,13 +71,6 @@ public class ServerEvents {
     }
 
     @SubscribeEvent
-    public static void login(PlayerEvent.PlayerLoggedInEvent event){
-        if (!event.getEntity().level.isClientSide()){
-            new DataPackSyncMessage(AttackWave.DATA).sendToClient((ServerPlayer) event.getEntity());  // TODO: temp fix
-        }
-    }
-
-    @SubscribeEvent
     public static void start(ServerStartedEvent event){
         var empty = new ResourceLocation(ModMain.MOD_ID, "empty");
         var config = BaseDefense.CONFIG.get().terrainGeneratorTypes;

@@ -23,6 +23,6 @@ public class OpenMaterialShopGui implements ClientSideHandler {
 
     @Override
     public void handle() {
-        Minecraft.getInstance().setScreen(new ShopScreen(storage, baseTier));
+        ClientPacketHandlers.openShipScreen(this);
     }
 }
