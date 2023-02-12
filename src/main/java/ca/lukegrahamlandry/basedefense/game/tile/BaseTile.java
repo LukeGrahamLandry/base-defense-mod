@@ -9,10 +9,18 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import software.bernie.geckolib.animatable.GeoBlockEntity;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class BaseTile extends BlockEntity {
+public class BaseTile extends BlockEntity implements GeoBlockEntity {
     int tier = 0;
     Integer rfGenerated;
     public BaseTile(BlockPos pPos, BlockState pBlockState) {
@@ -72,5 +80,23 @@ public class BaseTile extends BlockEntity {
                 }
             }
         }
+    }
+
+    // animation
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    // private static final RawAnimation ACTIVATED_ANIM = RawAnimation.begin().thenPlay("activated");
+
+    private PlayState animation(AnimationState<BaseTile> state){
+        return PlayState.STOP;
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<>(this, "main", this::animation));
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
     }
 }

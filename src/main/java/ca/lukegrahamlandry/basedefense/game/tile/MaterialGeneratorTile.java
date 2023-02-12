@@ -26,13 +26,21 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import software.bernie.geckolib.animatable.GeoBlockEntity;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public class MaterialGeneratorTile extends BlockEntity implements LeveledMaterialGenerator, AttackTargetable {
+public class MaterialGeneratorTile extends BlockEntity implements LeveledMaterialGenerator, AttackTargetable, GeoBlockEntity {
     private static class SaveData {
         private UUID uuid;
         private UUID ownerTeamId;
@@ -208,5 +216,26 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
 
 
         getOwnerTeam().getAttackOptions().removeIf(location -> location.pos().equals(this.getBlockPos()));
+    }
+
+
+    // animation
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    private static final RawAnimation ACTIVATED_ANIM = RawAnimation.begin().thenPlay("activated");
+    private static final RawAnimation FAN_ANIM = RawAnimation.begin().thenPlay("fan");
+
+    private PlayState animation(AnimationState<MaterialGeneratorTile> state){
+        state.setAnimation(FAN_ANIM);
+        return PlayState.CONTINUE;
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<>(this, "main", this::animation));
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
     }
 }
