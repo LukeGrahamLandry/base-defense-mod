@@ -7,5 +7,8 @@
   "unlockedCraftableItems": [
     "minecraft:stick",
     "minecraft:stone_pickaxe"
+  ],
+  "attacks": [
+    ["basedefense:undead", "basedefense:skeletons", "basedefense:skeletons"]
   ]
 }

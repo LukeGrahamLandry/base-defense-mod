@@ -1,6 +1,6 @@
 package ca.lukegrahamlandry.basedefense.commands;
 
-import ca.lukegrahamlandry.basedefense.base.attacks.AttackWave;
+import ca.lukegrahamlandry.basedefense.base.attacks.AttackWaveType;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -12,7 +12,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 
 public class AttackWaveCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -29,7 +28,7 @@ public class AttackWaveCommand {
 
     public static int handle(CommandContext<CommandSourceStack> source) throws CommandSyntaxException {
         ResourceLocation type = AttackWaveArgumentType.get(source, "waveid");
-        AttackWave wave = AttackWave.DATA.get(type);
+        AttackWaveType wave = AttackWaveType.DATA.get(type);
         ServerPlayer player = source.getSource().getPlayer();
 
         int i = 0;

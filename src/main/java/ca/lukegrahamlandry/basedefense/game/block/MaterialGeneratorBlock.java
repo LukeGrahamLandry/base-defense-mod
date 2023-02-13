@@ -1,14 +1,19 @@
 package ca.lukegrahamlandry.basedefense.game.block;
 
 import ca.lukegrahamlandry.basedefense.base.material.old.LeveledMaterialGenerator;
+import ca.lukegrahamlandry.basedefense.base.teams.TeamManager;
 import ca.lukegrahamlandry.basedefense.game.ModRegistry;
+import ca.lukegrahamlandry.basedefense.game.tile.BaseTile;
 import ca.lukegrahamlandry.basedefense.game.tile.MaterialGeneratorTile;
 import ca.lukegrahamlandry.basedefense.network.clientbound.OpenMaterialGeneratorGui;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -16,6 +21,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jetbrains.annotations.Nullable;
 
 public class MaterialGeneratorBlock extends Block implements EntityBlock {
     private boolean isTerrainGenerated;
@@ -57,5 +63,17 @@ public class MaterialGeneratorBlock extends Block implements EntityBlock {
     @Override
     public RenderShape getRenderShape(BlockState pState) {
         return RenderShape.ENTITYBLOCK_ANIMATED;
+    }
+
+    @Override
+    public void setPlacedBy(Level pLevel, BlockPos pPos, BlockState pState, @Nullable LivingEntity pPlacer, ItemStack pStack) {
+        super.setPlacedBy(pLevel, pPos, pState, pPlacer, pStack);
+        if (pPlacer instanceof ServerPlayer p){
+            if (this.isTerrainGenerated){
+                MaterialGeneratorTile.getAndDo(pLevel, pPos, MaterialGeneratorTile::setIsTerrain);
+            }
+
+            MaterialGeneratorTile.getAndDo(pLevel, pPos, (t) -> t.tryBind(p));
+        }
     }
 }

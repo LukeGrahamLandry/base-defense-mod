@@ -1,7 +1,7 @@
 package ca.lukegrahamlandry.basedefense.base;
 
 import ca.lukegrahamlandry.basedefense.ModMain;
-import ca.lukegrahamlandry.basedefense.base.attacks.AttackWave;
+import ca.lukegrahamlandry.basedefense.base.attacks.AttackWaveType;
 import ca.lukegrahamlandry.basedefense.base.config.SyncedConfigData;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialCollection;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialGeneratorType;
@@ -29,6 +29,6 @@ public class BaseDefense {
         MaterialGeneratorType.init();
         BaseTier.init();
         MaterialShop.init();
-        AttackWave.init();
+        AttackWaveType.init();
     }
 }

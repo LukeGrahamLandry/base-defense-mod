@@ -1,24 +1,31 @@
 package ca.lukegrahamlandry.basedefense.base.teams;
 
-import ca.lukegrahamlandry.basedefense.base.attacks.old.AttackLocation;
+import ca.lukegrahamlandry.basedefense.base.attacks.OngoingAttack;
+import ca.lukegrahamlandry.basedefense.base.attacks.AttackLocation;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialCollection;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialGeneratorType;
+import ca.lukegrahamlandry.basedefense.events.ServerEvents;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.*;
+import java.util.logging.Level;
 
 public class Team {
     UUID id;
     MaterialCollection materials;
     Map<UUID, MaterialGeneratorType.Instance> generators;
-    // List<AttackLocation> attackLocations;
+    public OngoingAttack.State attack = null;
+    Set<AttackLocation> attackLocations;
     int baseBlockTier = 0;
 
     public Team() {
         this.id = UUID.randomUUID();
         this.materials = new MaterialCollection();
         this.generators = new HashMap<>();
-        // this.attackLocations = new ArrayList<>();
+        this.attackLocations = new HashSet<>();
     }
 
     public boolean contains(Player player) {
@@ -34,15 +41,11 @@ public class Team {
     }
 
     public void addAttackLocation(AttackLocation attackLocation) {
-//        this.attackLocations.add(attackLocation);
+         this.attackLocations.add(attackLocation);
     }
 
     public List<AttackLocation> getAttackOptions() {
-//        for (AttackLocation l : this.attackLocations){
-//            System.out.println(l.pos());
-//        }
-//        return new ArrayList<>(this.attackLocations);
-        return  new ArrayList<>();
+        return new ArrayList<>(this.attackLocations);
     }
 
     public UUID getId() {
@@ -69,5 +72,12 @@ public class Team {
 
     public void upgradeBaseTier() {
         this.baseBlockTier++;
+    }
+
+    public void message(Component text) {
+        text.getStyle().applyFormat(ChatFormatting.LIGHT_PURPLE);
+        ServerEvents.server.getPlayerList().getPlayers().forEach((player -> {
+            if (contains(player)) player.displayClientMessage(text, false);
+        }));
     }
 }

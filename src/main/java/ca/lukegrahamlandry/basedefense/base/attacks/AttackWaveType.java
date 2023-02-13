@@ -2,25 +2,21 @@ package ca.lukegrahamlandry.basedefense.base.attacks;
 
 import ca.lukegrahamlandry.basedefense.ModMain;
 import ca.lukegrahamlandry.lib.resources.ResourcesWrapper;
-import com.ibm.icu.text.ArabicShaping;
 import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.Weight;
 import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.util.random.WeightedRandom;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AttackWave {
-    public static ResourcesWrapper<AttackWave> DATA = ResourcesWrapper.data(AttackWave.class, "attackwaves").synced();
+public class AttackWaveType {
+    public static ResourcesWrapper<AttackWaveType> DATA = ResourcesWrapper.data(AttackWaveType.class, "attackwaves").synced();
     private static RandomSource rand = RandomSource.create();
     private static List<ResourceLocation> EMPTY_MONSTERS = List.of(new ResourceLocation("minecraft:pig"));
 

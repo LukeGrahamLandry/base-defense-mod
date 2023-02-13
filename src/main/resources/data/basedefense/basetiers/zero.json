@@ -6,5 +6,8 @@
   },
   "unlockedCraftableItems": [
 
+  ],
+  "attacks": [
+    ["basedefense:animal", "basedefense:animal", "basedefense:animal"]
   ]
 }

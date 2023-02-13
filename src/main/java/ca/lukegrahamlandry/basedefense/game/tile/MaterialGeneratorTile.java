@@ -2,7 +2,7 @@ package ca.lukegrahamlandry.basedefense.game.tile;
 
 import ca.lukegrahamlandry.basedefense.ModMain;
 import ca.lukegrahamlandry.basedefense.base.BaseDefense;
-import ca.lukegrahamlandry.basedefense.base.attacks.old.AttackLocation;
+import ca.lukegrahamlandry.basedefense.base.attacks.AttackLocation;
 import ca.lukegrahamlandry.basedefense.base.attacks.old.AttackTargetAvatar;
 import ca.lukegrahamlandry.basedefense.base.attacks.old.AttackTargetable;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialCollection;
@@ -63,12 +63,12 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
     }
 
     public void tryBind(ServerPlayer player){
-        if (this.data.ownerTeamId != null && !this.canAccess(player)) return;
+        if (this.data.ownerTeamId != null) return;
 
         Team team = TeamManager.get(player);
         this.data.ownerTeamId = team.getId();
-        team.addAttackLocation(new AttackLocation(level, this.getBlockPos(), this.data.uuid, this));
-        System.out.println("new attack options: " +  team.getAttackOptions().size());
+        AttackLocation.targets.put(this.data.uuid, this);
+        team.addAttackLocation(new AttackLocation(level, this.getBlockPos(), this.data.uuid));
 
         player.displayClientMessage(Component.literal("Bound player to generator!"), true);
 
@@ -88,6 +88,10 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
         if (this.hasLevel()){
             Holder<Biome> biome = this.level.getBiome(this.worldPosition);
             this.data.genInfo.type = BaseDefense.CONFIG.get().getGeneratorTypeFor(this.level, biome);
+            if (this.data.ownerTeamId != null){
+                AttackLocation.targets.put(this.data.uuid, this);
+                this.getOwnerTeam().addAttackLocation(new AttackLocation(level, this.getBlockPos(), this.data.uuid));
+            }
         } else {
             ModMain.LOGGER.error("MaterialGeneratorTile#setIsTerrain called before in level so can't read biome type.");
         }
@@ -117,6 +121,7 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
         }
         if (this.hasLevel() && this.data.isTerrainGenerated){
             this.setIsTerrain();
+            AttackLocation.targets.put(this.data.uuid, this);
         }
     }
 
@@ -180,10 +185,8 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
     @Override
     public boolean damage(DamageSource source, float amount) {
         this.health -= amount;
-        System.out.println("took damage! " + amount + ". now have " + this.health);
-        if (!isStillAlive()) {
-            this.onDie();
-        }
+        TeamManager.getTeamById(this.data.ownerTeamId).message(Component.literal("Your material generator at " + this.getBlockPos() + " took " + amount + " damage! Now at " + health + " health."));
+        if (!isStillAlive()) this.onDie();
         return true;
     }
 
@@ -210,14 +213,19 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
 
     @Override
     public void onDie() {
+        Team team = getOwnerTeam();
+        if (team == null){
+            ModMain.LOGGER.error("MaterialGeneratorTile#onDie team null");
+            return;
+        }
+        getOwnerTeam().getAttackOptions().removeIf(location -> location.id.equals(this.data.uuid));
+        TeamManager.getTeamById(this.data.ownerTeamId).message(Component.literal("Your material generator at " + this.getBlockPos() + " was destroyed!"));
+        AttackLocation.destroyed.add(this);
+
         AttackTargetable.super.onDie();
-        this.level.explode(null, this.getBlockPos().getX(), this.getBlockPos().getY(), this.getBlockPos().getZ(), 4.0F, Level.ExplosionInteraction.TNT);
         this.level.removeBlock(this.getBlockPos(), false);
-
-
-        getOwnerTeam().getAttackOptions().removeIf(location -> location.pos().equals(this.getBlockPos()));
+        this.level.explode(null, this.getBlockPos().getX(), this.getBlockPos().getY(), this.getBlockPos().getZ(), 4.0F, Level.ExplosionInteraction.TNT);
     }
-
 
     // animation
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);

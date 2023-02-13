@@ -73,7 +73,6 @@ public class GeneratorUpgradeScreen extends Screen {
     private void createMaterialsList(Component label, MaterialCollection materials, int x, int y) {
         addRenderableWidget(new PlainTextButton(x + 5, y, 90, 20, label, (b) ->{}, font));
         this.addRenderableWidget(new SimpleMaterialsList(this, materials, Minecraft.getInstance(), x, y + 15, y + 300, 90, 300));
-        System.out.println(label.getContents() + ": " + materials.toString());
     }
 
     @Override

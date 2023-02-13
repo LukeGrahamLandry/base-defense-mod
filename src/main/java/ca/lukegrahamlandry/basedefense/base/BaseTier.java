@@ -1,21 +1,16 @@
 package ca.lukegrahamlandry.basedefense.base;
 
 import ca.lukegrahamlandry.basedefense.ModMain;
-import ca.lukegrahamlandry.basedefense.base.attacks.AttackWave;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialCollection;
 import ca.lukegrahamlandry.lib.resources.ResourcesWrapper;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.IForgeRegistry;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;

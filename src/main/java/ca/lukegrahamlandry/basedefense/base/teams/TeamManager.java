@@ -14,6 +14,7 @@ public class TeamManager {
     public static final GlobalDataWrapper<TeamManager> TEAMS = new GlobalDataWrapper<>(TeamManager.class).saved();
 
     private Map<UUID, Team> teams = new HashMap<>();
+    public static boolean wasDay = true;
 
     public static Team getTeamById(UUID teamID){
         return TEAMS.get().teams.get(teamID);
@@ -21,8 +22,6 @@ public class TeamManager {
 
     public Team getTeam(Player player){
         TeamInfo teamInfo = PLAYER_TEAMS.get(player);
-
-        System.out.println(teamInfo.id);
 
         if (teamInfo.id == null){
             Team team = new Team();

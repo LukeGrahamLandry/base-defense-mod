@@ -1,6 +1,6 @@
-package ca.lukegrahamlandry.basedefense.base.attacks.old.goal;
+package ca.lukegrahamlandry.basedefense.base.attacks.old;
 
-import ca.lukegrahamlandry.basedefense.base.attacks.old.AttackLocation;
+import ca.lukegrahamlandry.basedefense.base.attacks.AttackLocation;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
 
@@ -16,11 +16,11 @@ public class AttackTargetSelectGoal extends Goal {
     @Override
     public boolean canUse() {
         boolean noTarget = this.mob.getTarget() == null || !this.mob.getTarget().isAlive();
-        return noTarget && this.target.target().isStillAlive();
+        return noTarget && this.target.getTarget().isStillAlive();
     }
 
     @Override
     public void start() {
-        this.mob.setTarget(this.target.target().getAvatar());
+        this.mob.setTarget(this.target.getTarget().getAvatar());
     }
 }

@@ -2,15 +2,12 @@ package ca.lukegrahamlandry.basedefense.events;
 
 import ca.lukegrahamlandry.basedefense.ModMain;
 import ca.lukegrahamlandry.basedefense.base.BaseDefense;
-import ca.lukegrahamlandry.basedefense.base.MaterialShop;
-import ca.lukegrahamlandry.basedefense.base.attacks.AttackWave;
-import ca.lukegrahamlandry.basedefense.base.attacks.old.AttackTracker;
+import ca.lukegrahamlandry.basedefense.base.attacks.AttackManager;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialsUtil;
 import ca.lukegrahamlandry.basedefense.game.ModRegistry;
 import ca.lukegrahamlandry.basedefense.game.tile.MaterialGeneratorTile;
 import ca.lukegrahamlandry.lib.config.ConfigWrapper;
 import ca.lukegrahamlandry.lib.config.GenerateComments;
-import ca.lukegrahamlandry.lib.resources.DataPackSyncMessage;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -35,10 +32,11 @@ import java.util.Locale;
 @Mod.EventBusSubscriber(modid = ModMain.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ServerEvents {
     private static int timer = 0;
-    private static boolean wasDay = false;
+    public static MinecraftServer server = null;
     @SubscribeEvent
     public static void tick(TickEvent.LevelTickEvent event){
         if (event.phase == TickEvent.Phase.START && !event.level.isClientSide() && event.level.dimension().equals(Level.OVERWORLD)){
+            AttackManager.tick();
             if (timer >= BaseDefense.CONFIG.get().materialGenerationTickInterval){
                 MaterialsUtil.tickGenerators();
                 timer = 0;
@@ -47,20 +45,6 @@ public class ServerEvents {
             }
             timer++;
         }
-    }
-
-    private static void handleAttacks(Level overworld) {
-        if (wasDay && !overworld.isDay()){
-            System.out.println("start night");
-            wasDay = false;
-            AttackTracker.startAllAttacks(overworld);
-        }
-        if (!wasDay && overworld.isDay()){
-            System.out.println("start day");
-            wasDay = true;
-
-        }
-        AttackTracker.tick();
     }
 
     @SubscribeEvent
@@ -72,9 +56,20 @@ public class ServerEvents {
 
     @SubscribeEvent
     public static void start(ServerStartedEvent event){
+        server = event.getServer();
+        updateBiomeConfigCache();
+    }
+
+    @SubscribeEvent
+    public static void login(PlayerEvent.PlayerLoggedInEvent event){
+        if (event.getEntity().level.isClientSide()) return;
+        AttackManager.resume((ServerPlayer) event.getEntity());
+    }
+
+    private static void updateBiomeConfigCache() {
         var empty = new ResourceLocation(ModMain.MOD_ID, "empty");
         var config = BaseDefense.CONFIG.get().terrainGeneratorTypes;
-        Registry<Biome> biomeRegistry = event.getServer().registryAccess().registryOrThrow(Registries.BIOME);
+        Registry<Biome> biomeRegistry = server.registryAccess().registryOrThrow(Registries.BIOME);
         for (var biome : biomeRegistry.entrySet()){
             ResourceLocation key = biome.getKey().location();
             if (!config.containsKey(key)){
@@ -84,7 +79,7 @@ public class ServerEvents {
 
         String serializedConfig = GenerateComments.commentedJson(BaseDefense.CONFIG.get(), BaseDefense.CONFIG.getGson());
         try {
-            Files.write(getFilePath(event.getServer(), BaseDefense.CONFIG), serializedConfig.getBytes());
+            Files.write(getFilePath(server, BaseDefense.CONFIG), serializedConfig.getBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

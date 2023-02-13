@@ -8,5 +8,8 @@
   "unlockedCraftableItems": [
     "minecraft:stone_sword",
     "minecraft:stone_axe"
+  ],
+  "attacks": [
+    ["basedefense:undead", "basedefense:more_undead", "basedefense:more_undead"]
   ]
 }

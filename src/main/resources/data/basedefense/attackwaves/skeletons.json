@@ -1,0 +1,14 @@
+{
+  "monsters": [
+    {
+      "entity": "minecraft:skeleton",
+      "min": 1,
+      "max": 2
+    },
+    {
+      "entity": "minecraft:wither_skeleton",
+      "min": 1,
+      "max": 5
+    }
+  ]
+}

@@ -11,7 +11,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -21,6 +23,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jetbrains.annotations.Nullable;
 
 public class BaseBlock extends Block implements EntityBlock {
     public BaseBlock(Properties p_49795_) {
@@ -30,10 +33,18 @@ public class BaseBlock extends Block implements EntityBlock {
     @Override
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         if (!pLevel.isClientSide()) {
-            BaseTile.setTier((ServerLevel) pLevel, pPos, TeamManager.get(pPlayer).getBaseTier());
+            BaseTile.setTeam((ServerLevel) pLevel, pPos, TeamManager.get(pPlayer));
             new OpenBaseUpgradeGui((ServerPlayer) pPlayer, pPos).sendToClient((ServerPlayer) pPlayer);
         }
         return InteractionResult.CONSUME;
+    }
+
+    @Override
+    public void setPlacedBy(Level pLevel, BlockPos pPos, BlockState pState, @Nullable LivingEntity pPlacer, ItemStack pStack) {
+        super.setPlacedBy(pLevel, pPos, pState, pPlacer, pStack);
+        if (pPlacer instanceof ServerPlayer p){
+            BaseTile.setTeam((ServerLevel) pLevel, pPos, TeamManager.get(p));
+        }
     }
 
     @Override

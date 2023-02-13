@@ -1,6 +1,6 @@
 package ca.lukegrahamlandry.basedefense.commands;
 
-import ca.lukegrahamlandry.basedefense.base.attacks.AttackWave;
+import ca.lukegrahamlandry.basedefense.base.attacks.AttackWaveType;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -49,7 +49,7 @@ public class AttackWaveArgumentType extends ResourceLocationArgument {
     }
 
     private static Set<ResourceLocation> options(){
-        return AttackWave.DATA.entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toSet());
+        return AttackWaveType.DATA.entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toSet());
     }
 
     public Collection<String> getExamples() {

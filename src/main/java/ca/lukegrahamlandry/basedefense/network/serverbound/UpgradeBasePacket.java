@@ -42,7 +42,7 @@ public class UpgradeBasePacket implements ServerSideHandler {
         team.upgradeBaseTier();
         team.setDirty();
 
-        BaseTile.setTier((ServerLevel) player.level, pos, team.getBaseTier());
+        BaseTile.setTeam((ServerLevel) player.level, pos, team);
 
         new OpenBaseUpgradeGui(player, pos).sendToClient(player);
     }
