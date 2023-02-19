@@ -4,9 +4,11 @@ import ca.lukegrahamlandry.basedefense.ModMain;
 import ca.lukegrahamlandry.basedefense.base.attacks.old.AttackTargetAvatar;
 import ca.lukegrahamlandry.basedefense.game.block.BaseBlock;
 import ca.lukegrahamlandry.basedefense.game.block.MaterialGeneratorBlock;
+import ca.lukegrahamlandry.basedefense.game.block.TurretBlock;
 import ca.lukegrahamlandry.basedefense.game.item.LootedGeneratorPlacer;
 import ca.lukegrahamlandry.basedefense.game.tile.BaseTile;
 import ca.lukegrahamlandry.basedefense.game.tile.MaterialGeneratorTile;
+import ca.lukegrahamlandry.basedefense.game.tile.TurretTile;
 import ca.lukegrahamlandry.lib.registry.RegistryWrapper;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -40,6 +42,9 @@ public class ModRegistry {
     public static final Supplier<Block> BASE_BLOCK = BLOCKS.register("base_block",
             () -> new BaseBlock(Block.Properties.of(Material.STONE).strength(5.0F, 1200.0F).noOcclusion()));
 
+    public static final Supplier<Block> TURRET_BLOCK = BLOCKS.register("turret",
+            () -> new TurretBlock(Block.Properties.of(Material.STONE).strength(5.0F, 1200.0F).noOcclusion()));
+
 
 
     public static final RegistryWrapper<EntityType<?>> ENTITY = RegistryWrapper.create(BuiltInRegistries.ENTITY_TYPE, ModMain.MOD_ID);
@@ -55,6 +60,8 @@ public class ModRegistry {
     public static final Supplier<BlockEntityType<BaseTile>> BASE_TILE = TILE_ENTITY_TYPES.register("base_block",
             () -> BlockEntityType.Builder.of(BaseTile::new, BASE_BLOCK.get()).build(null));
 
+    public static final Supplier<BlockEntityType<TurretTile>> TURRET_TILE = TILE_ENTITY_TYPES.register("turret",
+            () -> BlockEntityType.Builder.of(TurretTile::new, TURRET_BLOCK.get()).build(null));
 
 
     public static final RegistryWrapper<Item> ITEM = RegistryWrapper.create(BuiltInRegistries.ITEM, ModMain.MOD_ID);
@@ -62,6 +69,7 @@ public class ModRegistry {
     public static final Supplier<Item> LOOTED_GENERATOR_ITEM = ITEM.register("looted_generator", LootedGeneratorPlacer::new);
     public static final Supplier<Item> BASE_BLOCK_ITEM = ITEM.register("base_block", () -> new BlockItem(BASE_BLOCK.get(), new Item.Properties()));
     public static final Supplier<Item> TERRAIN_GEN = ITEM.register("terrain_generator", () -> new BlockItem(TERRAIN_GENERATOR_BLOCK.get(), new Item.Properties()));
+    public static final Supplier<Item> TURRET_ITEM = ITEM.register("turret", () -> new BlockItem(TURRET_BLOCK.get(), new Item.Properties()));
 
     @SubscribeEvent
     public static void creativeTab(CreativeModeTabEvent.Register event){
@@ -73,6 +81,7 @@ public class ModRegistry {
                         populator.accept(LOOTED_GENERATOR_BLOCK.get());
                         populator.accept(TERRAIN_GENERATOR_BLOCK.get());
                         populator.accept(BASE_BLOCK.get());
+                        populator.accept(TURRET_ITEM.get());
                     });
         });
     }

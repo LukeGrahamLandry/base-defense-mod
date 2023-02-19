@@ -36,7 +36,6 @@ public class BaseTier {
 
         // If the item is unlocked at a tier above us, you can't craft it yet.
         for (int i=tiers.size()-1;i>this.tier;i--){
-            System.out.println(i);
             var tier = get(i);
             for (String itemDescriptor : tier.unlockedCraftableItems){
                 if (itemDescriptor.startsWith("#")) {

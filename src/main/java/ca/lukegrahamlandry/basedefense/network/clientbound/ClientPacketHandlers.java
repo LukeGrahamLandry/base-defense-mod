@@ -4,7 +4,12 @@ import ca.lukegrahamlandry.basedefense.client.gui.BaseUpgradeScreen;
 import ca.lukegrahamlandry.basedefense.client.gui.GeneratorUpgradeScreen;
 import ca.lukegrahamlandry.basedefense.client.gui.PlayerMaterialsScreen;
 import ca.lukegrahamlandry.basedefense.client.gui.ShopScreen;
+import ca.lukegrahamlandry.basedefense.game.tile.TurretTile;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
+import java.util.logging.Level;
 
 public class ClientPacketHandlers {
     public static void openBaseUpgradeScreen(OpenBaseUpgradeGui p) {
@@ -21,5 +26,15 @@ public class ClientPacketHandlers {
 
     public static void openShipScreen(OpenMaterialShopGui p) {
         Minecraft.getInstance().setScreen(new ShopScreen(p.storage, p.baseTier));
+    }
+
+    public static void updateTurret(TurretTile.AnimUpdate p){
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null) return;
+        BlockEntity tile = level.getBlockEntity(p.pos);
+        if (tile instanceof TurretTile){
+            ((TurretTile) tile).data.isShooting = p.isShooting;
+            ((TurretTile) tile).data.hRotTarget = p.hRotTarget;
+        }
     }
 }

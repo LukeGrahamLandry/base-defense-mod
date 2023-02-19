@@ -29,7 +29,6 @@ public class MaterialShop {
 
         @Override
         public void handle(ServerPlayer player) {
-            System.out.println("try buy " + this.key);
             ShopEntry entry = SHOP_ENTRIES.get(this.key);
             if (unableToBuy(player, entry)) return;
 

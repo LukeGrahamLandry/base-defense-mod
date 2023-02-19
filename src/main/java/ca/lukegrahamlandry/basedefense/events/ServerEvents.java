@@ -40,8 +40,6 @@ public class ServerEvents {
             if (timer >= BaseDefense.CONFIG.get().materialGenerationTickInterval){
                 MaterialsUtil.tickGenerators();
                 timer = 0;
-
-                // handleAttacks(event.level);  // TODO
             }
             timer++;
         }

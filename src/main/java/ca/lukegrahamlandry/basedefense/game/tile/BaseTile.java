@@ -39,6 +39,7 @@ public class BaseTile extends BlockEntity implements GeoBlockEntity, AttackTarge
     Integer rfGenerated;
     UUID uuid = UUID.randomUUID();
     UUID teamUUID;
+    int openAnimTick = 20;
     public BaseTile(BlockPos pPos, BlockState pBlockState) {
         super(ModRegistry.BASE_TILE.get(), pPos, pBlockState);
     }
@@ -111,12 +112,15 @@ public class BaseTile extends BlockEntity implements GeoBlockEntity, AttackTarge
         }
     }
 
-    // animation
+    // Animation
+
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    // private static final RawAnimation ACTIVATED_ANIM = RawAnimation.begin().thenPlay("activated");
+    private static final RawAnimation OPENING_ANIM = RawAnimation.begin().thenPlay("open");
+    private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenPlay("idle");
 
     private PlayState animation(AnimationState<BaseTile> state){
-        return PlayState.STOP;
+        state.setAnimation(this.openAnimTick > 0 ? OPENING_ANIM : IDLE_ANIM);
+        return PlayState.CONTINUE;
     }
 
     @Override
@@ -127,6 +131,16 @@ public class BaseTile extends BlockEntity implements GeoBlockEntity, AttackTarge
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return cache;
+    }
+
+    public void tick() {
+        if (!this.hasLevel()) return;  // Can't happen but im afraid
+
+        if (this.level.isClientSide()){
+            if (openAnimTick > 0) openAnimTick--;
+        } else {
+            this.serverTick();
+        }
     }
 
     // Attacks

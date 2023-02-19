@@ -54,10 +54,8 @@ public class BaseBlock extends Block implements EntityBlock {
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level pLevel, BlockState pState, BlockEntityType<T> pBlockEntityType) {
-        if (pLevel.isClientSide()) return null;
-
         return (level, pos, state, tile) -> {
-            if (tile instanceof BaseTile) ((BaseTile) tile).serverTick();
+            if (tile instanceof BaseTile) ((BaseTile) tile).tick();
         };
     }
 

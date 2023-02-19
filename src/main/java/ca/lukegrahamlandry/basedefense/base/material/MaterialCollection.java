@@ -118,7 +118,6 @@ public class MaterialCollection {
         }
 
         public MaterialCollection deserialize(JsonElement data, Type type, JsonDeserializationContext ctx) throws JsonParseException {
-            System.out.println(data.toString());
             Map<ResourceLocation, Integer> materials = (Map<ResourceLocation, Integer>) JsonHelper.get().fromJson(data, TypeToken.getParameterized(HashMap.class, new Type[]{ResourceLocation.class, Integer.class}));
             MaterialCollection m = new MaterialCollection();
             m.materials = materials;

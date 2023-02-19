@@ -105,8 +105,8 @@ public class OngoingAttack {
         }
 
         if (!state.location.validTarget()){
+            // TODO: force load that chunk and update the target
             team.message(Component.literal("Failed to start wave. It doesnt cope well with restarting the world and not re-clicking on everything. "));
-            System.out.println("Cannot start wave.");
             state.action = WaveAction.FROZEN;
             return;
         }
