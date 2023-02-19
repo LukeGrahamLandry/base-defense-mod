@@ -6,6 +6,7 @@ import ca.lukegrahamlandry.basedefense.game.block.BaseBlock;
 import ca.lukegrahamlandry.basedefense.game.block.MaterialGeneratorBlock;
 import ca.lukegrahamlandry.basedefense.game.block.TurretBlock;
 import ca.lukegrahamlandry.basedefense.game.item.LootedGeneratorPlacer;
+import ca.lukegrahamlandry.basedefense.game.item.TurretPlacer;
 import ca.lukegrahamlandry.basedefense.game.tile.BaseTile;
 import ca.lukegrahamlandry.basedefense.game.tile.MaterialGeneratorTile;
 import ca.lukegrahamlandry.basedefense.game.tile.TurretTile;
@@ -69,7 +70,7 @@ public class ModRegistry {
     public static final Supplier<Item> LOOTED_GENERATOR_ITEM = ITEM.register("looted_generator", LootedGeneratorPlacer::new);
     public static final Supplier<Item> BASE_BLOCK_ITEM = ITEM.register("base_block", () -> new BlockItem(BASE_BLOCK.get(), new Item.Properties()));
     public static final Supplier<Item> TERRAIN_GEN = ITEM.register("terrain_generator", () -> new BlockItem(TERRAIN_GENERATOR_BLOCK.get(), new Item.Properties()));
-    public static final Supplier<Item> TURRET_ITEM = ITEM.register("turret", () -> new BlockItem(TURRET_BLOCK.get(), new Item.Properties()));
+    public static final Supplier<Item> TURRET_ITEM = ITEM.register("turret", TurretPlacer::new);
 
     @SubscribeEvent
     public static void creativeTab(CreativeModeTabEvent.Register event){

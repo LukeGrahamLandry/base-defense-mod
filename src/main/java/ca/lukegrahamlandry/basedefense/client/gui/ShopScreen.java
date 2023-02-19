@@ -53,10 +53,12 @@ public class ShopScreen extends Screen {
         }
 
         this.validOffers.clear();
-        for (var entry : MaterialShop.SHOP_ENTRIES.entrySet()){
+        for (var entry : MaterialShop.getOfferSet()){
             if (entry.getValue().minBaseTier > baseTier) continue;
 
             validOffers.add(entry.getKey());
+
+            System.out.println(entry.getKey());
         }
 
         this.backButton = this.addRenderableWidget(Button.builder(Component.literal("<"), pButton -> changePage(-1)).bounds(20, this.height - 20, 40, 20).build());
@@ -71,7 +73,7 @@ public class ShopScreen extends Screen {
         if (realIndex >= this.validOffers.size()) return;
 
         ResourceLocation key = this.validOffers.get(realIndex);
-        MaterialShop.ShopEntry offer = MaterialShop.SHOP_ENTRIES.get(key);
+        MaterialShop.ShopEntry offer = MaterialShop.getOffer(key);
         if (!this.storage.canAfford(offer.cost)) return;
 
         this.storage.subtract(offer.cost);
@@ -83,9 +85,6 @@ public class ShopScreen extends Screen {
 
     private void changePage(int delta){
         scrollOffset += delta * buttonCount;
-        scrollOffset = Math.min(scrollOffset, validOffers.size() - buttonCount);
-        scrollOffset = Math.max(scrollOffset, 0);
-
         this.backButton.active = this.scrollOffset > 0;
         this.nextButton.active = this.scrollOffset < (validOffers.size() - buttonCount);
     }
@@ -104,7 +103,7 @@ public class ShopScreen extends Screen {
             this.offerButtons[i].visible = true;
 
             ResourceLocation key = this.validOffers.get(realIndex);
-            MaterialShop.ShopEntry offer = MaterialShop.SHOP_ENTRIES.get(key);
+            MaterialShop.ShopEntry offer = MaterialShop.getOffer(key);
             renderOffer(pPoseStack, offer, 20, 20, 50 + i * 30);
 
             this.offerButtons[i].active = this.storage.canAfford(offer.cost);

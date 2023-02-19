@@ -3,6 +3,8 @@ package ca.lukegrahamlandry.basedefense.base;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialCollection;
 import ca.lukegrahamlandry.basedefense.base.teams.Team;
 import ca.lukegrahamlandry.basedefense.base.teams.TeamManager;
+import ca.lukegrahamlandry.basedefense.game.ModRegistry;
+import ca.lukegrahamlandry.basedefense.game.item.TurretPlacer;
 import ca.lukegrahamlandry.lib.network.ServerSideHandler;
 import ca.lukegrahamlandry.lib.resources.ResourcesWrapper;
 import net.minecraft.network.chat.Component;
@@ -10,10 +12,42 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.List;
+import java.util.*;
 
 public class MaterialShop {
-    public static final ResourcesWrapper<ShopEntry> SHOP_ENTRIES = ResourcesWrapper.data(ShopEntry.class, "shop").synced();
+    private static final ResourcesWrapper<ShopEntry> SHOP_ENTRIES = ResourcesWrapper.data(ShopEntry.class, "shop").synced().onLoad(MaterialShop::reload);
+    private static final Map<ResourceLocation, ShopEntry> offerCache = new HashMap<>();
+
+    public static Set<Map.Entry<ResourceLocation, ShopEntry>> getOfferSet() {
+        return offerCache.entrySet();
+    }
+
+    public static ShopEntry getOffer(ResourceLocation key) {
+        return offerCache.get(key);
+    }
+
+    public static void reload(){
+        offerCache.clear();
+
+        try {
+            SHOP_ENTRIES.entrySet().forEach((e) -> offerCache.put(e.getKey(), e.getValue()));
+        } catch (NullPointerException e){
+            // just ignore when turrets load before this
+        }
+
+        try {
+            for (var turret : TurretTiers.DATA.entrySet()){
+                ItemStack placer = TurretPlacer.create(turret.getKey(), 0);
+                var offer = new ShopEntry();
+                offer.items = Arrays.asList(placer);
+                offer.cost = TurretTiers.upgradeCost(turret.getKey(), 0);
+                offer.minBaseTier = turret.getValue().tiers.get(0).minBaseTier;
+                offerCache.put(turret.getKey(), offer);
+            }
+        } catch (NullPointerException e){
+            // just ignore when this loads before turrets
+        }
+    }
 
     public static class ShopEntry {
         public MaterialCollection cost;
@@ -29,7 +63,7 @@ public class MaterialShop {
 
         @Override
         public void handle(ServerPlayer player) {
-            ShopEntry entry = SHOP_ENTRIES.get(this.key);
+            ShopEntry entry = getOffer(this.key);
             if (unableToBuy(player, entry)) return;
 
             Team team = TeamManager.get(player);

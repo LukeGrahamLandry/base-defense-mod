@@ -39,6 +39,7 @@ public class BaseDefense {
         BaseTier.init();
         MaterialShop.init();
         AttackWaveType.init();
+        TurretTiers.init();
     }
 
     public static class EffectTypeAdapter implements JsonDeserializer<MobEffectInstance>, JsonSerializer<MobEffectInstance> {

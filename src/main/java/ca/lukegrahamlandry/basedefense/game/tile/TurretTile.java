@@ -1,6 +1,7 @@
 package ca.lukegrahamlandry.basedefense.game.tile;
 
 import ca.lukegrahamlandry.basedefense.ModMain;
+import ca.lukegrahamlandry.basedefense.base.TurretTiers;
 import ca.lukegrahamlandry.basedefense.game.ModRegistry;
 import ca.lukegrahamlandry.basedefense.network.clientbound.ClientPacketHandlers;
 import ca.lukegrahamlandry.lib.base.json.JsonHelper;
@@ -87,18 +88,9 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
 
     ///// Data Save & Sync /////
 
-    public static class Stats {
-        int damage = 2;
-        int rangeInBlocks = 5;
-        int shotDelayTicks = 20;
-        int flameSeconds = 0;
-        List<MobEffectInstance> potionEffects = new ArrayList<>();
-        String color = "none";
-        float rotationDegreesPerTick = 10F;
-    }
-
     public static class Data {
-        Stats stats = new Stats();
+        public ResourceLocation type;
+        public int tier = 0;
 
         // Saving this does nothing. On the server it does nothing because it recalculates targets every time anyway.
         // It gets synced to the client and put here. Used for deciding which animation to play.
@@ -107,10 +99,16 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
         public float hRotTarget = 0;
     }
 
+    public void setType(ResourceLocation type, int tier) {
+        this.data.tier = tier;
+        this.data.type = type;
+        new StatsUpdate(this.getBlockPos(), type, tier).sendToTrackingClients(this);
+    }
+
     public Data data = new Data();
 
-    private Stats getStats(){
-        return this.data.stats;
+    private TurretTiers.Stats getStats(){
+        return TurretTiers.getStats(this.data.type, this.data.tier);
     }
 
     @Override
@@ -166,6 +164,23 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
         @Override
         public void handle() {
             ClientPacketHandlers.updateTurret(this);
+        }
+    }
+
+    public static class StatsUpdate implements ClientSideHandler {
+        public BlockPos pos;
+        public ResourceLocation type;
+        public int tier;
+
+        StatsUpdate(BlockPos pos, ResourceLocation type, int tier) {
+            this.pos = pos;
+            this.type = type;
+            this.tier = tier;
+        }
+
+        @Override
+        public void handle() {
+            ClientPacketHandlers.upgradeTurret(this);
         }
     }
 
@@ -242,8 +257,8 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
     ///// Texture Variants /////
 
     private ResourceLocation texture = TEXTURE;
-    private void updateTexture(){
-        texture = COLOR_TEXTURES.getOrDefault(this.data.stats.color, TEXTURE);
+    public void updateTexture(){
+        texture = COLOR_TEXTURES.getOrDefault(this.getStats().color, TEXTURE);
     }
     private static final ResourceLocation TEXTURE = new ResourceLocation(ModMain.MOD_ID, "textures/turret/turret_placed.png");
     private static final Map<String, ResourceLocation> COLOR_TEXTURES = new HashMap<>();

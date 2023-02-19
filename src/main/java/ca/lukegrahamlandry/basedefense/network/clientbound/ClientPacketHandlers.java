@@ -37,4 +37,15 @@ public class ClientPacketHandlers {
             ((TurretTile) tile).data.hRotTarget = p.hRotTarget;
         }
     }
+
+    public static void upgradeTurret(TurretTile.StatsUpdate p) {
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null) return;
+        BlockEntity tile = level.getBlockEntity(p.pos);
+        if (tile instanceof TurretTile){
+            ((TurretTile) tile).data.type = p.type;
+            ((TurretTile) tile).data.tier = p.tier;
+            ((TurretTile) tile).updateTexture();
+        }
+    }
 }

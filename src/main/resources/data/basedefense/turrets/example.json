@@ -1,0 +1,15 @@
+{
+  "tiers": [
+    {
+      "stats": {
+        "damage": 2,
+        "rangeInBlocks": 5,
+        "shotDelayTicks": 20,
+        "color": "red"
+      },
+      "cost": {
+        "basedefense:silver": 5
+      }
+    }
+  ]
+}

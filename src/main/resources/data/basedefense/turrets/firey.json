@@ -1,0 +1,28 @@
+{
+  "tiers": [
+    {
+      "stats": {
+        "damage": 1,
+        "rangeInBlocks": 10,
+        "shotDelayTicks": 20,
+        "color": "blue",
+        "flameSeconds": 2
+      },
+      "cost": {
+        "basedefense:silver": 15
+      }
+    },
+    {
+      "stats": {
+        "damage": 3,
+        "rangeInBlocks": 15,
+        "shotDelayTicks": 15,
+        "color": "lightblue",
+        "flameSeconds": 5
+      },
+      "cost": {
+        "basedefense:silver": 150
+      }
+    }
+  ]
+}
