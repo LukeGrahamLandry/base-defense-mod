@@ -29,7 +29,7 @@ public class BaseDefense {
                 }
             })).synced();
 
-    public static final ConfigWrapper<SyncedConfigData> CONFIG = ConfigWrapper.synced(SyncedConfigData.class);
+    public static final ConfigWrapper<SyncedConfigData> CONFIG = ConfigWrapper.synced(SyncedConfigData.class).named(ModMain.MOD_ID);
 
     public static void init() {
         JsonHelper.addTypeAdapter(MaterialCollection.class, new MaterialCollection.TypeAdapter());

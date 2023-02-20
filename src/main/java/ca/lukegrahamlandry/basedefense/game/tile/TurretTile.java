@@ -1,6 +1,7 @@
 package ca.lukegrahamlandry.basedefense.game.tile;
 
 import ca.lukegrahamlandry.basedefense.ModMain;
+import ca.lukegrahamlandry.basedefense.base.BaseDefense;
 import ca.lukegrahamlandry.basedefense.base.TurretTiers;
 import ca.lukegrahamlandry.basedefense.game.ModRegistry;
 import ca.lukegrahamlandry.basedefense.network.clientbound.ClientPacketHandlers;
@@ -8,9 +9,14 @@ import ca.lukegrahamlandry.lib.base.json.JsonHelper;
 import ca.lukegrahamlandry.lib.network.ClientSideHandler;
 import com.google.gson.JsonSyntaxException;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.util.ParticleUtils;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
@@ -45,11 +51,11 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
     static final Vec3 rotZero = new Vec3(0, 0, 1);
     LivingEntity target = null;
     public void serverTick() {
-        Vec3 bulletSource = new Vec3(this.getBlockPos().getX() + 0.5, this.getBlockPos().getY() + 1.5, this.getBlockPos().getZ() + 0.5);
-
         if (level.getGameTime() > nextShot){
+            Vec3 bulletSource = new Vec3(this.getBlockPos().getX() + 0.5, this.getBlockPos().getY() + 1.5, this.getBlockPos().getZ() + 0.5);
             nextShot = level.getGameTime() + getStats().shotDelayTicks;
 
+            // Find Target Options
             AABB box = new AABB(this.getBlockPos()).inflate(getStats().rangeInBlocks);
             List<LivingEntity> possibleTargets = level.getEntitiesOfClass(LivingEntity.class, box, (e) -> {
                 if (!(e instanceof Enemy)) return false;
@@ -60,30 +66,54 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
                 return ray.getType() != HitResult.Type.BLOCK;
             });
 
+            // Pick Target
             target = level.getNearestEntity(possibleTargets, TargetingConditions.DEFAULT, null, this.getBlockPos().getX(), this.getBlockPos().getY(), this.getBlockPos().getZ());
             if (target == null || !target.isAlive()){
-                syncIsShooting(false, 0);  // TODO: default facing based on how you placed it
+                syncIsShooting(false, this.data.hRotDefault);  // TODO: default facing based on how you placed it
                 return;
             }
 
+            // Damage
             target.hurt(DamageSource.GENERIC, getStats().damage);
             for (MobEffectInstance effect : getStats().potionEffects){
                 target.addEffect(effect);
             }
             if (getStats().flameSeconds > 0) target.setSecondsOnFire(getStats().flameSeconds);
+
+            // Debug Particles
+            if (BaseDefense.CONFIG.get().doTurretParticles){
+                Vec3 lookAtTarget = bulletSource.subtract(target.getBoundingBox().getCenter());
+                double dist = lookAtTarget.lengthSqr();
+                lookAtTarget = lookAtTarget.normalize().scale(0.3);
+                Vec3 beam = lookAtTarget;
+                while (beam.lengthSqr() < dist){
+                    Vec3 location = bulletSource.subtract(beam);
+                    ((ServerLevel) level).sendParticles(ParticleTypes.BUBBLE, location.x, location.y, location.z, 1, 0d, 0d, 0d, 0);
+                    beam = beam.add(lookAtTarget);
+                }
+            }
         }
 
         // Rotation
-        if (target != null && target.isAlive()){
-            Vec3 lookAtTarget = bulletSource.subtract(target.getBoundingBox().getCenter()).normalize();
-            Vec3 hLookAtTarget = lookAtTarget.subtract(0, lookAtTarget.y, 0);
-            double dot = hLookAtTarget.dot(rotZero);
-            float dir = (float) Math.toDegrees(Math.acos(dot));
-            if (hLookAtTarget.x < 0){
-                dir = 360 - dir;
-            }
-            syncIsShooting(true, dir);
+        if (target != null && target.isAlive()) {
+            syncIsShooting(true, calculateRot(target.getBoundingBox().getCenter()));
         }
+    }
+
+    public Component printStats() {
+        return Component.literal(JsonHelper.get().toJson(this.data) + "\n" + JsonHelper.get().toJson(this.getStats()));
+    }
+
+    public float calculateRot(Vec3 locationToLookAt){
+        Vec3 bulletSource = new Vec3(this.getBlockPos().getX() + 0.5, this.getBlockPos().getY() + 1.5, this.getBlockPos().getZ() + 0.5);
+        Vec3 lookAtTarget = bulletSource.subtract(locationToLookAt).normalize();
+        Vec3 hLookAtTarget = lookAtTarget.subtract(0, lookAtTarget.y, 0);
+        double dot = hLookAtTarget.dot(rotZero);
+        float dir = (float) Math.toDegrees(Math.acos(dot));
+        if (hLookAtTarget.x < 0){
+            dir = 360 - dir;
+        }
+        return dir;
     }
 
     ///// Data Save & Sync /////
@@ -97,6 +127,7 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
         public boolean isShooting = false;
         public float hRotCurrent = 0;
         public float hRotTarget = 0;
+        public float hRotDefault = 0;
     }
 
     public void setType(ResourceLocation type, int tier) {

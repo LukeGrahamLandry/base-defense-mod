@@ -1,5 +1,4 @@
 {
-  "tier": 1,
   "rfPerTick": 50,
   "cost": {
     "basedefense:silver": 100

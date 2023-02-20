@@ -21,7 +21,6 @@ public class BaseTier {
             ResourcesWrapper.data(BaseTier.class, "basetiers")
                     .onLoad((BaseTier::computeTierList));
 
-    int tier;
     ResourceLocation key;  // dont set. injected based on filename
     MaterialCollection cost = MaterialCollection.empty();
     List<String> unlockedCraftableItems = new ArrayList<>();
@@ -30,12 +29,16 @@ public class BaseTier {
     Map<ResourceLocation, List<AttributeModifierDef>> monsterModifiers;  // optional
     public int rfPerTick = 0;
 
+    public int getTier(){
+        return BaseDefense.CONFIG.get().baseTierOrder.indexOf(this.key);
+    }
+
     public boolean canCraft(ItemStack item){
         if (item.isEmpty()) return true;
         String itemRL = BuiltInRegistries.ITEM.getResourceKey(item.getItem()).get().location().toString();
 
         // If the item is unlocked at a tier above us, you can't craft it yet.
-        for (int i=tiers.size()-1;i>this.tier;i--){
+        for (int i=tiers.size()-1;i>this.getTier();i--){
             var tier = get(i);
             for (String itemDescriptor : tier.unlockedCraftableItems){
                 if (itemDescriptor.startsWith("#")) {
@@ -50,8 +53,8 @@ public class BaseTier {
     }
 
     public MaterialCollection getNextUpgradeCost(){
-        if (this.tier + 1 >= tiers.size()) return null;
-        return get(this.tier + 1).cost;
+        if (this.getTier() + 1 >= tiers.size()) return null;
+        return get(this.getTier() + 1).cost;
     }
 
     // If this tier doesn't define the attacks field, default to using the previous tier.
@@ -61,19 +64,15 @@ public class BaseTier {
     }
 
     private BaseTier previous(){
-        return tiers.get(this.tier - 1);
+        return tiers.get(this.getTier() - 1);
     }
 
     // TODO: instead of having the data pack declare the level, put an array of resource locations in the config. that way pack makers can have more direct control
     private static void computeTierList() {
         tiers.clear();
-        BASE_TIERS.entrySet().forEach((entry) -> {
-            entry.getValue().key = entry.getKey();
-            tiers.add(entry.getValue());
-        });
-        tiers.sort(Comparator.comparingInt(o -> o.tier));
-        for (int i=0;i< tiers.size();i++){
-            tiers.get(i).tier = i;
+        for (var rl : BaseDefense.CONFIG.get().baseTierOrder){
+            BASE_TIERS.get(rl).key = rl;
+            tiers.add(BASE_TIERS.get(rl));
         }
 
         if (tiers.isEmpty()){
@@ -148,7 +147,7 @@ public class BaseTier {
             if (instance == null) continue;
 
             int count = repeatCount.getOrDefault(info.attribute, 0);
-            String name = "Base Tier " + this.tier + " " + info.attribute + (count == 0 ? "" : " (r" + count + ")");
+            String name = "Base Tier " + this.key + " " + info.attribute + (count == 0 ? "" : " (r" + count + ")");
             repeatCount.put(info.attribute, 1);
             UUID uuid = UUID.nameUUIDFromBytes(name.getBytes(StandardCharsets.UTF_8));
             AttributeModifier modifier = new AttributeModifier(uuid, name, info.amount, info.operation);

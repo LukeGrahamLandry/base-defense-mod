@@ -35,6 +35,7 @@ public class TeamManager {
     }
 
     public static Team get(Player player){
+        if (TEAMS.get() == null) TEAMS.clear();  // TODO: ?
         return TEAMS.get().getTeam(player);
     }
 

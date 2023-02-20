@@ -9,7 +9,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.PlainTextButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -17,9 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ShopScreen extends Screen {
     private static final ResourceLocation VILLAGER_LOCATION = new ResourceLocation("textures/gui/container/villager2.png");
@@ -79,14 +76,23 @@ public class ShopScreen extends Screen {
         this.storage.subtract(offer.cost);
         new MaterialShop.Buy(key).sendToServer();
 
-        // TODO: would be better if it stayed open but your inventory was shown so you could see the new items you get
-        Minecraft.getInstance().setScreen(null);
+        highlightIndex = buttonIndex;
+        highlightTime = 10;
     }
 
     private void changePage(int delta){
         scrollOffset += delta * buttonCount;
         this.backButton.active = this.scrollOffset > 0;
         this.nextButton.active = this.scrollOffset < (validOffers.size() - buttonCount);
+    }
+
+    int highlightTime = -1;
+    int highlightIndex = -1;
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (highlightTime > 0) highlightTime--;
     }
 
     @Override
@@ -104,7 +110,8 @@ public class ShopScreen extends Screen {
 
             ResourceLocation key = this.validOffers.get(realIndex);
             MaterialShop.ShopEntry offer = MaterialShop.getOffer(key);
-            renderOffer(pPoseStack, offer, 20, 20, 50 + i * 30);
+            boolean highlight = highlightTime > 0 && i == highlightIndex;
+            renderOffer(pPoseStack, offer, 20, 20, 50 + i * 30, highlight);
 
             this.offerButtons[i].active = this.storage.canAfford(offer.cost);
         }
@@ -126,7 +133,9 @@ public class ShopScreen extends Screen {
     }
 
     // TODO: optimise ordering so i dont have to keep rebinding the villager texture. just do all arrows at once
-    private void renderOffer(PoseStack pPoseStack, MaterialShop.ShopEntry offer, int xOffset, int xDelta, int btnY){
+    private void renderOffer(PoseStack pPoseStack, MaterialShop.ShopEntry offer, int xOffset, int xDelta, int btnY, boolean highlight){
+        int color = highlight ? ChatFormatting.DARK_PURPLE.getColor() : ChatFormatting.LIGHT_PURPLE.getColor();
+
         // Render price in materials.
         for (ResourceLocation material : offer.cost.keys()){
             int amount = offer.cost.get(material);
@@ -138,7 +147,7 @@ public class ShopScreen extends Screen {
             RenderSystem.disableBlend();
             xOffset += xDelta;
 
-            Minecraft.getInstance().font.draw(pPoseStack, String.valueOf(amount), xOffset-xDelta, btnY+15, ChatFormatting.LIGHT_PURPLE.getColor());
+            Minecraft.getInstance().font.draw(pPoseStack, String.valueOf(amount), xOffset - xDelta, btnY + 15, color);
         }
 
         // Render arrow.
@@ -156,7 +165,7 @@ public class ShopScreen extends Screen {
         // Render result items.
         for (ItemStack stack : offer.items){
             Minecraft.getInstance().getItemRenderer().renderGuiItem(stack, xOffset, btnY);
-            Minecraft.getInstance().font.draw(pPoseStack, String.valueOf(stack.getCount()), xOffset, btnY+15, ChatFormatting.LIGHT_PURPLE.getColor());
+            Minecraft.getInstance().font.draw(pPoseStack, String.valueOf(stack.getCount()), xOffset, btnY+15, color);
             xOffset += xDelta;
         }
     }

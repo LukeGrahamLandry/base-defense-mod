@@ -1,6 +1,9 @@
-MIT License
+Art assets and data files (contents of the src/main/resources folder) are All Rights Reserved.
+They may not be distributed or used in other projects.
 
-Copyright (c) 2022 LukeGrahamLandry#6888
+Source code (contents of the src/main/java folder) is available under the MIT License as seen below.
+
+Copyright (c) 2023 LukeGrahamLandry
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
