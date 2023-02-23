@@ -28,10 +28,14 @@ public class TurretBlock extends Block implements EntityBlock {
 
     @Override
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
-        if (!pLevel.isClientSide() && pPlayer.isShiftKeyDown() && pHand == InteractionHand.MAIN_HAND){
+        if (!pLevel.isClientSide() && pHand == InteractionHand.MAIN_HAND){
             BlockEntity tile = pLevel.getBlockEntity(pPos);
-            if (tile instanceof TurretTile){
-                pPlayer.displayClientMessage(((TurretTile) tile).printStats(), false);
+            if (tile instanceof TurretTile turret){
+                if (pPlayer.isShiftKeyDown()){
+                    turret.tryUpgrade(pPlayer);
+                } else {
+                    pPlayer.displayClientMessage(turret.printStats(), false);
+                }
             }
         }
         return super.use(pState, pLevel, pPos, pPlayer, pHand, pHit);

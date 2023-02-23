@@ -34,12 +34,14 @@ public class TurretTiers {
         public List<Tier> tiers = new ArrayList<>();
     }
 
-    public static MaterialCollection upgradeCost(ResourceLocation type, int targetTier){
+    public static boolean isMaxTier(ResourceLocation type, int tier){
         Type data = DATA.get(type);
-        if (data == null || targetTier >= data.tiers.size()) {
-            return null;
-        }
-        return data.tiers.get(targetTier).cost;
+        return data == null || (tier + 1) >= data.tiers.size();
+    }
+
+    public static MaterialCollection upgradeCost(ResourceLocation type, int targetTier){
+        if (isMaxTier(type, targetTier - 1)) return null;
+        return DATA.get(type).tiers.get(targetTier).cost;
     }
 
     public static Stats getStats(ResourceLocation type, int tier){

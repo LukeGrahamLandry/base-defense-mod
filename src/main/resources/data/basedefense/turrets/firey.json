@@ -21,7 +21,19 @@
         "flameSeconds": 5
       },
       "cost": {
-        "basedefense:silver": 150
+        "basedefense:silver": 25
+      }
+    },
+    {
+      "stats": {
+        "damage": 3,
+        "rangeInBlocks": 15,
+        "shotDelayTicks": 15,
+        "color": "green",
+        "flameSeconds": 5
+      },
+      "cost": {
+        "basedefense:silver": 35
       }
     }
   ]

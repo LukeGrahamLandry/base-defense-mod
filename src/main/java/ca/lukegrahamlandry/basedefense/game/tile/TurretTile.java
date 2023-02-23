@@ -3,6 +3,8 @@ package ca.lukegrahamlandry.basedefense.game.tile;
 import ca.lukegrahamlandry.basedefense.ModMain;
 import ca.lukegrahamlandry.basedefense.base.BaseDefense;
 import ca.lukegrahamlandry.basedefense.base.TurretTiers;
+import ca.lukegrahamlandry.basedefense.base.teams.Team;
+import ca.lukegrahamlandry.basedefense.base.teams.TeamManager;
 import ca.lukegrahamlandry.basedefense.game.ModRegistry;
 import ca.lukegrahamlandry.basedefense.network.clientbound.ClientPacketHandlers;
 import ca.lukegrahamlandry.lib.base.json.JsonHelper;
@@ -22,6 +24,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -100,10 +103,6 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
         }
     }
 
-    public Component printStats() {
-        return Component.literal(JsonHelper.get().toJson(this.data) + "\n" + JsonHelper.get().toJson(this.getStats()));
-    }
-
     public float calculateRot(Vec3 locationToLookAt){
         Vec3 bulletSource = new Vec3(this.getBlockPos().getX() + 0.5, this.getBlockPos().getY() + 1.5, this.getBlockPos().getZ() + 0.5);
         Vec3 lookAtTarget = bulletSource.subtract(locationToLookAt).normalize();
@@ -114,6 +113,44 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
             dir = 360 - dir;
         }
         return dir;
+    }
+
+    ///// Upgrading /////
+
+    public Component printStats() {
+        String info = "Turret " + this.data.type + " tier " + this.data.tier + ".\n"
+                + "Current Stats: " + JsonHelper.get().toJson(this.getStats()) + "\n";
+        if (TurretTiers.isMaxTier(this.data.type, this.data.tier)){
+            info += "Max Tier.";
+        } else {
+            info += "Upgrade Cost: " + JsonHelper.get().toJson(TurretTiers.upgradeCost(this.data.type, this.data.tier + 1))
+                    + "\nNext Stats: " + JsonHelper.get().toJson(TurretTiers.getStats(this.data.type, this.data.tier + 1))
+                    + "\nShift right click to upgrade";
+        }
+
+        return Component.literal(info);
+    }
+
+    public void tryUpgrade(Player player) {
+        String info;
+        if (TurretTiers.isMaxTier(this.data.type, this.data.tier)){
+            info = "Max Tier. Cannot upgrade.";
+        } else {
+            Team team = TeamManager.get(player);
+            var cost = TurretTiers.upgradeCost(this.data.type, this.data.tier + 1);
+            if (team.getMaterials().canAfford(cost)){
+                team.getMaterials().subtract(cost);
+                team.setDirty();
+                this.data.tier++;
+                setType(this.data.type, this.data.tier);
+                info = "Upgraded to tier " + this.data.tier;
+                this.setChanged();
+            } else {
+                info = "Not Enough Materials. Cannot upgrade.";
+            }
+        }
+
+        player.displayClientMessage(Component.literal(info), false);
     }
 
     ///// Data Save & Sync /////
