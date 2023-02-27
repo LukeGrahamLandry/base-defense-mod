@@ -70,8 +70,6 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
         AttackLocation.targets.put(this.data.uuid, this);
         team.addAttackLocation(new AttackLocation(level, this.getBlockPos(), this.data.uuid));
 
-        player.displayClientMessage(Component.literal("Bound player to generator!"), true);
-
         this.setChanged();  // adds to team generator list
     }
 
@@ -95,6 +93,10 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
         } else {
             ModMain.LOGGER.error("MaterialGeneratorTile#setIsTerrain called before in level so can't read biome type.");
         }
+    }
+
+    public boolean isTerrain() {
+        return this.data.isTerrainGenerated;
     }
 
     @Override
@@ -212,6 +214,12 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
         return this.data.uuid;
     }
 
+    public void onTeamBaseDie(){
+        this.data.ownerTeamId = null;
+        this.data.uuid = UUID.randomUUID();
+        this.setChanged();
+    }
+
     @Override
     public void onDie() {
         Team team = getOwnerTeam();
@@ -219,9 +227,9 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
             ModMain.LOGGER.error("MaterialGeneratorTile#onDie team null");
             return;
         }
-        getOwnerTeam().getAttackOptions().removeIf(location -> location.id.equals(this.data.uuid));
         TeamManager.getTeamById(this.data.ownerTeamId).message(Component.literal("Your material generator at " + this.getBlockPos() + " was destroyed!"));
         AttackLocation.destroyed.add(this);
+        getOwnerTeam().removeAttackLocation(this.data.uuid);
 
         AttackTargetable.super.onDie();
         this.level.removeBlock(this.getBlockPos(), false);

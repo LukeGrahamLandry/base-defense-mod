@@ -1,16 +1,20 @@
 package ca.lukegrahamlandry.basedefense.base.teams;
 
+import ca.lukegrahamlandry.basedefense.ModMain;
+import ca.lukegrahamlandry.basedefense.base.attacks.AttackLocation;
 import ca.lukegrahamlandry.basedefense.commands.BaseTeamCommand;
+import ca.lukegrahamlandry.basedefense.game.tile.MaterialGeneratorTile;
+import ca.lukegrahamlandry.basedefense.game.tile.TurretTile;
 import ca.lukegrahamlandry.lib.base.json.JsonHelper;
 import ca.lukegrahamlandry.lib.data.impl.GlobalDataWrapper;
 import ca.lukegrahamlandry.lib.data.impl.PlayerDataWrapper;
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import org.apache.commons.codec.language.ColognePhonetic;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TeamManager {
     public static final PlayerDataWrapper<TeamInfo> PLAYER_TEAMS = new PlayerDataWrapper<>(TeamInfo.class).saved();
@@ -64,15 +68,31 @@ public class TeamManager {
 
         PLAYER_TEAMS.get(player).id = targetTeam;
         if (playerCount(oldTeam.id) == 0){
-            getTeam(player).getMaterials().add(oldTeam.getMaterials());
-            if (!oldTeam.getMaterials().isEmpty()){
-                player.displayClientMessage(Component.literal("Since you were the last member in your team, you took your materials with you to your new team.\nTransferred: " + JsonHelper.get().toJson(oldTeam.getMaterials())), false);
-            }
-            oldTeam.getMaterials().subtract(oldTeam.getMaterials());
+            ModMain.LOGGER.debug("Deleting empty team: " + JsonHelper.get().toJson(oldTeam));
 
-            // TODO: generators and turrets but have to update the data in the tile entity as well.
-            // getTeam(player).getGenerators().putAll(oldTeam.getGenerators());
-            // oldTeam.getGenerators().clear();
+            AtomicInteger turretCount = new AtomicInteger();
+            AtomicInteger generatorCount = new AtomicInteger();
+            oldTeam.getTrackedLocations().forEach((location) -> {
+                if (location.canAttack) AttackLocation.destroyed.add(location.getTarget());
+
+                BlockEntity tile = player.level.getBlockEntity(location.pos);
+                if (tile instanceof TurretTile turret){
+                    turret.onTeamBaseDie();
+                    turret.setTeam(getTeam(player));
+                    turretCount.getAndIncrement();
+                }
+                if (tile instanceof MaterialGeneratorTile generator){
+                    generator.onTeamBaseDie();
+                    generator.tryBind((ServerPlayer) player);  // re-adds to attack locations and generators list
+                    generatorCount.getAndIncrement();
+                }
+            });
+
+            getTeam(player).getMaterials().add(oldTeam.getMaterials());
+            player.displayClientMessage(Component.literal("Since you were the last member in your team, you took your materials with you to your new team.\nTransferred: " + generatorCount.get() + " material generators, "  + turretCount.get() + " turrets, and " + JsonHelper.get().toJson(oldTeam.getMaterials())), false);
+            oldTeam.getMaterials().clear();
+
+            TEAMS.get().teams.remove(oldTeam.getId());
         }
 
         TEAMS.setDirty();

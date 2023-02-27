@@ -77,7 +77,7 @@ public class ServerEvents {
     private static void updateAttackTargetCache() {
         for (Team team : TeamManager.TEAMS.get().getTeams()){
             for (AttackLocation target : team.getAttackOptions()){
-                ServerLevel level = server.getLevel(ResourceKey.create(Registries.DIMENSION, target.dimension));
+                ServerLevel level = target.getLevel();
                 if (level == null) return;
 
                 boolean forceIdk = !level.isLoaded(target.pos);
@@ -85,14 +85,14 @@ public class ServerEvents {
                 BlockEntity tile = level.getBlockEntity(target.pos);
                 if (tile instanceof AttackTargetable tileTarget){
                     if (tileTarget.getOwnerTeam() != team){
-                        team.removeAttackLocation(target);
+                        team.removeAttackLocation(target.id);
                         ModMain.LOGGER.error("Removed attack target (" + ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(tile.getType()) + ") at " + target.pos + " in " + target.dimension + " because world saved data says it should be owned by " + team + " but the tile thinks its owned by " + tileTarget.getOwnerTeam());
                     } else {
                         AttackLocation.targets.put(tileTarget.getUUID(), tileTarget);
                         ModMain.LOGGER.debug("Loaded attack target (" + ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(tile.getType()) + ") at " + target.pos + " in " + target.dimension + " (" + tileTarget.getOwnerTeam() + ")");
                     }
                 } else {
-                    team.removeAttackLocation(target);
+                    team.removeAttackLocation(target.id);
                     ModMain.LOGGER.error("Removed attack target (" + (tile == null ? "null" : ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(tile.getType())) + ") at " + target.pos + " in " + target.dimension + " (" + team + ") because it had unknown tile type.");
                 }
                 if (forceIdk) level.setChunkForced(target.chunk().x, target.chunk().z, false);

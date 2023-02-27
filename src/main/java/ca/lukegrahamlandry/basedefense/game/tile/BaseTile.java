@@ -47,6 +47,11 @@ public class BaseTile extends BlockEntity implements GeoBlockEntity, AttackTarge
     public static void setTeam(ServerLevel level, BlockPos pos, Team team){
         BlockEntity tile = level.getBlockEntity(pos);
         if (tile instanceof BaseTile base){
+            // If a team is already set, and it's not the same team, and the set team exists...
+            if (base.teamUUID != null && !base.teamUUID.equals(team.getId()) && TeamManager.getTeamById(base.teamUUID) != null){
+                team = TeamManager.getTeamById(base.teamUUID);
+            }
+
             base.tier = team.getBaseTier();
             base.rfGenerated = null;
             base.teamUUID = team.getId();
@@ -196,10 +201,7 @@ public class BaseTile extends BlockEntity implements GeoBlockEntity, AttackTarge
             ModMain.LOGGER.error("MaterialGeneratorTile#onDie team null");
             return;
         }
-        getOwnerTeam().getAttackOptions().removeIf(location -> Objects.equals(this.uuid, location.id));
-        TeamManager.getTeamById(this.teamUUID).message(Component.literal("Your base block was destroyed!"));
-        AttackLocation.destroyed.add(this);
-
+        team.onBaseDie();
         AttackTargetable.super.onDie();
         this.level.removeBlock(this.getBlockPos(), false);
         this.level.explode(null, this.getBlockPos().getX(), this.getBlockPos().getY(), this.getBlockPos().getZ(), 4.0F, Level.ExplosionInteraction.TNT);

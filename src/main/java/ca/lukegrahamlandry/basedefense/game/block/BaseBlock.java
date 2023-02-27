@@ -1,11 +1,9 @@
 package ca.lukegrahamlandry.basedefense.game.block;
 
-import ca.lukegrahamlandry.basedefense.base.MaterialShop;
 import ca.lukegrahamlandry.basedefense.base.teams.TeamManager;
 import ca.lukegrahamlandry.basedefense.game.ModRegistry;
 import ca.lukegrahamlandry.basedefense.game.tile.BaseTile;
 import ca.lukegrahamlandry.basedefense.network.clientbound.OpenBaseUpgradeGui;
-import ca.lukegrahamlandry.lib.resources.DataPackSyncMessage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,6 +12,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -22,6 +21,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
@@ -62,5 +62,28 @@ public class BaseBlock extends Block implements EntityBlock {
     @Override
     public RenderShape getRenderShape(BlockState pState) {
         return RenderShape.ENTITYBLOCK_ANIMATED;
+    }
+
+    @Override
+    public void playerWillDestroy(Level pLevel, BlockPos pPos, BlockState pState, Player pPlayer) {
+        super.playerWillDestroy(pLevel, pPos, pState, pPlayer);
+        if (!pLevel.isClientSide()){
+            if (pLevel.getBlockEntity(pPos) instanceof BaseTile base){
+                base.onDie();
+            }
+        }
+    }
+
+    boolean isExploding = false;  // Stops infinite recursion since onDie causes an explosion as well
+    @Override
+    public void onBlockExploded(BlockState state, Level level, BlockPos pos, Explosion explosion) {
+        if (!level.isClientSide() && !isExploding){
+            isExploding = true;
+            if (level.getBlockEntity(pos) instanceof BaseTile base){
+                base.onDie();
+            }
+            isExploding = false;
+        }
+        super.onBlockExploded(state, level, pos, explosion);
     }
 }

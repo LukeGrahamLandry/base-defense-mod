@@ -3,6 +3,7 @@ package ca.lukegrahamlandry.basedefense.game.tile;
 import ca.lukegrahamlandry.basedefense.ModMain;
 import ca.lukegrahamlandry.basedefense.base.BaseDefense;
 import ca.lukegrahamlandry.basedefense.base.TurretTiers;
+import ca.lukegrahamlandry.basedefense.base.attacks.AttackLocation;
 import ca.lukegrahamlandry.basedefense.base.teams.Team;
 import ca.lukegrahamlandry.basedefense.base.teams.TeamManager;
 import ca.lukegrahamlandry.basedefense.game.ModRegistry;
@@ -186,12 +187,23 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
         player.displayClientMessage(Component.literal(info), false);
     }
 
+    public void onTeamBaseDie() {
+        this.data.team = null;
+        this.data.uuid = UUID.randomUUID();
+    }
+
+    public void setTeam(Team team) {
+        this.data.team = team.getId();
+        team.addAttackLocation(AttackLocation.justTrackNoAttack(this.level, this.getBlockPos(), this.data.uuid));
+    }
+
     ///// Data Save & Sync /////
 
     public static class Data {
         public ResourceLocation type;
         public int tier = 0;
         public UUID team;
+        public UUID uuid;
 
         // Saving this does nothing. On the server it does nothing because it recalculates its target every time anyway.
         // It gets synced to the client and put here. Used for deciding which animation to play.

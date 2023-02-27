@@ -18,6 +18,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 public class TurretPlacer extends BlockItem {
     public TurretPlacer() {
         super(ModRegistry.TURRET_BLOCK.get(), new Properties());
@@ -28,8 +30,9 @@ public class TurretPlacer extends BlockItem {
         BlockEntity tile = pLevel.getBlockEntity(pPos);
         if (tile instanceof TurretTile turret){
             if (pPlayer != null){
+                if (turret.data.uuid == null) turret.data.uuid = UUID.randomUUID();
                 turret.data.hRotDefault = turret.calculateRot(pPlayer.getBoundingBox().getCenter());
-                turret.data.team = TeamManager.get(pPlayer).getId();
+                turret.setTeam(TeamManager.get(pPlayer));
             }
             turret.setType(getType(pStack), getTier(pStack));
         }

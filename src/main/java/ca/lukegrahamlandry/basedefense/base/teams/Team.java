@@ -1,14 +1,19 @@
 package ca.lukegrahamlandry.basedefense.base.teams;
 
+import ca.lukegrahamlandry.basedefense.ModMain;
 import ca.lukegrahamlandry.basedefense.base.attacks.OngoingAttack;
 import ca.lukegrahamlandry.basedefense.base.attacks.AttackLocation;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialCollection;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialGeneratorType;
 import ca.lukegrahamlandry.basedefense.events.ServerEvents;
+import ca.lukegrahamlandry.basedefense.game.tile.MaterialGeneratorTile;
+import ca.lukegrahamlandry.basedefense.game.tile.TurretTile;
+import ca.lukegrahamlandry.lib.base.json.JsonHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -46,12 +51,15 @@ public class Team {
          this.attackLocations.add(attackLocation);
     }
 
-    public void removeAttackLocation(AttackLocation attackLocation) {
-        this.attackLocations.remove(attackLocation);
+    public void removeAttackLocation(UUID attackLocationId) {
+        this.attackLocations.removeIf((l) -> l.id.equals(attackLocationId));
     }
 
-
     public List<AttackLocation> getAttackOptions() {
+        return this.attackLocations.stream().filter((l) -> l.canAttack).collect(Collectors.toList());
+    }
+
+    public List<AttackLocation> getTrackedLocations() {
         return new ArrayList<>(this.attackLocations);
     }
 
@@ -105,5 +113,28 @@ public class Team {
             }
         }
         return this.owner;
+    }
+
+    public void onBaseDie() {
+        ModMain.LOGGER.debug("Clearing team because base destroyed. " + JsonHelper.get().toJson(this));
+
+        getTrackedLocations().forEach((location) -> {
+            if (location.canAttack) AttackLocation.destroyed.add(location.getTarget());
+
+            BlockEntity tile = location.getLevel().getBlockEntity(location.pos);
+            if (tile instanceof TurretTile turret){
+                turret.onTeamBaseDie();
+            }
+            if (tile instanceof MaterialGeneratorTile generator){
+                generator.onTeamBaseDie();
+            }
+        });
+
+        this.baseBlockTier = 0;
+        attackLocations.clear();
+        getMaterials().clear();
+        generators.clear();
+        setDirty();
+        message(Component.literal("Your base block was destroyed! Your materials are gone and you've lost ownership of your generators/turrets."));
     }
 }
