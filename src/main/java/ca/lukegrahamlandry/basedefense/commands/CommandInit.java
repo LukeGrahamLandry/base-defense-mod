@@ -10,5 +10,6 @@ public class CommandInit {
     @SubscribeEvent
     public static void registerCommands(RegisterCommandsEvent event){
         AttackWaveCommand.register(event.getDispatcher());
+        BaseTeamCommand.register(event.getDispatcher());
     }
 }

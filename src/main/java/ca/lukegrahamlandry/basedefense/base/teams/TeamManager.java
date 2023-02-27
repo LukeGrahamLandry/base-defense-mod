@@ -1,17 +1,21 @@
 package ca.lukegrahamlandry.basedefense.base.teams;
 
+import ca.lukegrahamlandry.basedefense.commands.BaseTeamCommand;
+import ca.lukegrahamlandry.lib.base.json.JsonHelper;
 import ca.lukegrahamlandry.lib.data.impl.GlobalDataWrapper;
 import ca.lukegrahamlandry.lib.data.impl.PlayerDataWrapper;
+import com.mojang.datafixers.util.Pair;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import org.apache.commons.codec.language.ColognePhonetic;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class TeamManager {
-    private static final PlayerDataWrapper<TeamInfo> PLAYER_TEAMS = new PlayerDataWrapper<>(TeamInfo.class).saved();
+    public static final PlayerDataWrapper<TeamInfo> PLAYER_TEAMS = new PlayerDataWrapper<>(TeamInfo.class).saved();
     public static final GlobalDataWrapper<TeamManager> TEAMS = new GlobalDataWrapper<>(TeamManager.class).saved();
+    public static List<BaseTeamCommand.InviteData> invites = new ArrayList<>();
 
     private Map<UUID, Team> teams = new HashMap<>();
     public static boolean wasDay = true;
@@ -61,7 +65,14 @@ public class TeamManager {
         PLAYER_TEAMS.get(player).id = targetTeam;
         if (playerCount(oldTeam.id) == 0){
             getTeam(player).getMaterials().add(oldTeam.getMaterials());
-            getTeam(player).getGenerators().putAll(oldTeam.getGenerators());
+            if (!oldTeam.getMaterials().isEmpty()){
+                player.displayClientMessage(Component.literal("Since you were the last member in your team, you took your materials with you to your new team.\nTransferred: " + JsonHelper.get().toJson(oldTeam.getMaterials())), false);
+            }
+            oldTeam.getMaterials().subtract(oldTeam.getMaterials());
+
+            // TODO: generators and turrets but have to update the data in the tile entity as well.
+            // getTeam(player).getGenerators().putAll(oldTeam.getGenerators());
+            // oldTeam.getGenerators().clear();
         }
 
         TEAMS.setDirty();
@@ -72,8 +83,13 @@ public class TeamManager {
         return teams.values();
     }
 
+    public void leaveTeam(ServerPlayer player) {
+        PLAYER_TEAMS.remove(player);
+        getTeam(player);
+    }
+
     public static class TeamInfo {
-        private UUID id;
+        public UUID id;
 
         public TeamInfo(){
 

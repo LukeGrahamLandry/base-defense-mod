@@ -12,6 +12,7 @@ import net.minecraft.world.entity.player.Player;
 
 import java.util.*;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class Team {
     UUID id;
@@ -20,6 +21,7 @@ public class Team {
     public OngoingAttack.State attack = null;
     Set<AttackLocation> attackLocations;
     int baseBlockTier = 0;
+    UUID owner;
 
     public Team() {
         this.id = UUID.randomUUID();
@@ -86,8 +88,22 @@ public class Team {
         }));
     }
 
+    public Collection<UUID> getMembers(){
+        return TeamManager.PLAYER_TEAMS.getMap().entrySet().stream().filter((entry) -> entry.getValue().id.equals(this.getId())).map(Map.Entry::getKey).collect(Collectors.toSet());
+    }
+
     @Override
     public String toString() {
         return "Team:" + this.id;
+    }
+
+    public UUID getOwner() {
+        var members = getMembers();
+        if (this.owner == null || !members.contains(this.owner)){
+            if (!members.isEmpty()){
+                this.owner = members.stream().findFirst().get();
+            }
+        }
+        return this.owner;
     }
 }

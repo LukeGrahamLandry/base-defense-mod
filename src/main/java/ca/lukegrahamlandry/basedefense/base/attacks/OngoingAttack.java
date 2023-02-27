@@ -32,7 +32,7 @@ import java.util.UUID;
 
 public class OngoingAttack {
     enum WaveAction {
-        ACTIVE, DONE, FROZEN, INVALID_TARGET
+        ACTIVE, DONE, FROZEN
     }
     public static class State {
         AttackLocation location;
@@ -95,6 +95,9 @@ public class OngoingAttack {
             }
         }
         state.currentWaveMonsters = found;
+        if (!found.isEmpty()){
+            state.action = WaveAction.ACTIVE;
+        }
     }
 
     public void startWave(AttackWaveType wave){
@@ -104,8 +107,7 @@ public class OngoingAttack {
             return;
         }
 
-        if (!state.location.validTarget()){
-            // I think I fixed this with updateAttackTargetCache.
+        if (!state.location.validTarget()){  // I think I fixed this with updateAttackTargetCache.
             // Here I could force load that chunk and update the target just in case this still happens.
             team.message(Component.literal("ERROR: failed to start attack wave."));
             state.action = WaveAction.FROZEN;
