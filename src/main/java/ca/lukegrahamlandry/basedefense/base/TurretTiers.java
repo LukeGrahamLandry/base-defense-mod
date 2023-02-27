@@ -10,18 +10,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TurretTiers {
-    public static final ResourcesWrapper<Type> DATA = ResourcesWrapper.data(Type.class, "turrets").synced().onLoad(MaterialShop::reload);;
+    public static final ResourcesWrapper<Type> DATA = ResourcesWrapper.data(Type.class, "turrets").synced().onLoad(MaterialShop::reload).onReceiveSync(MaterialShop::reload);
     public static final Stats EMPTY_STATS = new Stats();
 
     public static class Stats {
-        public int damage = 0;
-        public int rangeInBlocks = 0;
+        public int damage = 1;
+        public int rangeInBlocks = 5;
         public int shotDelayTicks = 20;
         public int flameSeconds = 0;
         public List<MobEffectInstance> potionEffects = new ArrayList<>();
         public String color = "none";
         public float rotationDegreesPerTick = 10F;
-        public ResourceLocation ammo;
+        public MaterialCollection ammo = MaterialCollection.empty();
     }
 
     public static class Tier {

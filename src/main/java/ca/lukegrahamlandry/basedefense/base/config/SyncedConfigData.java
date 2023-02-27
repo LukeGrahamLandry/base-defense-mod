@@ -18,6 +18,10 @@ public class SyncedConfigData {
     public List<ResourceLocation> baseTierOrder;
     public Map<ResourceLocation, ResourceLocation> terrainGeneratorTypes = new HashMap<>();
     public Map<ResourceLocation, ResourceLocation> materialTextures = new HashMap<>();
+    public boolean turretsWithInvalidTeamTargetAllPlayers = false;
+    public boolean turretsWithInvalidTeamTargetMonsters = true;
+    public boolean turretsWithInvalidTeamHaveInfiniteAmmo = false;
+    public boolean turretsTargetPlayersOnOtherTeams = true;
 
     public SyncedConfigData(){
         baseTierOrder = Arrays.asList(new ResourceLocation(ModMain.MOD_ID, "zero"), new ResourceLocation(ModMain.MOD_ID, "one"), new ResourceLocation(ModMain.MOD_ID, "two"));
@@ -25,6 +29,7 @@ public class SyncedConfigData {
         materialTextures.put(new ResourceLocation(ModMain.MOD_ID, "silver"), new ResourceLocation("minecraft:textures/item/iron_ingot.png"));
         materialTextures.put(new ResourceLocation(ModMain.MOD_ID, "platinum"), new ResourceLocation("minecraft:textures/item/gold_ingot.png"));
         materialTextures.put(new ResourceLocation(ModMain.MOD_ID, "orange"), new ResourceLocation("minecraft:textures/item/apple.png"));
+        materialTextures.put(new ResourceLocation(ModMain.MOD_ID, "bullet"), new ResourceLocation("minecraft:textures/item/gold_nugget.png"));
     }
 
     public ResourceLocation getGeneratorTypeFor(Level level, Holder<Biome> biome) {

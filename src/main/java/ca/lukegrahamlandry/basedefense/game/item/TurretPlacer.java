@@ -1,6 +1,8 @@
 package ca.lukegrahamlandry.basedefense.game.item;
 
 import ca.lukegrahamlandry.basedefense.base.material.MaterialGeneratorType;
+import ca.lukegrahamlandry.basedefense.base.teams.Team;
+import ca.lukegrahamlandry.basedefense.base.teams.TeamManager;
 import ca.lukegrahamlandry.basedefense.game.ModRegistry;
 import ca.lukegrahamlandry.basedefense.game.tile.MaterialGeneratorTile;
 import ca.lukegrahamlandry.basedefense.game.tile.TurretTile;
@@ -25,7 +27,10 @@ public class TurretPlacer extends BlockItem {
     protected boolean updateCustomBlockEntityTag(BlockPos pPos, Level pLevel, @Nullable Player pPlayer, ItemStack pStack, BlockState pState) {
         BlockEntity tile = pLevel.getBlockEntity(pPos);
         if (tile instanceof TurretTile turret){
-            turret.data.hRotDefault = turret.calculateRot(pPlayer.getBoundingBox().getCenter());
+            if (pPlayer != null){
+                turret.data.hRotDefault = turret.calculateRot(pPlayer.getBoundingBox().getCenter());
+                turret.data.team = TeamManager.get(pPlayer).getId();
+            }
             turret.setType(getType(pStack), getTier(pStack));
         }
         return super.updateCustomBlockEntityTag(pPos, pLevel, pPlayer, pStack, pState);

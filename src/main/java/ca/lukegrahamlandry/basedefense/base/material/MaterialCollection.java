@@ -23,7 +23,8 @@ public class MaterialCollection {
         return new MaterialCollection();
     }
 
-    // what does <other> have that <this> doesn't
+    // Calculate what <other> has that <this> doesn't.
+    // This can be negative.
     public MaterialCollection getDifference(MaterialCollection other){
         MaterialCollection difference = new MaterialCollection();
 
@@ -46,6 +47,7 @@ public class MaterialCollection {
         return new MaterialCollection().getDifference(this);
     }
 
+    // Negatives are seen as 0 so this can be used safely on results from getDifference
     public boolean isEmpty(){
         if (this.materials.isEmpty()) return true;
         for (ResourceLocation rl : keys()){

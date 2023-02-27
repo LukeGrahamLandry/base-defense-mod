@@ -1,11 +1,13 @@
 package ca.lukegrahamlandry.basedefense.client;
 
 import ca.lukegrahamlandry.basedefense.ModMain;
+import ca.lukegrahamlandry.basedefense.base.BaseDefense;
 import ca.lukegrahamlandry.basedefense.client.renderer.BaseBlockRenderer;
 import ca.lukegrahamlandry.basedefense.client.renderer.GeneratorRenderer;
 import ca.lukegrahamlandry.basedefense.client.renderer.TurretRenderer;
 import ca.lukegrahamlandry.basedefense.game.ModRegistry;
 import ca.lukegrahamlandry.basedefense.game.tile.TurretTile;
+import ca.lukegrahamlandry.lib.config.ConfigWrapper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

@@ -54,8 +54,6 @@ public class ShopScreen extends Screen {
             if (entry.getValue().minBaseTier > baseTier) continue;
 
             validOffers.add(entry.getKey());
-
-            System.out.println(entry.getKey());
         }
 
         this.backButton = this.addRenderableWidget(Button.builder(Component.literal("<"), pButton -> changePage(-1)).bounds(20, this.height - 20, 40, 20).build());
@@ -167,6 +165,20 @@ public class ShopScreen extends Screen {
             Minecraft.getInstance().getItemRenderer().renderGuiItem(stack, xOffset, btnY);
             Minecraft.getInstance().font.draw(pPoseStack, String.valueOf(stack.getCount()), xOffset, btnY+15, color);
             xOffset += xDelta;
+        }
+
+        // Render result materials.
+        for (ResourceLocation material : offer.materials.keys()){
+            int amount = offer.materials.get(material);
+            ResourceLocation texture = TextureHelper.getMaterialTexture(material);
+
+            RenderSystem.setShaderTexture(0, texture);
+            RenderSystem.enableBlend();
+            GuiComponent.blit(pPoseStack, xOffset, btnY, 0.0F, 0.0F, 16, 16, 16, 16);
+            RenderSystem.disableBlend();
+            xOffset += xDelta;
+
+            Minecraft.getInstance().font.draw(pPoseStack, String.valueOf(amount), xOffset - xDelta, btnY + 15, ChatFormatting.GREEN.getColor());
         }
     }
 }

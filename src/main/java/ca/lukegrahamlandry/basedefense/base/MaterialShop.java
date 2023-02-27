@@ -1,5 +1,6 @@
 package ca.lukegrahamlandry.basedefense.base;
 
+import ca.lukegrahamlandry.basedefense.ModMain;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialCollection;
 import ca.lukegrahamlandry.basedefense.base.teams.Team;
 import ca.lukegrahamlandry.basedefense.base.teams.TeamManager;
@@ -15,7 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.*;
 
 public class MaterialShop {
-    private static final ResourcesWrapper<ShopEntry> SHOP_ENTRIES = ResourcesWrapper.data(ShopEntry.class, "shop").synced().onLoad(MaterialShop::reload);
+    private static final ResourcesWrapper<ShopEntry> SHOP_ENTRIES = ResourcesWrapper.data(ShopEntry.class, "shop").synced().onLoad(MaterialShop::reload).onReceiveSync(MaterialShop::reload);
     private static final Map<ResourceLocation, ShopEntry> offerCache = new HashMap<>();
 
     public static Set<Map.Entry<ResourceLocation, ShopEntry>> getOfferSet() {
@@ -47,11 +48,14 @@ public class MaterialShop {
         } catch (NullPointerException e){
             // just ignore when this loads before turrets
         }
+
+        ModMain.LOGGER.debug("Shop loaded with " + offerCache.size() + " offers.");
     }
 
     public static class ShopEntry {
         public MaterialCollection cost;
-        public List<ItemStack> items;
+        public List<ItemStack> items = new ArrayList<>();
+        public MaterialCollection materials = MaterialCollection.empty();
         public int minBaseTier = 0;
     }
 
@@ -68,6 +72,7 @@ public class MaterialShop {
 
             Team team = TeamManager.get(player);
             team.getMaterials().subtract(entry.cost);
+            team.getMaterials().add(entry.materials);
             team.setDirty();
 
             for (ItemStack stack : entry.items){

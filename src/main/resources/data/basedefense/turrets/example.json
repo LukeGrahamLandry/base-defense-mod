@@ -5,7 +5,10 @@
         "damage": 2,
         "rangeInBlocks": 5,
         "shotDelayTicks": 20,
-        "color": "red"
+        "color": "red",
+        "ammo": {
+          "basedefense:bullet": 1
+        }
       },
       "cost": {
         "basedefense:silver": 5

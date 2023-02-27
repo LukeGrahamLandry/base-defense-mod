@@ -11,14 +11,13 @@ import ca.lukegrahamlandry.lib.base.json.JsonHelper;
 import ca.lukegrahamlandry.lib.network.ClientSideHandler;
 import com.google.gson.JsonSyntaxException;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.util.ParticleUtils;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
@@ -53,15 +52,27 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
     long nextShot = 0;
     static final Vec3 rotZero = new Vec3(0, 0, 1);
     LivingEntity target = null;
+    boolean hasSentAmmoAlert = false;
     public void serverTick() {
         if (level.getGameTime() > nextShot){
+            if (!this.hasAmmo()){
+                Team team = TeamManager.getTeamById(this.data.team);
+                if (!this.hasSentAmmoAlert && team != null) {  // Only send the alert once to not spam chat.
+                    team.message(Component.literal("Your turret at (" + this.worldPosition.toShortString() + ") does not have enough ammo."));
+                    this.hasSentAmmoAlert = true;
+                }
+                syncIsShooting(false, this.data.hRotDefault);
+                return;
+            }
+            this.hasSentAmmoAlert = false;
+
             Vec3 bulletSource = new Vec3(this.getBlockPos().getX() + 0.5, this.getBlockPos().getY() + 1.5, this.getBlockPos().getZ() + 0.5);
             nextShot = level.getGameTime() + getStats().shotDelayTicks;
 
             // Find Target Options
             AABB box = new AABB(this.getBlockPos()).inflate(getStats().rangeInBlocks);
             List<LivingEntity> possibleTargets = level.getEntitiesOfClass(LivingEntity.class, box, (e) -> {
-                if (!(e instanceof Enemy)) return false;
+                if (!this.canTarget(e)) return false;
 
                 // Check if it has line of sight
                 Vec3 targetCenter = e.getBoundingBox().getCenter();
@@ -72,7 +83,7 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
             // Pick Target
             target = level.getNearestEntity(possibleTargets, TargetingConditions.DEFAULT, null, this.getBlockPos().getX(), this.getBlockPos().getY(), this.getBlockPos().getZ());
             if (target == null || !target.isAlive()){
-                syncIsShooting(false, this.data.hRotDefault);  // TODO: default facing based on how you placed it
+                syncIsShooting(false, this.data.hRotDefault);
                 return;
             }
 
@@ -82,6 +93,7 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
                 target.addEffect(effect);
             }
             if (getStats().flameSeconds > 0) target.setSecondsOnFire(getStats().flameSeconds);
+            this.expendAmmo();
 
             // Debug Particles
             if (BaseDefense.CONFIG.get().doTurretParticles){
@@ -101,6 +113,27 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
         if (target != null && target.isAlive()) {
             syncIsShooting(true, calculateRot(target.getBoundingBox().getCenter()));
         }
+    }
+
+    protected boolean canTarget(LivingEntity entity){
+        Team team = TeamManager.getTeamById(this.data.team);
+        if (entity instanceof ServerPlayer){
+            if (team == null) return BaseDefense.CONFIG.get().turretsWithInvalidTeamTargetAllPlayers;
+            return BaseDefense.CONFIG.get().turretsTargetPlayersOnOtherTeams && !team.contains((Player) entity);
+        }
+        return entity instanceof Enemy && (team != null || BaseDefense.CONFIG.get().turretsWithInvalidTeamTargetMonsters);
+    }
+
+    protected boolean hasAmmo(){
+        Team team = TeamManager.getTeamById(this.data.team);
+        if (team == null) return BaseDefense.CONFIG.get().turretsWithInvalidTeamHaveInfiniteAmmo || this.getStats().ammo.isEmpty();
+        return team.getMaterials().canAfford(this.getStats().ammo);
+    }
+
+    protected void expendAmmo(){
+        Team team = TeamManager.getTeamById(this.data.team);
+        if (team == null) return;
+        team.getMaterials().subtract(this.getStats().ammo);
     }
 
     public float calculateRot(Vec3 locationToLookAt){
@@ -158,8 +191,9 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
     public static class Data {
         public ResourceLocation type;
         public int tier = 0;
+        public UUID team;
 
-        // Saving this does nothing. On the server it does nothing because it recalculates targets every time anyway.
+        // Saving this does nothing. On the server it does nothing because it recalculates its target every time anyway.
         // It gets synced to the client and put here. Used for deciding which animation to play.
         public boolean isShooting = false;
         public float hRotCurrent = 0;
@@ -170,7 +204,7 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
     public void setType(ResourceLocation type, int tier) {
         this.data.tier = tier;
         this.data.type = type;
-        new StatsUpdate(this.getBlockPos(), type, tier).sendToTrackingClients(this);
+        new StatsUpdate(this.getBlockPos(), type, tier).sendToAllClients();
     }
 
     public Data data = new Data();
@@ -291,6 +325,8 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
     public void tick() {
         if (!this.hasLevel()) return;  // Can't happen but im afraid
 
+        if (this.level.isClientSide() && !TurretTiers.DATA.isLoaded()) return;
+
         if (this.level.isClientSide()){
             if (animTick > 0) animTick--;
             if (!data.isShooting && wasShooting){
@@ -326,6 +362,10 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
 
     private ResourceLocation texture = TEXTURE;
     public void updateTexture(){
+        if (!TurretTiers.DATA.isLoaded()) {
+            texture = null;
+            return;
+        }
         texture = COLOR_TEXTURES.getOrDefault(this.getStats().color, TEXTURE);
     }
     private static final ResourceLocation TEXTURE = new ResourceLocation(ModMain.MOD_ID, "textures/turret/turret_placed.png");
@@ -336,6 +376,10 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
         }
     }
     public ResourceLocation getTexture() {
+        if (this.texture == null){
+            updateTexture();
+            return TEXTURE;
+        }
         return this.texture;
     }
 }
