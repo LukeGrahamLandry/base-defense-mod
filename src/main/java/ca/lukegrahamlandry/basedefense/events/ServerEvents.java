@@ -2,19 +2,27 @@ package ca.lukegrahamlandry.basedefense.events;
 
 import ca.lukegrahamlandry.basedefense.ModMain;
 import ca.lukegrahamlandry.basedefense.base.BaseDefense;
+import ca.lukegrahamlandry.basedefense.base.attacks.AttackLocation;
 import ca.lukegrahamlandry.basedefense.base.attacks.AttackManager;
+import ca.lukegrahamlandry.basedefense.base.attacks.old.AttackTargetable;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialsUtil;
+import ca.lukegrahamlandry.basedefense.base.teams.Team;
+import ca.lukegrahamlandry.basedefense.base.teams.TeamManager;
 import ca.lukegrahamlandry.basedefense.game.ModRegistry;
 import ca.lukegrahamlandry.basedefense.game.tile.MaterialGeneratorTile;
 import ca.lukegrahamlandry.lib.config.ConfigWrapper;
 import ca.lukegrahamlandry.lib.config.GenerateComments;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -22,6 +30,7 @@ import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -56,12 +65,39 @@ public class ServerEvents {
     public static void start(ServerStartedEvent event){
         server = event.getServer();
         updateBiomeConfigCache();
+        updateAttackTargetCache();
     }
 
     @SubscribeEvent
     public static void login(PlayerEvent.PlayerLoggedInEvent event){
         if (event.getEntity().level.isClientSide()) return;
         AttackManager.resume((ServerPlayer) event.getEntity());
+    }
+
+    private static void updateAttackTargetCache() {
+        for (Team team : TeamManager.TEAMS.get().getTeams()){
+            for (AttackLocation target : team.getAttackOptions()){
+                ServerLevel level = server.getLevel(ResourceKey.create(Registries.DIMENSION, target.dimension));
+                if (level == null) return;
+
+                boolean forceIdk = !level.isLoaded(target.pos);
+                if (forceIdk) level.setChunkForced(target.chunk().x, target.chunk().z, true);
+                BlockEntity tile = level.getBlockEntity(target.pos);
+                if (tile instanceof AttackTargetable tileTarget){
+                    if (tileTarget.getOwnerTeam() != team){
+                        team.removeAttackLocation(target);
+                        ModMain.LOGGER.error("Removed attack target (" + ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(tile.getType()) + ") at " + target.pos + " in " + target.dimension + " because world saved data says it should be owned by " + team + " but the tile thinks its owned by " + tileTarget.getOwnerTeam());
+                    } else {
+                        AttackLocation.targets.put(tileTarget.getUUID(), tileTarget);
+                        ModMain.LOGGER.debug("Loaded attack target (" + ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(tile.getType()) + ") at " + target.pos + " in " + target.dimension + " (" + tileTarget.getOwnerTeam() + ")");
+                    }
+                } else {
+                    team.removeAttackLocation(target);
+                    ModMain.LOGGER.error("Removed attack target (" + (tile == null ? "null" : ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(tile.getType())) + ") at " + target.pos + " in " + target.dimension + " (" + team + ") because it had unknown tile type.");
+                }
+                if (forceIdk) level.setChunkForced(target.chunk().x, target.chunk().z, false);
+            }
+        }
     }
 
     private static void updateBiomeConfigCache() {

@@ -3,6 +3,7 @@ package ca.lukegrahamlandry.basedefense.base.attacks;
 import ca.lukegrahamlandry.basedefense.base.attacks.old.AttackTargetable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 
 import java.util.*;
@@ -11,9 +12,9 @@ public class AttackLocation {
     public static Map<UUID, AttackTargetable> targets = new HashMap<>();
     public static List<AttackTargetable> destroyed = new ArrayList<>();
 
-    BlockPos pos;
+    public BlockPos pos;
     public UUID id;
-    ResourceLocation dimension;
+    public ResourceLocation dimension;
 
     public AttackLocation(Level level, BlockPos pos, UUID id){
         this.pos = pos;
@@ -44,5 +45,9 @@ public class AttackLocation {
     @Override
     public int hashCode() {
         return this.id.hashCode();
+    }
+
+    public ChunkPos chunk(){
+        return new ChunkPos(this.pos);
     }
 }

@@ -6,6 +6,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface AttackTargetable {
     List<BlockPos> getSpawnLocations();
@@ -14,6 +15,7 @@ public interface AttackTargetable {
     float maxHealth();
     LivingEntity getAvatar();
     Team getOwnerTeam();
+    UUID getUUID();
 
     default boolean isStillAlive(){
         return health() > 0;

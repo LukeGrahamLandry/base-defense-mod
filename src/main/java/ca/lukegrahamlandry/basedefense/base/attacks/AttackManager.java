@@ -76,6 +76,6 @@ public class AttackManager {
         if (attacks.contains(attack)) return;
         attacks.add(attack);
         attack.resume();
-        team.message(Component.literal("There's still attack at " + team.attack.location.pos + " in the " + team.attack.location.dimension.getPath()));
+        team.message(Component.literal("There's an active attack at " + team.attack.location.pos + " in the " + team.attack.location.dimension.getPath()));
     }
 }

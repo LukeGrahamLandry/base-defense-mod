@@ -44,6 +44,11 @@ public class Team {
          this.attackLocations.add(attackLocation);
     }
 
+    public void removeAttackLocation(AttackLocation attackLocation) {
+        this.attackLocations.remove(attackLocation);
+    }
+
+
     public List<AttackLocation> getAttackOptions() {
         return new ArrayList<>(this.attackLocations);
     }
@@ -79,5 +84,10 @@ public class Team {
         ServerEvents.server.getPlayerList().getPlayers().forEach((player -> {
             if (contains(player)) player.displayClientMessage(text, false);
         }));
+    }
+
+    @Override
+    public String toString() {
+        return "Team:" + this.id;
     }
 }

@@ -3,6 +3,7 @@ package ca.lukegrahamlandry.basedefense.base.attacks.old;
 import ca.lukegrahamlandry.basedefense.base.attacks.AttackLocation;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.player.Player;
 
 public class AttackTargetSelectGoal extends Goal {
     private Mob mob;
@@ -15,7 +16,7 @@ public class AttackTargetSelectGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        boolean noTarget = this.mob.getTarget() == null || !this.mob.getTarget().isAlive();
+        boolean noTarget = !(this.mob.getTarget() instanceof Player) || !this.mob.getTarget().isAlive();
         return noTarget && this.target.getTarget().isStillAlive();
     }
 

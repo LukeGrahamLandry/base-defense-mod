@@ -19,7 +19,7 @@ public class SyncedConfigData {
     public Map<ResourceLocation, ResourceLocation> terrainGeneratorTypes = new HashMap<>();
     public Map<ResourceLocation, ResourceLocation> materialTextures = new HashMap<>();
     public boolean turretsWithInvalidTeamTargetAllPlayers = false;
-    public boolean turretsWithInvalidTeamTargetMonsters = true;
+    public boolean turretsWithInvalidTeamTargetMonsters = false;
     public boolean turretsWithInvalidTeamHaveInfiniteAmmo = false;
     public boolean turretsTargetPlayersOnOtherTeams = true;
 

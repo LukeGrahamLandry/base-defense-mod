@@ -105,8 +105,9 @@ public class OngoingAttack {
         }
 
         if (!state.location.validTarget()){
-            // TODO: force load that chunk and update the target
-            team.message(Component.literal("Failed to start wave. It doesnt cope well with restarting the world and not re-clicking on everything. "));
+            // I think I fixed this with updateAttackTargetCache.
+            // Here I could force load that chunk and update the target just in case this still happens.
+            team.message(Component.literal("ERROR: failed to start attack wave."));
             state.action = WaveAction.FROZEN;
             return;
         }

@@ -73,6 +73,7 @@ public class BaseTile extends BlockEntity implements GeoBlockEntity, AttackTarge
         }
         if (pTag.contains("targetuuid")){
             this.uuid = pTag.getUUID("targetuuid");
+            AttackLocation.targets.put(this.uuid, this);
         }
         if (pTag.contains("teamuuid")){
             this.teamUUID = pTag.getUUID("teamuuid");
@@ -181,6 +182,11 @@ public class BaseTile extends BlockEntity implements GeoBlockEntity, AttackTarge
     @Override
     public Team getOwnerTeam() {
         return TeamManager.getTeamById(this.teamUUID);
+    }
+
+    @Override
+    public UUID getUUID() {
+        return this.uuid;
     }
 
     @Override

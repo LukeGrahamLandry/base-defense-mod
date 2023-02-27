@@ -58,7 +58,7 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
             if (!this.hasAmmo()){
                 Team team = TeamManager.getTeamById(this.data.team);
                 if (!this.hasSentAmmoAlert && team != null) {  // Only send the alert once to not spam chat.
-                    team.message(Component.literal("Your turret at (" + this.worldPosition.toShortString() + ") does not have enough ammo."));
+                    team.message(Component.literal("Your turret at (" + this.worldPosition.toShortString() + ") does not have enough ammo. Requires: " + JsonHelper.get().toJson(this.getStats().ammo)));
                     this.hasSentAmmoAlert = true;
                 }
                 syncIsShooting(false, this.data.hRotDefault);

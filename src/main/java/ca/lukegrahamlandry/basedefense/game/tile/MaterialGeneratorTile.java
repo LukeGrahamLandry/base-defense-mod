@@ -116,13 +116,9 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
             }
         }
 
-        if (this.data.genInfo == null){
-            this.data.genInfo = MaterialGeneratorType.EMPTY.createInst(0);
-        }
-        if (this.hasLevel() && this.data.isTerrainGenerated){
-            this.setIsTerrain();
-            AttackLocation.targets.put(this.data.uuid, this);
-        }
+        if (this.data.genInfo == null) this.data.genInfo = MaterialGeneratorType.EMPTY.createInst(0);
+        if (this.data.ownerTeamId != null) AttackLocation.targets.put(this.data.uuid, this);
+        if (this.hasLevel() && this.data.isTerrainGenerated) this.setIsTerrain();
     }
 
     @Override
@@ -209,6 +205,11 @@ public class MaterialGeneratorTile extends BlockEntity implements LeveledMateria
     @Override
     public Team getOwnerTeam() {
         return TeamManager.getTeamById(this.data.ownerTeamId);
+    }
+
+    @Override
+    public UUID getUUID() {
+        return this.data.uuid;
     }
 
     @Override
