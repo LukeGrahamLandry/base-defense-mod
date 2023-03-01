@@ -75,7 +75,7 @@ public class ServerEvents {
     }
 
     private static void updateAttackTargetCache() {
-        for (Team team : TeamManager.TEAMS.get().getTeams()){
+        for (Team team : TeamManager.getData().getTeams()){
             for (AttackLocation target : team.getAttackOptions()){
                 ServerLevel level = target.getLevel();
                 if (level == null) return;

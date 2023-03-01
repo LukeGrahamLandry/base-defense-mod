@@ -69,12 +69,12 @@ public class Team {
 
     public void addGenerator(UUID uuid, MaterialGeneratorType.Instance instance) {
         generators.put(uuid, instance);
-        TeamManager.TEAMS.setDirty();
+        TeamManager.setDirty();
     }
 
     public void removeGenerator(UUID uuid) {
         generators.remove(uuid);
-        TeamManager.TEAMS.setDirty();
+        TeamManager.setDirty();
     }
 
     public int getBaseTier() {
@@ -82,7 +82,7 @@ public class Team {
     }
 
     public void setDirty(){
-        TeamManager.TEAMS.setDirty();
+        TeamManager.setDirty();
     }
 
     public void upgradeBaseTier() {

@@ -5,8 +5,7 @@ import net.minecraft.server.level.ServerPlayer;
 
 public class MaterialsUtil {
     public static void tickGenerators(){
-        if (TeamManager.TEAMS.get() == null) TeamManager.TEAMS.clear();  // temp bug fix
-        for (var team : TeamManager.TEAMS.get().getTeams()){  // TODO: check if a player is online
+        for (var team : TeamManager.getData().getTeams()){  // TODO: check if a player is online
             for (var generator : team.getGenerators().values()){
                 team.getMaterials().add(generator.getProduction());
                 team.setDirty();

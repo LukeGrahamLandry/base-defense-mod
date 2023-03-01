@@ -386,7 +386,12 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
         for (DyeColor color : DyeColor.values()){
             COLOR_TEXTURES.put(color.getName().replace("_", ""), new ResourceLocation(ModMain.MOD_ID, "textures/turret/turret_placed_" + color.getName().replace("_", "") + ".png"));
         }
+        COLOR_TEXTURES.put("grey", new ResourceLocation(ModMain.MOD_ID, "textures/turret/turret_placed_grey.png"));
+        COLOR_TEXTURES.put("gray", new ResourceLocation(ModMain.MOD_ID, "textures/turret/turret_placed_grey.png"));
+        COLOR_TEXTURES.put("lightgray", new ResourceLocation(ModMain.MOD_ID, "textures/turret/turret_placed_lightgrey.png"));
+        COLOR_TEXTURES.put("lightgrey", new ResourceLocation(ModMain.MOD_ID, "textures/turret/turret_placed_lightgrey.png"));
     }
+
     public ResourceLocation getTexture() {
         if (this.texture == null){
             updateTexture();

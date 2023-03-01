@@ -82,7 +82,7 @@ public class BaseTeamCommand {
         }
 
         team.message(Component.literal(kickedPlayer.getScoreboardName() + " has been kicked from your team."));
-        TeamManager.TEAMS.get().leaveTeam(kickedPlayer);
+        TeamManager.getData().leaveTeam(kickedPlayer);
         return Command.SINGLE_SUCCESS;
     }
 
@@ -94,7 +94,7 @@ public class BaseTeamCommand {
         if (team.getMembers().size() == 1){
             source.getSource().sendFailure(Component.literal("You cannot leave your team if you are the only member. If you accept an invite from another team your current one will automatically be deleted."));
         } else {
-            TeamManager.TEAMS.get().leaveTeam(player);
+            TeamManager.getData().leaveTeam(player);
             source.getSource().sendSuccess(Component.literal("You have left your team. A new team has been created for you. If this was a mistake, the owner can invite you back by using /baseteam invite " + player.getScoreboardName()), false);
         }
 
@@ -110,7 +110,7 @@ public class BaseTeamCommand {
         for (var invite : TeamManager.invites){
             if (invite.player.equals(invitedPlayer.getUUID()) && invite.team.equals(team.getId())){
                 team.message(Component.literal(invitedPlayer.getScoreboardName() + " has joined your team."));
-                TeamManager.TEAMS.get().switchTeam(invitedPlayer, team.getId());
+                TeamManager.getData().switchTeam(invitedPlayer, team.getId());
                 source.getSource().sendSuccess(Component.literal("You have joined " + ownerPlayer.getScoreboardName() + "'s team."), false);
                 TeamManager.invites.remove(invite);
                 return Command.SINGLE_SUCCESS;

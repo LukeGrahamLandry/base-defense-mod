@@ -18,14 +18,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TeamManager {
     public static final PlayerDataWrapper<TeamInfo> PLAYER_TEAMS = new PlayerDataWrapper<>(TeamInfo.class).saved();
-    public static final GlobalDataWrapper<TeamManager> TEAMS = new GlobalDataWrapper<>(TeamManager.class).saved();
+    private static final GlobalDataWrapper<TeamManager> TEAMS = new GlobalDataWrapper<>(TeamManager.class).saved();
     public static List<BaseTeamCommand.InviteData> invites = new ArrayList<>();
 
     private Map<UUID, Team> teams = new HashMap<>();
     public static boolean wasDay = true;
 
     public static Team getTeamById(UUID teamID){
-        return TEAMS.get().teams.get(teamID);
+        return getData().teams.get(teamID);
+    }
+
+    public static void setDirty() {
+        if (TEAMS.get() == null) {  // make sure its loaded just in case. TODO: ?
+            TEAMS.clear();
+        }
+
+        TEAMS.setDirty();
     }
 
     public Team getTeam(Player player){
@@ -35,16 +43,23 @@ public class TeamManager {
             Team team = new Team();
             teamInfo.id = team.id;
             PLAYER_TEAMS.setDirty(player);
-            TEAMS.get().teams.put(team.id, team);
-            TEAMS.setDirty();
+            getData().teams.put(team.id, team);
+            setDirty();
         }
 
         return teams.get(teamInfo.id);
     }
 
     public static Team get(Player player){
-        if (TEAMS.get() == null) TEAMS.clear();  // TODO: ?
-        return TEAMS.get().getTeam(player);
+        return getData().getTeam(player);
+    }
+
+    public static TeamManager getData(){
+        if (TEAMS.get() == null) {
+            TEAMS.clear();  // TODO: ?
+            setDirty();
+        }
+        return TEAMS.get();
     }
 
     public static int playerCount(UUID teamId){
@@ -63,7 +78,7 @@ public class TeamManager {
         if (targetTeam == null){
             Team team = new Team();
             PLAYER_TEAMS.get(player).id = team.id;
-            TEAMS.get().teams.put(team.id, team);
+            getData().teams.put(team.id, team);
         }
 
         PLAYER_TEAMS.get(player).id = targetTeam;
@@ -92,10 +107,10 @@ public class TeamManager {
             player.displayClientMessage(Component.literal("Since you were the last member in your team, you took your materials with you to your new team.\nTransferred: " + generatorCount.get() + " material generators, "  + turretCount.get() + " turrets, and " + JsonHelper.get().toJson(oldTeam.getMaterials())), false);
             oldTeam.getMaterials().clear();
 
-            TEAMS.get().teams.remove(oldTeam.getId());
+            getData().teams.remove(oldTeam.getId());
         }
 
-        TEAMS.setDirty();
+        setDirty();
         PLAYER_TEAMS.setDirty(player);
     }
 

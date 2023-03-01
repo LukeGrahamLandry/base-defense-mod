@@ -37,7 +37,7 @@ public class AttackManager {
 
         if (isDay != TeamManager.wasDay){
             TeamManager.wasDay = isDay;
-            TeamManager.TEAMS.setDirty();
+            TeamManager.setDirty();
         }
     }
 
@@ -48,7 +48,7 @@ public class AttackManager {
     }
 
     public static void startAllAttacks() {
-        for (Team team : TeamManager.TEAMS.get().getTeams()){
+        for (Team team : TeamManager.getData().getTeams()){
             List<AttackLocation> targets = team.getAttackOptions();
             if (targets.isEmpty()) {
                 team.message(Component.literal("The monsters had nothing to attack this night."));

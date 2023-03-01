@@ -28,7 +28,7 @@ public class TurretPlacer extends BlockItem {
     @Override
     protected boolean updateCustomBlockEntityTag(BlockPos pPos, Level pLevel, @Nullable Player pPlayer, ItemStack pStack, BlockState pState) {
         BlockEntity tile = pLevel.getBlockEntity(pPos);
-        if (tile instanceof TurretTile turret){
+        if (!pLevel.isClientSide() && tile instanceof TurretTile turret){
             if (pPlayer != null){
                 if (turret.data.uuid == null) turret.data.uuid = UUID.randomUUID();
                 turret.data.hRotDefault = turret.calculateRot(pPlayer.getBoundingBox().getCenter());
