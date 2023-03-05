@@ -73,7 +73,7 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
             // Find Target Options
             AABB box = new AABB(this.getBlockPos()).inflate(getStats().rangeInBlocks);
             List<LivingEntity> possibleTargets = level.getEntitiesOfClass(LivingEntity.class, box, (e) -> {
-                if (!this.canTarget(e)) return false;
+                if (!this.canTarget(e) || !e.canBeSeenByAnyone()) return false;
 
                 // Check if it has line of sight
                 Vec3 targetCenter = e.getBoundingBox().getCenter();
@@ -81,15 +81,19 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
                 return ray.getType() != HitResult.Type.BLOCK;
             });
 
-            // Pick Target
-            target = level.getNearestEntity(possibleTargets, TargetingConditions.DEFAULT, null, this.getBlockPos().getX(), this.getBlockPos().getY(), this.getBlockPos().getZ());
-            if (target == null || !target.isAlive()){
+            target = this.pickTarget(possibleTargets);
+            if (target == null){
                 syncIsShooting(false, this.data.hRotDefault);
                 return;
             }
 
             // Damage
-            target.hurt(DamageSource.GENERIC, getStats().damage);
+            if (getStats().damage > 0){
+                target.hurt(DamageSource.GENERIC, getStats().damage);
+            } else {
+                target.heal(-getStats().damage);
+            }
+
             for (MobEffectInstance effect : getStats().potionEffects){
                 target.addEffect(effect);
             }
@@ -118,11 +122,61 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
 
     protected boolean canTarget(LivingEntity entity){
         Team team = TeamManager.getTeamById(this.data.team);
-        if (entity instanceof ServerPlayer){
-            if (team == null) return BaseDefense.CONFIG.get().turretsWithInvalidTeamTargetAllPlayers;
-            return BaseDefense.CONFIG.get().turretsTargetPlayersOnOtherTeams && !team.contains((Player) entity);
+        switch (this.getStats().targetSelection){
+            case ENEMIES -> {
+                if (!entity.canBeSeenAsEnemy()) return false;
+                if (entity instanceof ServerPlayer player){
+                    if (team == null) return BaseDefense.CONFIG.get().turretsWithInvalidTeamTargetAllPlayers;
+                    return BaseDefense.CONFIG.get().turretsTargetPlayersOnOtherTeams && !team.contains(player);
+                }
+                return entity instanceof Enemy && (team != null || BaseDefense.CONFIG.get().turretsWithInvalidTeamTargetMonsters);
+            }
+            case ALLIES -> {
+                if (entity instanceof ServerPlayer player){
+                    return team != null && team.contains(player) && !player.isCreative();
+                }
+                return false;
+            }
+            default -> {
+                // TODO: this would be annoying log spam for misconfigured datapack every tick so should only happen once
+                ModMain.LOGGER.error("Turret " + this.data.type + " tier " + this.data.tier + " has invalid 'targetSelection'");
+                return false;
+            }
         }
-        return entity instanceof Enemy && (team != null || BaseDefense.CONFIG.get().turretsWithInvalidTeamTargetMonsters);
+    }
+
+    protected LivingEntity pickTarget(List<LivingEntity> possibleTargets){
+        if (possibleTargets.isEmpty()) return null;
+        switch (this.getStats().targetPriority){
+            case NEAREST -> {
+                return level.getNearestEntity(possibleTargets, TargetingConditions.DEFAULT, null, this.getBlockPos().getX(), this.getBlockPos().getY(), this.getBlockPos().getZ());
+            }
+            case HIGHEST_HEALTH -> {
+                var target = possibleTargets.get(0);
+                for (var check : possibleTargets){
+                    if (check.getHealth() > target.getHealth()){
+                        target = check;
+                    }
+                }
+                return target;
+            }
+            case LOWEST_HEALTH -> {
+                var target = possibleTargets.get(0);
+                for (var check : possibleTargets){
+                    if (check.getHealth() < target.getHealth()){
+                        target = check;
+                    }
+                }
+                return target;
+            }
+            case RANDOM -> {
+                return possibleTargets.get(level.getRandom().nextInt(possibleTargets.size()));
+            }
+            default -> {
+                ModMain.LOGGER.error("Turret " + this.data.type + " tier " + this.data.tier + " has invalid 'targetPriority'");
+                return possibleTargets.get(0);
+            }
+        }
     }
 
     protected boolean hasAmmo(){

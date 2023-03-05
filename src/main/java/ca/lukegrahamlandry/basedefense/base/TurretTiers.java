@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TurretTiers {
-    public static final ResourcesWrapper<Type> DATA = ResourcesWrapper.data(Type.class, "turrets").synced().onLoad(MaterialShop::reload).onReceiveSync(MaterialShop::reload);
+    public static final ResourcesWrapper<Type> DATA = ResourcesWrapper.data(Type.class, "turrets").synced().onLoad(TurretTiers::onLoadDataServerside).onReceiveSync(MaterialShop::reload);
     public static final Stats EMPTY_STATS = new Stats();
 
     public static class Stats {
@@ -22,6 +22,20 @@ public class TurretTiers {
         public String color = "none";
         public float rotationDegreesPerTick = 10F;
         public MaterialCollection ammo = MaterialCollection.empty();
+        public TargetSelection targetSelection = TargetSelection.ENEMIES;
+        public TargetPriority targetPriority = TargetPriority.NEAREST;
+    }
+
+    public enum TargetSelection {
+        ENEMIES,
+        ALLIES
+    }
+
+    public enum TargetPriority {
+        NEAREST,
+        HIGHEST_HEALTH,
+        LOWEST_HEALTH,
+        RANDOM
     }
 
     public static class Tier {
@@ -32,6 +46,10 @@ public class TurretTiers {
 
     public static class Type {
         public List<Tier> tiers = new ArrayList<>();
+    }
+
+    private static void onLoadDataServerside(){
+        MaterialShop.reload();
     }
 
     public static boolean isMaxTier(ResourceLocation type, int tier){
