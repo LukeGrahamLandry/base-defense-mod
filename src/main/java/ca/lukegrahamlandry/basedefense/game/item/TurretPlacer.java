@@ -30,7 +30,6 @@ public class TurretPlacer extends BlockItem {
         BlockEntity tile = pLevel.getBlockEntity(pPos);
         if (!pLevel.isClientSide() && tile instanceof TurretTile turret){
             if (pPlayer != null){
-                if (turret.data.uuid == null) turret.data.uuid = UUID.randomUUID();
                 turret.data.hRotDefault = turret.calculateRot(pPlayer.getBoundingBox().getCenter());
                 turret.setTeam(TeamManager.get(pPlayer));
             }

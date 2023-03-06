@@ -155,4 +155,9 @@ public class Team {
     public int getDays() {
         return this.days;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Team && this.id.equals(((Team) obj).id);
+    }
 }

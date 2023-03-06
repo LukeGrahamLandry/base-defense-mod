@@ -22,6 +22,7 @@ public class SyncedConfigData {
     public boolean turretsWithInvalidTeamTargetMonsters = false;
     public boolean turretsWithInvalidTeamHaveInfiniteAmmo = false;
     public boolean turretsTargetPlayersOnOtherTeams = true;
+    public int blockHealthRegenRateTicks = 30*20;
 
     public SyncedConfigData(){
         baseTierOrder = Arrays.asList(new ResourceLocation(ModMain.MOD_ID, "zero"), new ResourceLocation(ModMain.MOD_ID, "one"), new ResourceLocation(ModMain.MOD_ID, "two"));

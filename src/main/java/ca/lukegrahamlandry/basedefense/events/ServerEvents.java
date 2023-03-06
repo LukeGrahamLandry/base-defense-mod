@@ -9,6 +9,7 @@ import ca.lukegrahamlandry.basedefense.base.material.MaterialsUtil;
 import ca.lukegrahamlandry.basedefense.base.teams.Team;
 import ca.lukegrahamlandry.basedefense.base.teams.TeamManager;
 import ca.lukegrahamlandry.basedefense.game.ModRegistry;
+import ca.lukegrahamlandry.basedefense.game.tile.AttackableTile;
 import ca.lukegrahamlandry.basedefense.game.tile.MaterialGeneratorTile;
 import ca.lukegrahamlandry.lib.config.ConfigWrapper;
 import ca.lukegrahamlandry.lib.config.GenerateComments;
@@ -20,6 +21,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -28,6 +30,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
@@ -45,6 +48,7 @@ import java.util.Locale;
 public class ServerEvents {
     private static int timer = 0;
     public static MinecraftServer server = null;
+
     @SubscribeEvent
     public static void tick(TickEvent.LevelTickEvent event){
         if (event.phase == TickEvent.Phase.START && !event.level.isClientSide() && event.level.dimension().equals(Level.OVERWORLD)){

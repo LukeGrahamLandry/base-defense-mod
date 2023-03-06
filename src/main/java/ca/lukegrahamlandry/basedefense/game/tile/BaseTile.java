@@ -3,18 +3,13 @@ package ca.lukegrahamlandry.basedefense.game.tile;
 import ca.lukegrahamlandry.basedefense.ModMain;
 import ca.lukegrahamlandry.basedefense.base.BaseTier;
 import ca.lukegrahamlandry.basedefense.base.attacks.AttackLocation;
-import ca.lukegrahamlandry.basedefense.base.attacks.old.AttackTargetAvatar;
-import ca.lukegrahamlandry.basedefense.base.attacks.old.AttackTargetable;
 import ca.lukegrahamlandry.basedefense.base.teams.Team;
 import ca.lukegrahamlandry.basedefense.base.teams.TeamManager;
 import ca.lukegrahamlandry.basedefense.game.ModRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -28,20 +23,14 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class BaseTile extends BlockEntity implements GeoBlockEntity, AttackTargetable {
+public class BaseTile extends AttackableTile implements GeoBlockEntity {
     int tier = 0;
     Integer rfGenerated;
-    UUID uuid = UUID.randomUUID();
-    UUID teamUUID;
     int openAnimTick = 20;
     public BaseTile(BlockPos pPos, BlockState pBlockState) {
-        super(ModRegistry.BASE_TILE.get(), pPos, pBlockState);
+        super(40, ModRegistry.BASE_TILE.get(), pPos, pBlockState);
     }
 
     public static void setTeam(ServerLevel level, BlockPos pos, Team team){
@@ -64,10 +53,6 @@ public class BaseTile extends BlockEntity implements GeoBlockEntity, AttackTarge
     protected void saveAdditional(CompoundTag pTag) {
         super.saveAdditional(pTag);
         pTag.putInt("teamTier", tier);
-        pTag.putUUID("targetuuid", uuid);
-        if (teamUUID != null){
-            pTag.putUUID("teamuuid", teamUUID);
-        }
     }
 
     @Override
@@ -75,13 +60,6 @@ public class BaseTile extends BlockEntity implements GeoBlockEntity, AttackTarge
         super.load(pTag);
         if (pTag.contains("teamTier")){
             this.tier = pTag.getInt("teamTier");
-        }
-        if (pTag.contains("targetuuid")){
-            this.uuid = pTag.getUUID("targetuuid");
-            AttackLocation.targets.put(this.uuid, this);
-        }
-        if (pTag.contains("teamuuid")){
-            this.teamUUID = pTag.getUUID("teamuuid");
         }
         this.rfGenerated = null;
     }
@@ -151,59 +129,15 @@ public class BaseTile extends BlockEntity implements GeoBlockEntity, AttackTarge
 
     // Attacks
 
-
-    float health = maxHealth();
-    AttackTargetAvatar avatar;
-    @Override
-    public List<BlockPos> getSpawnLocations() {
-        return Arrays.asList(this.getBlockPos().east(10), this.getBlockPos().west(10), this.getBlockPos().north(10), this.getBlockPos().south(10));
-    }
-
-    @Override
-    public boolean damage(DamageSource source, float amount) {
-        this.health -= amount;
-        Team team = TeamManager.getTeamById(this.teamUUID);
-        if (team != null) team.message(Component.literal("Your base block took " + amount + " damage! Now at " + health + " health."));
-        if (!isStillAlive()) this.onDie();
-        return true;
-    }
-
-    @Override
-    public float health() {
-        return this.health;
-    }
-
-    @Override
-    public float maxHealth() {
-        return 40;
-    }
-
-    @Override
-    public LivingEntity getAvatar() {
-        if (this.avatar == null) this.avatar = new AttackTargetAvatar(this.level, this, this.getBlockPos());
-        return this.avatar;
-    }
-
-    @Override
-    public Team getOwnerTeam() {
-        return TeamManager.getTeamById(this.teamUUID);
-    }
-
-    @Override
-    public UUID getUUID() {
-        return this.uuid;
-    }
-
     @Override
     public void onDie() {
+        super.onDie();
         Team team = getOwnerTeam();
         if (team == null){
             ModMain.LOGGER.error("MaterialGeneratorTile#onDie team null");
             return;
         }
         team.onBaseDie();
-        AttackTargetable.super.onDie();
-        this.level.removeBlock(this.getBlockPos(), false);
         this.level.explode(null, this.getBlockPos().getX(), this.getBlockPos().getY(), this.getBlockPos().getZ(), 4.0F, Level.ExplosionInteraction.TNT);
     }
 }

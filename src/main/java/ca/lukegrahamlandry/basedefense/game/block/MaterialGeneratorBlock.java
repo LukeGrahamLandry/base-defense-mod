@@ -23,7 +23,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
-public class MaterialGeneratorBlock extends Block implements EntityBlock {
+public class MaterialGeneratorBlock extends AttackableBlock implements EntityBlock {
     private boolean isTerrainGenerated;
 
     public MaterialGeneratorBlock(boolean isTerrainGenerated, Properties p_49795_) {

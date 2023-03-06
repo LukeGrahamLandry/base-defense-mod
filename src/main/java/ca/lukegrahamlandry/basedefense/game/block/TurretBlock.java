@@ -16,7 +16,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
-public class TurretBlock extends Block implements EntityBlock {
+public class TurretBlock extends AttackableBlock implements EntityBlock {
     public TurretBlock(Properties p_49795_) {
         super(p_49795_);
     }

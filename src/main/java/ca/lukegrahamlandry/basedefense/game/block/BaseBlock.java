@@ -25,7 +25,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
-public class BaseBlock extends Block implements EntityBlock {
+public class BaseBlock extends AttackableBlock implements EntityBlock {
     public BaseBlock(Properties p_49795_) {
         super(p_49795_);
     }

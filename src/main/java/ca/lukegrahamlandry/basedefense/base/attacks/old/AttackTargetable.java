@@ -18,7 +18,7 @@ public interface AttackTargetable {
     UUID getUUID();
 
     default boolean isStillAlive(){
-        return health() > 0;
+        return health() >= 0;
     }
 
     default void onDie(){

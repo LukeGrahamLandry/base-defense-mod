@@ -43,9 +43,9 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.*;
 
-public class TurretTile extends BlockEntity implements GeoBlockEntity {
+public class TurretTile extends AttackableTile implements GeoBlockEntity {
     public TurretTile(BlockPos pPos, BlockState pBlockState) {
-        super(ModRegistry.TURRET_TILE.get(), pPos, pBlockState);
+        super(40, ModRegistry.TURRET_TILE.get(), pPos, pBlockState);
     }
 
     ///// Shooting /////
@@ -55,9 +55,10 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
     LivingEntity target = null;
     boolean hasSentAmmoAlert = false;
     public void serverTick() {
+        super.serverTick();
         if (level.getGameTime() > nextShot){
             if (!this.hasAmmo()){
-                Team team = TeamManager.getTeamById(this.data.team);
+                Team team = TeamManager.getTeamById(this.teamUUID);
                 if (!this.hasSentAmmoAlert && team != null) {  // Only send the alert once to not spam chat.
                     team.message(Component.literal("Your turret at (" + this.worldPosition.toShortString() + ") does not have enough ammo. Requires: " + JsonHelper.get().toJson(this.getStats().ammo)));
                     this.hasSentAmmoAlert = true;
@@ -122,7 +123,7 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
     }
 
     protected boolean canTarget(LivingEntity entity){
-        Team team = TeamManager.getTeamById(this.data.team);
+        Team team = TeamManager.getTeamById(this.teamUUID);
         switch (this.getStats().targetSelection){
             case ENEMIES -> {
                 if (!entity.canBeSeenAsEnemy()) return false;
@@ -181,13 +182,13 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
     }
 
     protected boolean hasAmmo(){
-        Team team = TeamManager.getTeamById(this.data.team);
+        Team team = TeamManager.getTeamById(this.teamUUID);
         if (team == null) return BaseDefense.CONFIG.get().turretsWithInvalidTeamHaveInfiniteAmmo || this.getStats().ammo.isEmpty();
         return team.getMaterials().canAfford(this.getStats().ammo);
     }
 
     protected void expendAmmo(){
-        Team team = TeamManager.getTeamById(this.data.team);
+        Team team = TeamManager.getTeamById(this.teamUUID);
         if (team == null) return;
         team.getMaterials().subtract(this.getStats().ammo);
     }
@@ -242,14 +243,9 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
         player.displayClientMessage(Component.literal(info), false);
     }
 
-    public void onTeamBaseDie() {
-        this.data.team = null;
-        this.data.uuid = UUID.randomUUID();
-    }
-
     public void setTeam(Team team) {
-        this.data.team = team.getId();
-        team.addAttackLocation(AttackLocation.justTrackNoAttack(this.level, this.getBlockPos(), this.data.uuid));
+        this.teamUUID = team.getId();
+        team.addAttackLocation(AttackLocation.justTrackNoAttack(this.level, this.getBlockPos(), this.uuid));
     }
 
     ///// Data Save & Sync /////
@@ -257,8 +253,6 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
     public static class Data {
         public ResourceLocation type;
         public int tier = 0;
-        public UUID team;
-        public UUID uuid;
 
         // Saving this does nothing. On the server it does nothing because it recalculates its target every time anyway.
         // It gets synced to the client and put here. Used for deciding which animation to play.
