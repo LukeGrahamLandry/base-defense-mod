@@ -95,7 +95,8 @@ public class TurretTile extends BlockEntity implements GeoBlockEntity {
             }
 
             for (MobEffectInstance effect : getStats().potionEffects){
-                target.addEffect(effect);
+                System.out.println("add " + effect);
+                target.addEffect(new MobEffectInstance(effect.getEffect(), effect.getDuration(), effect.getAmplifier()));
             }
             if (getStats().flameSeconds > 0) target.setSecondsOnFire(getStats().flameSeconds);
             this.expendAmmo();

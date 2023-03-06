@@ -27,6 +27,7 @@ public class Team {
     Set<AttackLocation> attackLocations;
     int baseBlockTier = 0;
     UUID owner;
+    int days = 0;
 
     public Team() {
         this.id = UUID.randomUUID();
@@ -49,6 +50,7 @@ public class Team {
 
     public void addAttackLocation(AttackLocation attackLocation) {
          this.attackLocations.add(attackLocation);
+         this.setDirty();
     }
 
     public void removeAttackLocation(UUID attackLocationId) {
@@ -130,11 +132,27 @@ public class Team {
             }
         });
 
+        this.days = 0;
         this.baseBlockTier = 0;
         attackLocations.clear();
         getMaterials().clear();
         generators.clear();
         setDirty();
         message(Component.literal("Your base block was destroyed! Your materials are gone and you've lost ownership of your generators/turrets."));
+    }
+
+    public boolean isAnyPlayerOnline() {
+        for (var playerId : getMembers()){
+            if (ServerEvents.server.getPlayerList().getPlayer(playerId) != null) return true;
+        }
+        return false;
+    }
+
+    public void incrementDays() {
+        this.days++;
+    }
+
+    public int getDays() {
+        return this.days;
     }
 }

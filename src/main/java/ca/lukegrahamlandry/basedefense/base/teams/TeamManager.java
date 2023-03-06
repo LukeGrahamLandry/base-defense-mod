@@ -120,6 +120,7 @@ public class TeamManager {
 
     public void leaveTeam(ServerPlayer player) {
         PLAYER_TEAMS.remove(player);
+        PLAYER_TEAMS.setDirty(player);
         getTeam(player);
     }
 

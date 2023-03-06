@@ -80,6 +80,10 @@ public class OngoingAttack {
         this.level = ServerEvents.server.getLevel(ResourceKey.create(Registries.DIMENSION, state.dimension));
     }
 
+    public boolean isInProgress(){
+        return this.state.action == WaveAction.ACTIVE;
+    }
+
     public void resume(){
         for (ChunkPos pos : state.forcedChunks){
             level.setChunkForced(pos.x, pos.z, true);

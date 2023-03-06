@@ -14,11 +14,13 @@ import ca.lukegrahamlandry.lib.config.ConfigWrapper;
 import ca.lukegrahamlandry.lib.config.GenerateComments;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
@@ -26,6 +28,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -72,6 +75,14 @@ public class ServerEvents {
     public static void login(PlayerEvent.PlayerLoggedInEvent event){
         if (event.getEntity().level.isClientSide()) return;
         AttackManager.resume((ServerPlayer) event.getEntity());
+    }
+
+    @SubscribeEvent
+    public static void handleSleep(PlayerSleepInBedEvent event){
+        if (AttackManager.attacksInProgress()){
+            event.setResult(Player.BedSleepingProblem.OTHER_PROBLEM);
+            event.getEntity().displayClientMessage(Component.literal("Cannot sleep while any teams are under attack"), true);
+        }
     }
 
     private static void updateAttackTargetCache() {

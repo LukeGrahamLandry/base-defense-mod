@@ -1,5 +1,6 @@
 package ca.lukegrahamlandry.basedefense.base.attacks;
 
+import ca.lukegrahamlandry.basedefense.ModMain;
 import ca.lukegrahamlandry.basedefense.base.BaseTier;
 import ca.lukegrahamlandry.basedefense.base.teams.Team;
 import ca.lukegrahamlandry.basedefense.base.teams.TeamManager;
@@ -24,7 +25,9 @@ public class AttackManager {
         } else if (isDay && !TeamManager.wasDay) {
             for (OngoingAttack attack : attacks){
                 attack.end();
-                attack.team.message(Component.literal("Your team survived the night."));
+                attack.team.incrementDays();
+                attack.team.setDirty();
+                attack.team.message(Component.literal("Your team survived night " + attack.team.getDays() + "."));
             }
             attacks.clear();
         }
@@ -41,6 +44,13 @@ public class AttackManager {
         }
     }
 
+    public static boolean attacksInProgress(){
+        for (var attack : attacks){
+            if (attack.isInProgress()) return true;
+        }
+        return false;
+    }
+
     private static List<ResourceLocation> getWaves(Team team){
         BaseTier tier = BaseTier.get(team.getBaseTier());
         if (tier.getAttackOptions().isEmpty()) return List.of();
@@ -48,18 +58,24 @@ public class AttackManager {
     }
 
     public static void startAllAttacks() {
+        ModMain.LOGGER.debug("Starting base attacks.");
         for (Team team : TeamManager.getData().getTeams()){
+            if (!team.isAnyPlayerOnline()){
+                ModMain.LOGGER.debug("Skipping attack on " + team.getId() + ". No players online.");
+                continue;
+            }
+
             List<AttackLocation> targets = team.getAttackOptions();
             if (targets.isEmpty()) {
                 team.message(Component.literal("The monsters had nothing to attack this night."));
-                return;
+                continue;
             }
 
             AttackLocation target = targets.get(rand.nextInt(targets.size()));
             List<ResourceLocation> waves = getWaves(team);
             if (waves.isEmpty()){
                 team.message(Component.literal("There was no monster attack this night."));
-                return;
+                continue;
             }
             OngoingAttack.State state = new OngoingAttack.State(target, waves);
             OngoingAttack attack = new OngoingAttack(state, team);
