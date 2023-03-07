@@ -16,8 +16,8 @@ public class AttackTargetSelectGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        boolean noTarget = !(this.mob.getTarget() instanceof Player) || !this.mob.getTarget().isAlive();
-        return noTarget && this.target.getTarget().isStillAlive();
+        boolean noTarget = (!(this.mob.getTarget() instanceof Player)) || (!this.mob.getTarget().isAlive());
+        return noTarget;
     }
 
     @Override

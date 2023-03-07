@@ -3,7 +3,7 @@
   "monsters": [
     {
       "entity": "minecraft:sheep",
-      "weight": 3
+      "weight": 2
     },
     {
       "entity": "minecraft:pig",

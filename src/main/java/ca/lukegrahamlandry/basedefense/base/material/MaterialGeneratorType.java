@@ -30,6 +30,7 @@ public class MaterialGeneratorType {
 
     private List<TierStats> tiers;  // read from json
     public ResourceLocation type;  // don't include in json, it gets injected on load based on file name
+    public CaptureRequirements capture;
 
     public Instance createInst(int tier){
         return new Instance(type, tier);
@@ -52,6 +53,13 @@ public class MaterialGeneratorType {
         MaterialCollection cost = new MaterialCollection();
         MaterialCollection production = new MaterialCollection();
         int minBaseTier = 0;
+    }
+
+    public static class CaptureRequirements {
+        public List<ResourceLocation> waves = new ArrayList<>();
+        public int radiusBlocks = -1;
+        public int durationTicks = -1;
+        public boolean failOnTimeout = false;
     }
 
     //// Instance Data Helper ////
@@ -84,6 +92,14 @@ public class MaterialGeneratorType {
 
         public boolean isMaxTier(){
             return tier+1 >= this.safeGetType().tiers.size();
+        }
+
+        public boolean allowInstantCapture(){
+            return getCaptureRequirements() == null || getCaptureRequirements().waves.isEmpty();
+        }
+
+        public CaptureRequirements getCaptureRequirements(){
+            return safeGetType().capture;
         }
 
         private TierStats getStats(){

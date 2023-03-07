@@ -28,6 +28,7 @@ public class BaseTier {
     List<AttributeModifierDef> anyMonsterModifiers;  // optional
     Map<ResourceLocation, List<AttributeModifierDef>> monsterModifiers;  // optional
     public int rfPerTick = 0;
+    public int preventBlockBreakRadius = 0;
 
     public int getTier(){
         return BaseDefense.CONFIG.get().baseTierOrder.indexOf(this.key);

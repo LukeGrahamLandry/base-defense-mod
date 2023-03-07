@@ -9,5 +9,6 @@
   ],
   "attacks": [
     ["basedefense:undead", "basedefense:skeletons", "basedefense:skeletons"]
-  ]
+  ],
+  "preventBlockBreakRadius": 10
 }

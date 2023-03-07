@@ -1,22 +1,28 @@
 package ca.lukegrahamlandry.basedefense.base.teams;
 
 import ca.lukegrahamlandry.basedefense.ModMain;
+import ca.lukegrahamlandry.basedefense.base.BaseTier;
 import ca.lukegrahamlandry.basedefense.base.attacks.OngoingAttack;
 import ca.lukegrahamlandry.basedefense.base.attacks.AttackLocation;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialCollection;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialGeneratorType;
 import ca.lukegrahamlandry.basedefense.events.ServerEvents;
+import ca.lukegrahamlandry.basedefense.game.tile.BaseTile;
 import ca.lukegrahamlandry.basedefense.game.tile.MaterialGeneratorTile;
 import ca.lukegrahamlandry.basedefense.game.tile.TurretTile;
 import ca.lukegrahamlandry.lib.base.json.JsonHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.AABB;
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.*;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class Team {
@@ -28,6 +34,7 @@ public class Team {
     int baseBlockTier = 0;
     UUID owner;
     int days = 0;
+    AttackLocation baseLocation;
 
     public Team() {
         this.id = UUID.randomUUID();
@@ -46,6 +53,26 @@ public class Team {
 
     public Map<UUID, MaterialGeneratorType.Instance> getGenerators(){
         return generators;
+    }
+
+    public void updateBaseLocation(AttackLocation attackLocation){
+        if (Objects.equals(attackLocation, this.baseLocation)) return;
+
+        if (this.baseLocation != null){
+            this.baseLocation.getLevel().getBlockEntity(this.baseLocation.pos);
+            if (this.baseLocation.getTarget() instanceof BaseTile oldTile){
+                oldTile.invalidate();
+            }
+            this.attackLocations.remove(baseLocation);
+        }
+        this.baseLocation = attackLocation;
+        this.addAttackLocation(attackLocation);
+    }
+
+    public AABB getNoBreakArea(ServerLevel level){
+        BaseTier tier = BaseTier.get(this.getBaseTier());
+        if (this.baseLocation == null || tier.preventBlockBreakRadius <= 0 || !this.baseLocation.getLevel().equals(level)) return null;
+        return new AABB(this.baseLocation.pos).inflate(tier.preventBlockBreakRadius);
     }
 
     public void addAttackLocation(AttackLocation attackLocation) {
@@ -119,6 +146,7 @@ public class Team {
 
     public void onBaseDie() {
         ModMain.LOGGER.debug("Clearing team because base destroyed. " + JsonHelper.get().toJson(this));
+        this.baseLocation = null;
 
         getTrackedLocations().forEach((location) -> {
             if (location.canAttack) AttackLocation.destroyed.add(location.getTarget());

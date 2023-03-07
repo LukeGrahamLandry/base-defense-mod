@@ -3,7 +3,8 @@ package ca.lukegrahamlandry.basedefense.game.tile;
 import ca.lukegrahamlandry.basedefense.ModMain;
 import ca.lukegrahamlandry.basedefense.base.BaseDefense;
 import ca.lukegrahamlandry.basedefense.base.attacks.AttackLocation;
-import ca.lukegrahamlandry.basedefense.base.attacks.old.AttackTargetAvatar;
+import ca.lukegrahamlandry.basedefense.base.attacks.OngoingAttack;
+import ca.lukegrahamlandry.basedefense.base.attacks.OngoingCaptureAttack;
 import ca.lukegrahamlandry.basedefense.base.attacks.old.AttackTargetable;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialCollection;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialGeneratorType;
@@ -15,17 +16,17 @@ import ca.lukegrahamlandry.lib.base.json.JsonHelper;
 import com.google.gson.JsonSyntaxException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import software.bernie.geckolib.animatable.GeoBlockEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
@@ -35,7 +36,6 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -44,6 +44,9 @@ public class MaterialGeneratorTile extends AttackableTile implements LeveledMate
     private static class SaveData {
         private MaterialGeneratorType.Instance genInfo;
         private boolean isTerrainGenerated = false;
+        OngoingAttack.State attackState = null;
+        UUID attackingTeam = null;
+        int attackTimer = 0;
     }
 
     private SaveData data = new SaveData();
@@ -59,10 +62,21 @@ public class MaterialGeneratorTile extends AttackableTile implements LeveledMate
         }
     }
 
-    public void tryBind(ServerPlayer player){
-        if (this.teamUUID != null) return;
+    // Returns true to allow the player to open the gui.
+    public boolean tryBind(ServerPlayer player){
+        if (this.teamUUID != null) return this.getOwnerTeam().contains(player);
 
-        Team team = TeamManager.get(player);
+        if (this.data.genInfo.allowInstantCapture()){
+            Team team = TeamManager.get(player);
+            this.doBind(team);
+            return true;
+        } else {
+            this.startCaptureAttack(player);
+            return false;
+        }
+    }
+
+    private void doBind(Team team){
         this.teamUUID = team.getId();
         AttackLocation.targets.put(this.uuid, this);
         team.addAttackLocation(new AttackLocation(level, this.getBlockPos(), this.uuid));
@@ -71,8 +85,13 @@ public class MaterialGeneratorTile extends AttackableTile implements LeveledMate
     }
 
     public void unBind(){
-        TeamManager.getTeamById(this.teamUUID).removeGenerator(this.uuid);
-        this.teamUUID = null;
+        if (this.hasOngoingCaptureAttack()){
+            this.onDie();
+        }
+        if (this.getOwnerTeam() != null){
+            TeamManager.getTeamById(this.teamUUID).removeGenerator(this.uuid);
+            this.teamUUID = null;
+        }
     }
 
     public void setIsTerrain() {
@@ -170,6 +189,11 @@ public class MaterialGeneratorTile extends AttackableTile implements LeveledMate
 
     @Override
     public void onDie() {
+        if (this.hasOngoingCaptureAttack()){
+            this.onCaptureAttackFail("The monsters destroyed the generator.");
+            return;
+        }
+
         super.onDie();
         if (getOwnerTeam() != null){
             getOwnerTeam().message(Component.literal("Your material generator at " + this.getBlockPos() + " was destroyed!"));
@@ -179,6 +203,8 @@ public class MaterialGeneratorTile extends AttackableTile implements LeveledMate
             this.level.explode(null, this.getBlockPos().getX(), this.getBlockPos().getY(), this.getBlockPos().getZ(), 4.0F, Level.ExplosionInteraction.TNT);
         }
    }
+
+
 
     // animation
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -198,5 +224,121 @@ public class MaterialGeneratorTile extends AttackableTile implements LeveledMate
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return cache;
+    }
+
+    ///// Capture System /////
+
+    OngoingCaptureAttack activeAttack;
+
+    public void tick() {
+        if (!this.hasLevel() || this.level.isClientSide()) return;
+        if (!this.hasOngoingCaptureAttack()) return;
+        this.activeAttack.tick();
+
+        if (!this.activeAttack.isInProgress()){
+            this.onCaptureAttackSuccess("You defeated all the monsters.");
+            return;
+        }
+
+        this.data.attackTimer--;
+        this.activeAttack.setTimer(this.data.attackTimer, this.data.genInfo.getCaptureRequirements().durationTicks);
+        if (this.data.genInfo.getCaptureRequirements().durationTicks > 0){
+            if (this.data.attackTimer <= 0){
+                if (this.data.genInfo.getCaptureRequirements().failOnTimeout){
+                    this.onCaptureAttackFail("You didn't defeat all the monsters in time.");
+                } else {
+                    this.onCaptureAttackSuccess("You survived long enough.");
+                }
+                return;
+            }
+        }
+
+        if (this.data.genInfo.getCaptureRequirements().radiusBlocks > 0){
+            AABB box = new AABB(this.getBlockPos()).inflate(this.data.genInfo.getCaptureRequirements().radiusBlocks);
+            Team team = TeamManager.getTeamById(this.data.attackingTeam);
+            List<Player> onCapturingTeam = level.getEntitiesOfClass(Player.class, box, team::contains);
+            if (onCapturingTeam.isEmpty()){
+                this.onCaptureAttackFail("No team members were close enough to the generator.");
+                return;
+            }
+        }
+    }
+
+    private void startCaptureAttack(ServerPlayer player) {
+        Team team = TeamManager.get(player);
+        if (this.hasOngoingCaptureAttack()){
+            if (team.contains(player)){
+                player.displayClientMessage(Component.literal("Your team is already trying to capture the generator at " + this.getBlockPos().toShortString()), false);
+            } else {
+                player.displayClientMessage(Component.literal("Another team is trying to capture the generator at " + this.getBlockPos().toShortString()), false);
+            }
+            return;
+        }
+
+        AttackLocation.targets.put(this.uuid, this);
+        this.data.attackingTeam = team.getId();
+        this.data.attackTimer = this.data.genInfo.getCaptureRequirements().durationTicks;
+        this.data.attackState = new OngoingAttack.State(new AttackLocation(level, this.getBlockPos(), this.uuid), this.data.genInfo.getCaptureRequirements().waves);
+        this.activeAttack = new OngoingCaptureAttack(this.data.attackState, team, this.data.genInfo.getCaptureRequirements().failOnTimeout);
+        this.activeAttack.startWave(this.data.attackState.getWave());
+        team.message(Component.literal("Your team is trying to capture the generator at (" + this.getBlockPos().toShortString() + ")."));
+        if (this.data.attackTimer > 0){
+            if (this.data.genInfo.getCaptureRequirements().failOnTimeout){
+                team.message(Component.literal("You must defend it and defeat all attacking monsters within " + ((int) (this.data.attackTimer / 20)) + " seconds."));
+            } else {
+                team.message(Component.literal("You must defend it from attacking monsters for " + ((int) (this.data.attackTimer / 20)) + " seconds."));
+            }
+        }
+        if (this.data.genInfo.getCaptureRequirements().radiusBlocks > 0){
+            team.message(Component.literal("You must also have a team member within " + this.data.genInfo.getCaptureRequirements().radiusBlocks + " blocks of the generator at all times."));
+        }
+        this.activeAttack.setTimer(this.data.attackTimer, this.data.attackTimer);
+        this.setChanged();
+    }
+
+    private void onCaptureAttackSuccess(String msg) {
+        if (!this.hasOngoingCaptureAttack()){
+            ModMain.LOGGER.error("Generator onCaptureAttackSuccess but no ongoing attack. " + this.getBlockPos());
+            return;
+        }
+
+        Team team = TeamManager.getTeamById(this.data.attackingTeam);
+        messageTeam(Component.literal(msg + " Your team now owns the generator at (" + this.getBlockPos().toShortString() + ")"));
+        this.doParticles(ParticleTypes.TOTEM_OF_UNDYING);
+        AttackLocation.targets.remove(this.uuid);
+        this.doBind(team);
+        clearAttack();
+    }
+
+    private void onCaptureAttackFail(String msg) {
+        if (!this.hasOngoingCaptureAttack()){
+            ModMain.LOGGER.error("Generator onCaptureAttackFail but no ongoing attack. " + this.getBlockPos());
+            return;
+        }
+        AttackLocation.targets.remove(this.uuid);
+        messageTeam(Component.literal(msg + " Capture failed."));
+        clearAttack();
+    }
+
+    @Override
+    public void messageTeam(Component msg) {
+        if (this.hasOngoingCaptureAttack()){
+            TeamManager.getTeamById(this.data.attackingTeam).message(msg);
+        }
+        else {
+            super.messageTeam(msg);
+        }
+    }
+
+    private void clearAttack(){
+        this.activeAttack.end();
+        this.activeAttack = null;
+        this.data.attackState = null;
+        this.data.attackingTeam = null;
+        this.data.attackTimer = 0;
+    }
+
+    private boolean hasOngoingCaptureAttack(){
+        return this.activeAttack != null && this.data.attackState != null && this.data.attackingTeam != null;
     }
 }

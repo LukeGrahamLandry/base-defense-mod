@@ -52,7 +52,7 @@ public class OngoingAttack {
             id = UUID.randomUUID();
         }
 
-        AttackWaveType getWave(){
+        public AttackWaveType getWave(){
             return AttackWaveType.DATA.get(waves.get(currentWave));
         }
 
@@ -68,11 +68,11 @@ public class OngoingAttack {
         }
     }
 
-    private final State state;
-    private final ServerLevel level;
-    final Team team;
-    private final List<LivingEntity> monsters = new ArrayList<>();
-    private final ServerBossEvent bar = new ServerBossEvent(Component.literal(""), BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.NOTCHED_10);
+    protected final State state;
+    protected final ServerLevel level;
+    protected final Team team;
+    protected final List<LivingEntity> monsters = new ArrayList<>();
+    protected final ServerBossEvent bar = new ServerBossEvent(Component.literal(""), BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.NOTCHED_10);
 
     public OngoingAttack(State state, Team team){
         this.state = state;

@@ -8,5 +8,6 @@
   ],
   "attacks": [
     ["basedefense:animal", "basedefense:animal", "basedefense:animal"]
-  ]
+  ],
+  "preventBlockBreakRadius": 5
 }

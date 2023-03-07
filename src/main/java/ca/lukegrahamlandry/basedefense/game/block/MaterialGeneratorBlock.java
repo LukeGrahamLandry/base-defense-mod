@@ -19,6 +19,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
@@ -37,18 +39,27 @@ public class MaterialGeneratorBlock extends AttackableBlock implements EntityBlo
     }
 
     @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level pLevel, BlockState pState, BlockEntityType<T> pBlockEntityType) {
+        return (level, pos, state, tile) -> {
+            if (tile instanceof MaterialGeneratorTile) ((MaterialGeneratorTile) tile).tick();
+        };
+    }
+
+
+    @Override
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         if (pLevel.isClientSide()){
             return InteractionResult.CONSUME;
         } else {
-            if (this.isTerrainGenerated){
-                MaterialGeneratorTile.getAndDo(pLevel, pPos, MaterialGeneratorTile::setIsTerrain);
+            if (pLevel.getBlockEntity(pPos) instanceof MaterialGeneratorTile tile){
+                if (this.isTerrainGenerated) tile.setIsTerrain();
+                if (tile.tryBind((ServerPlayer) pPlayer)){
+                    new OpenMaterialGeneratorGui((ServerPlayer) pPlayer, tile, pPos).sendToClient((ServerPlayer) pPlayer);
+                }
             }
 
-            MaterialGeneratorTile.getAndDo(pLevel, pPos, (t) -> t.tryBind((ServerPlayer) pPlayer));
-            BlockEntity tile = pLevel.getBlockEntity(pPos);
-            if (tile instanceof LeveledMaterialGenerator){
-                new OpenMaterialGeneratorGui((ServerPlayer) pPlayer, (LeveledMaterialGenerator) tile, pPos).sendToClient((ServerPlayer) pPlayer);
+            if (this.isTerrainGenerated){
+                MaterialGeneratorTile.getAndDo(pLevel, pPos, MaterialGeneratorTile::setIsTerrain);
             }
         }
         return super.use(pState, pLevel, pPos, pPlayer, pHand, pHit);

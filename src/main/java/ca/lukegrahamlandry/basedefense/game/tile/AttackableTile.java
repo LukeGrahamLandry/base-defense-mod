@@ -8,6 +8,7 @@ import ca.lukegrahamlandry.basedefense.base.teams.Team;
 import ca.lukegrahamlandry.basedefense.base.teams.TeamManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -80,10 +81,9 @@ public class AttackableTile extends BlockEntity implements AttackTargetable {
 
         this.health -= amount;
         this.nextRegenTime = this.level.getGameTime() + BaseDefense.CONFIG.get().blockHealthRegenRateTicks;
+        messageTeam(Component.literal("The block at (" + getBlockPos().toShortString() + ") took " + ((int) amount) + " damage! Now at " + ((int) health) + " health."));
         if (!isStillAlive()) {
             this.onDie();
-        } else if (getOwnerTeam() != null ){
-            getOwnerTeam().message(Component.literal("Your block at (" + getBlockPos().toShortString() + ") took " + ((int) amount) + " damage! Now at " + ((int) health) + " health."));
         }
         return true;
     }
@@ -114,10 +114,14 @@ public class AttackableTile extends BlockEntity implements AttackTargetable {
         return this.uuid;
     }
 
+    public void messageTeam(Component msg){
+        if (this.getOwnerTeam() != null) getOwnerTeam().message(msg);
+    }
+
     @Override
     public void onDie() {
         AttackTargetable.super.onDie();
-        getOwnerTeam().message(Component.literal("Your block at (" + getBlockPos().toShortString() + ") was destroyed."));
+        messageTeam(Component.literal("The block at (" + getBlockPos().toShortString() + ") was destroyed."));
         ModMain.LOGGER.debug("AttackableTile at " + this.getBlockPos() + " died.");
         this.level.removeBlock(this.getBlockPos(), false);
     }
@@ -128,12 +132,16 @@ public class AttackableTile extends BlockEntity implements AttackTargetable {
 
             this.health = Math.min(this.health + 1, this.maxHealth());
             this.nextRegenTime = this.level.getGameTime() + BaseDefense.CONFIG.get().blockHealthRegenRateTicks;
-            for (int i=0;i<15;i++){
-                double x = this.getBlockPos().getX() + (2 * (this.level.getRandom().nextFloat() - 0.5)) + 0.5;
-                double y = this.getBlockPos().getY() + (1 * (this.level.getRandom().nextFloat() - 0.5)) + 0.5;
-                double z = this.getBlockPos().getZ() + (2 * (this.level.getRandom().nextFloat() - 0.5)) + 0.5;
-                ((ServerLevel)this.level).sendParticles(ParticleTypes.HEART, x, y, z, 1, 0, 0.2, 0, 1);
-            }
+            this.doParticles(ParticleTypes.HEART);
+        }
+    }
+
+    protected void doParticles(SimpleParticleType option) {
+        for (int i=0;i<15;i++){
+            double x = this.getBlockPos().getX() + (2 * (this.level.getRandom().nextFloat() - 0.5)) + 0.5;
+            double y = this.getBlockPos().getY() + (1 * (this.level.getRandom().nextFloat() - 0.5)) + 0.5;
+            double z = this.getBlockPos().getZ() + (2 * (this.level.getRandom().nextFloat() - 0.5)) + 0.5;
+            ((ServerLevel)this.level).sendParticles(option, x, y, z, 1, 0, 0.2, 0, 1);
         }
     }
 }

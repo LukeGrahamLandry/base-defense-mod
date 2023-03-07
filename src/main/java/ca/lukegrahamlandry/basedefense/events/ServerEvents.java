@@ -28,6 +28,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.storage.LevelResource;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -43,6 +44,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = ModMain.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ServerEvents {
@@ -63,7 +66,22 @@ public class ServerEvents {
 
     @SubscribeEvent
     public static void handleBreak(BlockEvent.BreakEvent event){
-        if (!event.getLevel().isClientSide() && event.getState().getBlock() == ModRegistry.LOOTED_GENERATOR_BLOCK.get()){
+        if (event.getLevel().isClientSide()) return;
+
+        Team breakerTeam = TeamManager.get(event.getPlayer());
+        for (Team team : TeamManager.getData().getTeams()){
+            if (team.equals(breakerTeam)) continue;
+
+            AABB box = team.getNoBreakArea((ServerLevel) event.getLevel());
+            if (box != null && box.contains(event.getPos().getCenter())){
+                event.getPlayer().displayClientMessage(Component.literal("You cannot break blocks near another team's base."), true);
+                event.setCanceled(true);
+                return;
+            }
+        }
+
+        // TODO: make sure this actaully happens for all attackable tiles
+        if (event.getState().getBlock() == ModRegistry.LOOTED_GENERATOR_BLOCK.get()){
             MaterialGeneratorTile.getAndDo((Level) event.getLevel(), event.getPos(), MaterialGeneratorTile::unBind);
         }
     }

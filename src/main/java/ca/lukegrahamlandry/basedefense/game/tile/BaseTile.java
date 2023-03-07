@@ -45,8 +45,19 @@ public class BaseTile extends AttackableTile implements GeoBlockEntity {
             base.rfGenerated = null;
             base.teamUUID = team.getId();
             AttackLocation.targets.put(base.uuid, base);
-            team.addAttackLocation(new AttackLocation(level, base.getBlockPos(), base.uuid));
+            team.updateBaseLocation(new AttackLocation(level, base.getBlockPos(), base.uuid));
         }
+    }
+
+    public void invalidate(){
+        if (this.getOwnerTeam() != null){
+            this.getOwnerTeam().removeAttackLocation(this.uuid);
+            AttackLocation.destroyed.add(this);
+            AttackLocation.targets.remove(this.uuid);
+            this.teamUUID = null;
+        }
+
+        this.level.removeBlock(this.getBlockPos(), false);
     }
 
     @Override
