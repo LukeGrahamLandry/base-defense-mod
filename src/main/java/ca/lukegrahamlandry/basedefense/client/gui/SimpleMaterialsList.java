@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
@@ -70,21 +70,19 @@ public class SimpleMaterialsList extends ContainerObjectSelectionList<SimpleMate
             this.stored = Component.literal(String.valueOf(stored));
         }
 
-        public void render(PoseStack pPoseStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick) {
-            float f = SimpleMaterialsList.this.xStart;
+        public void render(GuiGraphics gui, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick) {
+            int f = SimpleMaterialsList.this.xStart;
 
-            SimpleMaterialsList.this.minecraft.font.draw(pPoseStack, this.stored,  f + 20, pTop, 16777215);
-            SimpleMaterialsList.this.minecraft.font.draw(pPoseStack, this.name, f + 40, pTop, 16777215);
+            var font = SimpleMaterialsList.this.minecraft.font;
+            gui.drawString(font, this.stored, f + 20, pTop, 16777215);
+            gui.drawString(font, this.name, f + 40, pTop, 16777215);
 
-            RenderSystem.setShaderTexture(0, this.texture);
             RenderSystem.enableBlend();
-            GuiComponent.blit(pPoseStack, (int) (f), pTop-5, 0.0F, 0.0F, 16, 16, 16, 16);
+            gui.blit(this.texture, f, pTop-5, 0.0F, 0.0F, 16, 16, 16, 16);
             RenderSystem.disableBlend();
 
         }
-
-
-
+        
         public List<? extends GuiEventListener> children() {
             return ImmutableList.of();
         }

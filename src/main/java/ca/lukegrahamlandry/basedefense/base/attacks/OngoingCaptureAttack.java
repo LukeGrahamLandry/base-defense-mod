@@ -53,7 +53,7 @@ public class OngoingCaptureAttack extends OngoingAttack {
 
         List<ServerPlayer> players = new ArrayList<>(timerBar.getPlayers());
         for (ServerPlayer player : players){
-            if (!player.level.dimension().equals(this.level.dimension())){
+            if (!player.level().dimension().equals(this.level.dimension())){
                 timerBar.removePlayer(player);
             }
         }

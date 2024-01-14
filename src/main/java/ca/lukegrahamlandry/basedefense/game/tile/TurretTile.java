@@ -20,6 +20,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
@@ -90,7 +92,7 @@ public class TurretTile extends AttackableTile implements GeoBlockEntity {
 
             // Damage
             if (getStats().damage > 0){
-                target.hurt(DamageSource.GENERIC, getStats().damage);
+                target.hurt(level.damageSources().generic(), getStats().damage);
             } else {
                 target.heal(-getStats().damage);
             }

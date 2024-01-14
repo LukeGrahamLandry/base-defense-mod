@@ -3,6 +3,7 @@ package ca.lukegrahamlandry.basedefense.client.gui;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialCollection;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -25,8 +26,8 @@ public class PlayerMaterialsScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
-        this.materialsList.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+    public void render(GuiGraphics gui, int pMouseX, int pMouseY, float pPartialTick) {
+        super.render(gui, pMouseX, pMouseY, pPartialTick);
+        this.materialsList.render(gui, pMouseX, pMouseY, pPartialTick);
     }
 }

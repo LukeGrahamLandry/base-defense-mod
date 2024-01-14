@@ -33,11 +33,11 @@ public class AttackWaveCommand {
 
         int i = 0;
         if (player != null){
-            for (var entityType : wave.toSpawn(player.level)){
-                Entity e = entityType.create(player.level);
+            for (var entityType : wave.toSpawn(player.level())){
+                Entity e = entityType.create(player.level());
                 Direction r = Direction.from2DDataValue(i%4);
                 e.setPos(player.getX() + (r.getStepX() * 5), player.getY(), player.getZ() + (r.getStepZ() * 5));
-                player.level.addFreshEntity(e);
+                player.level().addFreshEntity(e);
                 i++;
             }
         }

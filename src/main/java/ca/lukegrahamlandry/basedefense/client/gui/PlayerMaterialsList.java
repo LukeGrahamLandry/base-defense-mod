@@ -2,9 +2,8 @@ package ca.lukegrahamlandry.basedefense.client.gui;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
@@ -68,11 +67,12 @@ public class PlayerMaterialsList extends ContainerObjectSelectionList<PlayerMate
             this.produced = Component.literal("Production");
         }
 
-        public void render(PoseStack pPoseStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick) {
-            float f = (float)(pLeft + 10 - PlayerMaterialsList.this.maxNameWidth);
-            PlayerMaterialsList.this.minecraft.font.draw(pPoseStack, this.name, f, (float)(pTop + pHeight / 2 - 9 / 2), 16777215);
-            PlayerMaterialsList.this.minecraft.font.draw(pPoseStack, this.stored,  pLeft + 105, pTop, 16777215);
-            PlayerMaterialsList.this.minecraft.font.draw(pPoseStack, this.produced, pLeft + 190 + 20, pTop, 16777215);
+        public void render(GuiGraphics gui, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick) {
+            int f = pLeft + 10 - PlayerMaterialsList.this.maxNameWidth;
+            var font = PlayerMaterialsList.this.minecraft.font;
+            gui.drawString(font, this.name, f, (pTop + pHeight / 2 - 9 / 2), 16777215);
+            gui.drawString(font, this.stored,  pLeft + 105, pTop, 16777215);
+            gui.drawString(font, this.produced, pLeft + 190 + 20, pTop, 16777215);
         }
 
         public List<? extends GuiEventListener> children() {
@@ -98,17 +98,16 @@ public class PlayerMaterialsList extends ContainerObjectSelectionList<PlayerMate
             this.produced = Component.literal(String.valueOf(produced));
         }
 
-        public void render(PoseStack pPoseStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick) {
-            float f = (float)(pLeft + 10 - PlayerMaterialsList.this.maxNameWidth);
+        public void render(GuiGraphics gui, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick) {
+            int f = pLeft + 10 - PlayerMaterialsList.this.maxNameWidth;
 
-            PlayerMaterialsList.this.minecraft.font.draw(pPoseStack, this.name, f, (float)(pTop + pHeight / 2 - 9 / 2), 16777215);
-            PlayerMaterialsList.this.minecraft.font.draw(pPoseStack, this.stored,  pLeft + 105, pTop, 16777215);
-            PlayerMaterialsList.this.minecraft.font.draw(pPoseStack, this.produced, pLeft + 190 + 20, pTop, 16777215);
+            var font = PlayerMaterialsList.this.minecraft.font;
+            gui.drawString(font, this.name, f, (pTop + pHeight / 2 - 9 / 2), 16777215);
+            gui.drawString(font, this.stored,  pLeft + 105, pTop, 16777215);
+            gui.drawString(font, this.produced, pLeft + 190 + 20, pTop, 16777215);
 
-
-            RenderSystem.setShaderTexture(0, this.texture);
             RenderSystem.enableBlend();
-            GuiComponent.blit(pPoseStack, (int) (f-20), pTop, 0.0F, 0.0F, 16, 16, 16, 16);
+            gui.blit(this.texture, (int) (f-20), pTop, 0.0F, 0.0F, 16, 16, 16, 16);
             RenderSystem.disableBlend();
 
         }

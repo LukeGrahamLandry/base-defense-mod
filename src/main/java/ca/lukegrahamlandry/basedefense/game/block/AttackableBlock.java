@@ -24,7 +24,7 @@ public class AttackableBlock extends Block {
 
     @Override
     public boolean canEntityDestroy(BlockState state, BlockGetter level, BlockPos pos, Entity entity) {
-        if (!entity.level.isClientSide() && entity instanceof Player player && level.getBlockEntity(pos) instanceof AttackableTile tile){
+        if (!entity.level().isClientSide() && entity instanceof Player player && level.getBlockEntity(pos) instanceof AttackableTile tile){
             var team = TeamManager.get(player);
             return Objects.equals(team, tile.getOwnerTeam());
         }

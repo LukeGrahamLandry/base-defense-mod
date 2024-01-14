@@ -5,6 +5,7 @@ import ca.lukegrahamlandry.basedefense.network.serverbound.RequestGuiPacket;
 import ca.lukegrahamlandry.basedefense.network.serverbound.UpgradeBasePacket;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.PlainTextButton;
 import net.minecraft.client.gui.screens.Screen;
@@ -88,20 +89,20 @@ public class BaseUpgradeScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+    public void render(GuiGraphics gui, int pMouseX, int pMouseY, float pPartialTick) {
+        super.render(gui, pMouseX, pMouseY, pPartialTick);
 
-        drawString(pPoseStack, font, this.info, 110, 5, 0xFFFFFF);
+        gui.drawString(font, this.info, 110, 5, 0xFFFFFF);
 
         if (upgradeCost == null){
             return;
         }
 
-        drawString(pPoseStack, font, this.unlockTitle, 210, 30, 0xFFFFFF);
+        gui.drawString(font, this.unlockTitle, 210, 30, 0xFFFFFF);
 
         int y = 50;
         for (ItemStack stack : this.displayItems){
-            Minecraft.getInstance().getItemRenderer().renderGuiItem(stack, 210, y);
+            gui.renderItem(stack, 210, y);
             y += 20;
         }
     }

@@ -170,15 +170,10 @@ dependencies {
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
 
-    // Geckolib
-    // implementation fg.deobf('software.bernie.geckolib:geckolib-1.18-forge:3.0.5')
-
-    // Examples using mod jars from ./libs
-    // implementation fg.deobf("blank:coolmod-${mc_version}:${coolmod_version}")
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 
-    implementation fg.deobf(group: 'ca.lukegrahamlandry.lib', name: 'WrapperLib-1.19.3-Forge', version: '1.1.5')
-    implementation fg.deobf('software.bernie.geckolib:geckolib-forge-1.19.3:4.0.3')
+    implementation fg.deobf(group: 'ca.lukegrahamlandry.lib', name: 'WrapperLib-1.20.1-Forge', version: '1.1.5')
+    implementation fg.deobf('software.bernie.geckolib:geckolib-forge-1.20.1:4.2.2')
 
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html

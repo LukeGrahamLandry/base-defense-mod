@@ -24,7 +24,7 @@ public class BaseDefense {
     public static final KeybindWrapper OPEN_MATERIALS_GUI =
             KeybindWrapper.of("materials_open", ModMain.MOD_ID, 77 /*M*/)
             .onPress((player -> {
-                if (!player.level.isClientSide()){
+                if (!player.level().isClientSide()){
                     new OpenMaterialsGui((ServerPlayer) player).sendToClient((ServerPlayer) player);
                 }
             })).synced();

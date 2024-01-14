@@ -17,7 +17,7 @@ public class UpgradeTilePacket implements ServerSideHandler {
 
     @Override
     public void handle(ServerPlayer player) {
-        BlockEntity tile = player.getLevel().getBlockEntity(this.tilePosition);
+        BlockEntity tile = player.level().getBlockEntity(this.tilePosition);
 
         // do the update
         if (tile instanceof Upgradable){  // TODO: bounds check if you go beyond max level

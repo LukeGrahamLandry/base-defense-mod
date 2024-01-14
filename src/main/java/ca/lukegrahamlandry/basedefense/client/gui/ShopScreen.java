@@ -4,10 +4,9 @@ import ca.lukegrahamlandry.basedefense.base.MaterialShop;
 import ca.lukegrahamlandry.basedefense.base.material.MaterialCollection;
 import ca.lukegrahamlandry.basedefense.network.serverbound.RequestGuiPacket;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -94,8 +93,8 @@ public class ShopScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+    public void render(GuiGraphics gui, int pMouseX, int pMouseY, float pPartialTick) {
+        super.render(gui, pMouseX, pMouseY, pPartialTick);
 
         for (int i=0;i<buttonCount;i++){
             int realIndex = i + scrollOffset;
@@ -109,61 +108,60 @@ public class ShopScreen extends Screen {
             ResourceLocation key = this.validOffers.get(realIndex);
             MaterialShop.ShopEntry offer = MaterialShop.getOffer(key);
             boolean highlight = highlightTime > 0 && i == highlightIndex;
-            renderOffer(pPoseStack, offer, 20, 20, 50 + i * 30, highlight);
+            renderOffer(gui, offer, 20, 20, 50 + i * 30, highlight);
 
             this.offerButtons[i].active = this.storage.canAfford(offer.cost);
         }
 
+        var font = Minecraft.getInstance().font;
         int xOffest = 10;
         for (ResourceLocation material : this.storage.keys()){
             int amount = this.storage.get(material);
             ResourceLocation texture = TextureHelper.getMaterialTexture(material);
 
-            RenderSystem.setShaderTexture(0, texture);
             RenderSystem.enableBlend();
-            GuiComponent.blit(pPoseStack, xOffest, 5, 0.0F, 0.0F, 16, 16, 16, 16);
+            gui.blit(texture, xOffest, 5, 0.0F, 0.0F, 16, 16, 16, 16);
             RenderSystem.disableBlend();
 
-            Minecraft.getInstance().font.draw(pPoseStack, String.valueOf(amount), xOffest, 20, ChatFormatting.LIGHT_PURPLE.getColor());
+            gui.drawString(font, String.valueOf(amount), xOffest, 20, ChatFormatting.LIGHT_PURPLE.getColor());
 
             xOffest += 40;
         }
     }
 
     // TODO: optimise ordering so i dont have to keep rebinding the villager texture. just do all arrows at once
-    private void renderOffer(PoseStack pPoseStack, MaterialShop.ShopEntry offer, int xOffset, int xDelta, int btnY, boolean highlight){
+    private void renderOffer(GuiGraphics gui, MaterialShop.ShopEntry offer, int xOffset, int xDelta, int btnY, boolean highlight){
         int color = highlight ? ChatFormatting.DARK_PURPLE.getColor() : ChatFormatting.LIGHT_PURPLE.getColor();
+        var font = Minecraft.getInstance().font;
 
         // Render price in materials.
         for (ResourceLocation material : offer.cost.keys()){
             int amount = offer.cost.get(material);
             ResourceLocation texture = TextureHelper.getMaterialTexture(material);
 
-            RenderSystem.setShaderTexture(0, texture);
             RenderSystem.enableBlend();
-            GuiComponent.blit(pPoseStack, xOffset, btnY, 0.0F, 0.0F, 16, 16, 16, 16);
+            gui.blit(texture, xOffset, btnY, 0.0F, 0.0F, 16, 16, 16, 16);
             RenderSystem.disableBlend();
             xOffset += xDelta;
 
-            Minecraft.getInstance().font.draw(pPoseStack, String.valueOf(amount), xOffset - xDelta, btnY + 15, color);
+            gui.drawString(font, String.valueOf(amount), xOffset - xDelta, btnY + 15, color);
         }
 
         // Render arrow.
         RenderSystem.enableBlend();
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, VILLAGER_LOCATION);
         if (!this.storage.canAfford(offer.cost)) {
-            blit(pPoseStack, xOffset, btnY + 3, this.getBlitOffset(), 25.0F, 171.0F, 10, 9, 512, 256);
+            gui.blit(VILLAGER_LOCATION, xOffset, btnY + 3, 0, 25.0F, 171.0F, 10, 9, 512, 256);
         } else {
-            blit(pPoseStack, xOffset, btnY + 3, this.getBlitOffset(), 15.0F, 171.0F, 10, 9, 512, 256);
+            gui.blit(VILLAGER_LOCATION, xOffset, btnY + 3, 0, 15.0F, 171.0F, 10, 9, 512, 256);
         }
         RenderSystem.disableBlend();
         xOffset += xDelta;
 
         // Render result items.
         for (ItemStack stack : offer.items){
-            Minecraft.getInstance().getItemRenderer().renderGuiItem(stack, xOffset, btnY);
-            Minecraft.getInstance().font.draw(pPoseStack, String.valueOf(stack.getCount()), xOffset, btnY+15, color);
+            gui.renderItem(stack, xOffset, btnY);
+            gui.drawString(font, String.valueOf(stack.getCount()), xOffset, btnY+15, color);
             xOffset += xDelta;
         }
 
@@ -172,13 +170,14 @@ public class ShopScreen extends Screen {
             int amount = offer.materials.get(material);
             ResourceLocation texture = TextureHelper.getMaterialTexture(material);
 
-            RenderSystem.setShaderTexture(0, texture);
             RenderSystem.enableBlend();
-            GuiComponent.blit(pPoseStack, xOffset, btnY, 0.0F, 0.0F, 16, 16, 16, 16);
+            gui.blit(texture, xOffset, btnY, 0.0F, 0.0F, 16, 16, 16, 16);
             RenderSystem.disableBlend();
             xOffset += xDelta;
 
-            Minecraft.getInstance().font.draw(pPoseStack, String.valueOf(amount), xOffset - xDelta, btnY + 15, ChatFormatting.GREEN.getColor());
+            gui.drawString(font, String.valueOf(amount), xOffset - xDelta, btnY + 15, ChatFormatting.GREEN.getColor());
         }
     }
 }
+
+// TODO: (for all guis) idk if I still need enableBlend and disableBlend for every blit.,

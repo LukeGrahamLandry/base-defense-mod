@@ -90,7 +90,7 @@ public class TeamManager {
             oldTeam.getTrackedLocations().forEach((location) -> {
                 if (location.canAttack) AttackLocation.destroyed.add(location.getTarget());
 
-                BlockEntity tile = player.level.getBlockEntity(location.pos);
+                BlockEntity tile = player.level().getBlockEntity(location.pos);
                 if (tile instanceof TurretTile turret){
                     turret.onTeamBaseDie();
                     turret.setTeam(getTeam(player));

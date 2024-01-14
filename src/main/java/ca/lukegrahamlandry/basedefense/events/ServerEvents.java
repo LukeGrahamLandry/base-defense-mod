@@ -95,7 +95,7 @@ public class ServerEvents {
 
     @SubscribeEvent
     public static void login(PlayerEvent.PlayerLoggedInEvent event){
-        if (event.getEntity().level.isClientSide()) return;
+        if (event.getEntity().level().isClientSide()) return;
         AttackManager.resume((ServerPlayer) event.getEntity());
     }
 

@@ -212,7 +212,7 @@ public class OngoingAttack {
 
         List<ServerPlayer> players = new ArrayList<>(bar.getPlayers());
         for (ServerPlayer player : players){
-            if (!player.level.dimension().equals(this.level.dimension())){
+            if (!player.level().dimension().equals(this.level.dimension())){
                 bar.removePlayer(player);
             }
         }
@@ -228,10 +228,10 @@ public class OngoingAttack {
     }
 
     public static void doParticles(LivingEntity mob, ParticleOptions particle){
-        if (!mob.level.isClientSide()) {
+        if (!mob.level().isClientSide()) {
             for (int i = 0; i < 20; i++) {
                 Vec3 pos = new Vec3(mob.getRandomX(1.5F), mob.getRandomY(), mob.getRandomZ(1.5F));
-                ((ServerLevel) mob.getLevel()).sendParticles(particle, pos.x, pos.y, pos.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+                ((ServerLevel) mob.level()).sendParticles(particle, pos.x, pos.y, pos.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
             }
         }
     }

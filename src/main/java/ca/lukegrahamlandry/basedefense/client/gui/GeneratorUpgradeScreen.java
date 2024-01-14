@@ -5,6 +5,7 @@ import ca.lukegrahamlandry.basedefense.base.material.MaterialGeneratorType;
 import ca.lukegrahamlandry.basedefense.network.serverbound.UpgradeTilePacket;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.PlainTextButton;
 import net.minecraft.client.gui.screens.Screen;
@@ -76,9 +77,9 @@ public class GeneratorUpgradeScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+    public void render(GuiGraphics gui, int pMouseX, int pMouseY, float pPartialTick) {
+        super.render(gui, pMouseX, pMouseY, pPartialTick);
 
-        drawString(pPoseStack, font, this.title, 110, 5, 0xFFFFFF);
+        gui.drawString(font, this.title, 110, 5, 0xFFFFFF);
     }
 }
